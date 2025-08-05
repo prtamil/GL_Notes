@@ -19,13 +19,13 @@ You must also check and enable the extension:
 
 ## 🧠 Key Concepts
 
-|Step|What happens|
-|---|---|
-|1|Create texture normally|
-|2|Get 64-bit GPU handle from texture & sampler|
-|3|Make handle "resident" on GPU|
-|4|Send handle to shader as `uniform u64`|
-|5|Shader accesses texture without binding to texture units|
+| Step | What happens                                             |
+| ---- | -------------------------------------------------------- |
+| 1    | Create texture normally                                  |
+| 2    | Get 64-bit GPU handle from texture & sampler             |
+| 3    | Make handle "resident" on GPU                            |
+| 4    | Send handle to shader as `uniform u64`                   |
+| 5    | Shader accesses texture without binding to texture units | 
 
 ---
 
@@ -85,12 +85,12 @@ void main() {
 
 ## ✅ Benefits of Bindless Texture
 
-|Feature|Benefit|
-|---|---|
-|No `glActiveTexture`, `glBindTexture`, or `glBindSampler`|✅ Cleaner code|
-|No texture unit limitations|✅ Scale to 1000s of textures|
-|Fast GPU-side sampling|✅ Fewer state changes|
-|Great for large material systems|✅ Ideal for PBR / texture atlases / voxel engines|
+| Feature                                                   | Benefit                                            |
+| --------------------------------------------------------- | -------------------------------------------------- |
+| No `glActiveTexture`, `glBindTexture`, or `glBindSampler` | ✅ Cleaner code                                    |
+| No texture unit limitations                               | ✅ Scale to 1000s of textures                      |
+| Fast GPU-side sampling                                    | ✅ Fewer state changes                             |
+| Great for large material systems                          | ✅ Ideal for PBR / texture atlases / voxel engines | 
 
 ---
 

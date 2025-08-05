@@ -176,10 +176,10 @@ glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 
 ## ✅ **🌱 Mental model summary:**
 
-|Shader uniform|Drawer (texture unit)|Texture|Sampler|
-|---|---|---|---|
-|tex1|0|tex1|sampler1|
-|tex2|1|tex2|sampler2|
+| Shader uniform | Drawer (texture unit) | Texture | Sampler  |
+| -------------- | --------------------- | ------- | -------- |
+| tex1           | 0                     | tex1    | sampler1 |
+| tex2           | 1                     | tex2    | sampler2 | 
 
 Fragment shader samples both → GPU checks drawer numbers → uses correct texture+sampler.
 

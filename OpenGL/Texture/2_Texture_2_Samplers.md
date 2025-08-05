@@ -96,9 +96,9 @@ void main() {
 
 ## 🧼 **Summary (Best Practice Recap)**
 
-|Element|Stores|Set via|
-|---|---|---|
-|Texture|Image / mipmaps|`glTexImage2D`, etc.|
-|Sampler|Filtering & wrapping|`glSamplerParameteri`|
-|Shader|Access by sampler|`uniform sampler2D`|
-|Connection|Texture unit|`glBindTexture`, `glBindSampler`|
+| Element    | Stores               | Set via                          |
+| ---------- | -------------------- | -------------------------------- |
+| Texture    | Image / mipmaps      | `glTexImage2D`, etc.             |
+| Sampler    | Filtering & wrapping | `glSamplerParameteri`            |
+| Shader     | Access by sampler    | `uniform sampler2D`              |
+| Connection | Texture unit         | `glBindTexture`, `glBindSampler` | 
