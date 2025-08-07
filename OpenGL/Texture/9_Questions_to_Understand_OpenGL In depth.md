@@ -1,10 +1,6 @@
-# 📦 **✨ Chapter 6 (Texture Mapping) – self-questions list**
 
-_(Grouped by perspective, but you can mix them)_
 
----
-
-## 👨‍💻 **Seasoned engine programmer questions**
+# 👨‍💻 **Seasoned engine programmer questions**
 
 _(focus: “how do I actually use this in real rendering?”)_
 
@@ -756,7 +752,7 @@ void main() {
 
 ---
 
-## 🛠 **Professional engine programmer questions**
+# 🛠 **Professional engine programmer questions**
 
 _(focus: practical game engine, real-time renderer, multipass)_
 
@@ -775,7 +771,7 @@ _(focus: practical game engine, real-time renderer, multipass)_
 
 ---
 
-## 🎓 **Graphics researcher / professor questions**
+# 🎓 **Graphics researcher / professor questions**
 
 _(focus: why it exists, what’s mathematically happening, quality, aliasing)_
 
@@ -794,7 +790,7 @@ _(focus: why it exists, what’s mathematically happening, quality, aliasing)_
 
 ---
 
-## 🧪 **✅ Super practical wrap-up questions (tie it all together)**
+# 🧪 **✅ Super practical wrap-up questions (tie it all together)**
 
 ✅ What data lives on CPU, what data lives on GPU?  
 ✅ How do we go from image file (PNG/JPEG) → GPU texture?  
