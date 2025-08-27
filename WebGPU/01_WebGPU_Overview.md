@@ -126,23 +126,23 @@ I’ll break this into layers, **side-by-side with DX12** so you can see the par
 
 # 🔑 Summary Table (DX12 vs WebGPU)
 
-|Concept|DX12 Name|WebGPU Equivalent|
-|---|---|---|
-|GPU Adapter|`IDXGIAdapter`|`GPUAdapter`|
-|Logical Device|`ID3D12Device`|`GPUDevice`|
-|Queue|`ID3D12CommandQueue`|`GPUQueue`|
-|Resource (buffer/tex)|`ID3D12Resource`|`GPUBuffer` / `GPUTexture`|
-|Heap Types|DEFAULT, UPLOAD, READBACK|Hidden (runtime decides)|
-|Descriptor Heap|Descriptor Heap|`GPUBindGroup`|
-|Root Signature|Root Signature|`GPUBindGroupLayout`|
-|Descriptor|CBV/SRV/UAV/Sampler|Binding entry in Bind Group|
-|Pipeline State Obj|PSO|`GPURenderPipeline` / `GPUComputePipeline`|
-|Command List|`ID3D12GraphicsCommandList`|`GPUCommandEncoder` / Pass Encoders|
-|Command Buffer|Executable command list|`GPUCommandBuffer`|
-|Render Pass|OM SetRenderTargets etc.|`GPURenderPassEncoder`|
-|Swap Chain|`IDXGISwapChain`|`GPUCanvasContext`|
-|Barriers/Fences|Explicit|Implicit (hidden)|
-|Shader Language|HLSL (DXIL)|WGSL|
+| Concept               | DX12 Name                   | WebGPU Equivalent                          |
+| --------------------- | --------------------------- | ------------------------------------------ |
+| GPU Adapter           | `IDXGIAdapter`              | `GPUAdapter`                               |
+| Logical Device        | `ID3D12Device`              | `GPUDevice`                                |
+| Queue                 | `ID3D12CommandQueue`        | `GPUQueue`                                 |
+| Resource (buffer/tex) | `ID3D12Resource`            | `GPUBuffer` / `GPUTexture`                 |
+| Heap Types            | DEFAULT, UPLOAD, READBACK   | Hidden (runtime decides)                   |
+| Descriptor Heap       | Descriptor Heap             | `GPUBindGroup`                             |
+| Root Signature        | Root Signature              | `GPUBindGroupLayout`                       |
+| Descriptor            | CBV/SRV/UAV/Sampler         | Binding entry in Bind Group                |
+| Pipeline State Obj    | PSO                         | `GPURenderPipeline` / `GPUComputePipeline` |
+| Command List          | `ID3D12GraphicsCommandList` | `GPUCommandEncoder` / Pass Encoders        |
+| Command Buffer        | Executable command list     | `GPUCommandBuffer`                         |
+| Render Pass           | OM SetRenderTargets etc.    | `GPURenderPassEncoder`                     |
+| Swap Chain            | `IDXGISwapChain`            | `GPUCanvasContext`                         |
+| Barriers/Fences       | Explicit                    | Implicit (hidden)                          |
+| Shader Language       | HLSL (DXIL)                 | WGSL                                       | 
 
 ---
 

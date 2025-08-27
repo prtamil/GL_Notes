@@ -80,7 +80,9 @@ Each flag tells WebGPU how you intend to use that memory.
 
 ```js
 //Create a buffer for 100 particles (vec4 = 16 bytes each) 
-const particleBuffer = device.createBuffer({   size: 100 * 16,   usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, });
+const particleBuffer = device.createBuffer({ 
+    size: 100 * 16,   usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC, 
+});
 ```
 
 
