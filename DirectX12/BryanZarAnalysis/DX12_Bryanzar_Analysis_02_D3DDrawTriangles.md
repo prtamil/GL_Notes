@@ -82,15 +82,15 @@ Descriptor Heaps in GPU can be categorized into 3 types
 	2. Depth Stencil Views (DSVs)
 3. Index Buffer Views (IBV) and Vertex Buffer Views (VBVs) and Stream Output views (SOVs) are passed directly to API methods and don't have Heaps
 
-|  | Shader visible, CPU write only | Non-shader visible, CPU read/write |
-| ---- | ---- | ---- |
-| CBV, SRV, UAV | yes | yes |
-| SAMPLER | yes | yes |
-| RTV | no | yes |
-| DSV | no | yes |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+|               | Shader visible, CPU write only | Non-shader visible, CPU read/write |     |
+| ------------- | ------------------------------ | ---------------------------------- | --- |
+| CBV, SRV, UAV | yes                            | yes                                |     |
+| SAMPLER       | yes                            | yes                                |     |
+| RTV           | no                             | yes                                |     |
+| DSV           | no                             | yes                                |     |
+|               |                                |                                    |     |
+|               |                                |                                    |     |
+|               |                                |                                    |     | 
 ### Creating Descriptor Heaps
 ```cpp
 typedef enum D3D12_DESCRIPTOR_HEAP_TYPE
