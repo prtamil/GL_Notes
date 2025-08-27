@@ -1,4 +1,4 @@
-can you explain layered approch of dx12 with complete abstractions so i get complete picture
+can you explain layered approach of dx12 with complete abstractions so i get complete picture
 
 ###### ChatGPT said:
 
