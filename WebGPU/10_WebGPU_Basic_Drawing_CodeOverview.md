@@ -137,5 +137,6 @@
 ## 6. Submit Command to Queue
 ```js
         //GPUCommandBuffer  <- encoder.finish();
+        //GPUQueue <- device.queue
 		device.queue.submit([encoder.finish()]);
 ```
