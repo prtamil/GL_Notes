@@ -19,14 +19,12 @@ Yes! You're seeing **two classic but different patterns** of `lazy-seq` usage in
 ### 🔍 What's happening:
 
 - You're building a lazy **infinite list of increasing numbers**, starting from `n`.
-    
 - `cons` is outside the `lazy-seq`, so the **head is evaluated immediately**, but the **tail (the recursive call)** is delayed.
     
 
 ### 🧠 Mental model:
 
 - This pattern gives you a **concrete head now**, and **lazy tail later**.
-    
 - Only the recursive part is delayed.
     
 
@@ -51,9 +49,7 @@ Yes! You're seeing **two classic but different patterns** of `lazy-seq` usage in
 ### 🔍 What's happening:
 
 - `fore` returns a fully lazy sequence where **even the first element is delayed**.
-    
 - It doesn’t compute anything until the sequence is realized.
-    
 - Every time `fore` is evaluated, `rand-nth` is called — so it's **non-deterministic**.
     
 

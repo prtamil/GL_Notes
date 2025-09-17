@@ -7,21 +7,14 @@ Absolutely! Here's a **detailed essay** that walks through the complete concept 
 ## 🧠 Introduction
 
 When designing generative art or UI elements, one of the most fundamental layouts is the **rectangular grid** — a set of evenly spaced points laid out in rows and columns across a 2D area, like a canvas or a screen.
-
 This layout serves as the **scaffold** for placing shapes (like ellipses, squares, text, or icons) in a **systematic**, **aesthetically balanced**, and **parameter-controlled** way.
-
 The goal of this essay is to help you understand:
 
 - How to **design a grid from scratch**
-    
 - How to **evenly place objects** without overlap
-    
 - How to **control density, spacing, and object size**
-    
 - How to use **normalized coordinates** (`0.0` to `1.0`) for resolution independence
-    
 - How to **scale positions** using **linear interpolation (`lerp`)**
-    
 - How to tweak parameters and **predict visual outcomes**
     
 
