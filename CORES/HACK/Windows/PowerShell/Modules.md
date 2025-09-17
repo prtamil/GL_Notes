@@ -1,0 +1,1 @@
+1. NtObjectManager (pwsh) (NtCoreLib) (https://github.com/googleprojectzero/sandbox-attacksurface-analysis-tools/tree/main) for Nt internals
