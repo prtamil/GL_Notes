@@ -1,6 +1,6 @@
 using lazy-seq i have one pattern 
-1. (defn test[n] (cons n (lazy-seq (test (inc n))))) and another pattern 
-2. (defn fore[] (lazy-seq (cons (rand-nth alphabets) (fore)) can you explain both pattern
+1. `(defn test[n] (cons n (lazy-seq (test (inc n)))))` and another pattern 
+2. `(defn fore[] (lazy-seq (cons (rand-nth alphabets) (fore))` can you explain both pattern
 
 ###### ChatGPT said:
 
@@ -76,6 +76,25 @@ Yes! You're seeing **two classic but different patterns** of `lazy-seq` usage in
 Each run will give different output due to `rand-nth`.
 
 ---
+##  difference between 2 patterns
+```clj
+
+(defn ffore []
+  (lazy-seq (cons (do (println "fore head") :x) (fore))))
+
+  
+
+(defn bbore []
+  (cons (do (println "bore head") :x) (lazy-seq (bore))))
+
+  
+
+(def f (ffore))  ;dont print anythin 
+(def b (bbore))  ; prints bore head because first time its called 
+  
+  
+```
+
 
 ## 🧠 When to use which?
 
