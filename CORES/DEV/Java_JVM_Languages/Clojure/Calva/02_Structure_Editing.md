@@ -59,12 +59,12 @@
 
 ## **5️⃣ Kill & Copy**
 
-| Action        | Keybinding               | Notes                               |
-| ------------- | ------------------------ | ----------------------------------- |
-| Kill forward  | `Alt + K`                | Delete next form                    |
-| Kill backward | `Alt + Shift + K`        | Delete previous form                |
-| Copy forward  | `Alt + Ctrl + K`         | Copy next form without deleting     |
-| Copy backward | `Alt + Ctrl + Shift + K` | Copy previous form without deleting |
+| Action          | Keybinding         | Notes                               |
+| --------------- | ------------------ | ----------------------------------- |
+| Kill forward    | `Alt + K`          | Delete next form                    |
+| Kill backward   | `Alt + Shift + K`  | Delete previous form                |
+| Select forward  | `Ctrl + Shift + .` | Copy next form without deleting     |
+| Select backward | `Ctrl + Shift + ,` | Copy previous form without deleting |
 
 ---
 
@@ -79,12 +79,6 @@
 
 ```json
 [
-
-  // ───────────────────────────────
-
-  // Navigation
-
-  // ───────────────────────────────
 
   {
 
@@ -105,14 +99,6 @@
     "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
 
   },
-
-  
-
-  // ───────────────────────────────
-
-  // Slurp & Barf
-
-  // ───────────────────────────────
 
   {
 
@@ -154,14 +140,6 @@
 
   },
 
-  
-
-  // ───────────────────────────────
-
-  // Raise & Splice
-
-  // ───────────────────────────────
-
   {
 
     "key": "alt+r",
@@ -182,17 +160,9 @@
 
   },
 
-  
-
-  // ───────────────────────────────
-
-  // Wrapping (Shift combos for laptops)
-
-  // ───────────────────────────────
-
   {
 
-    "key": "alt+shift+9",  // Shift+9 = (
+    "key": "alt+shift+9",
 
     "command": "paredit.wrapRound",
 
@@ -202,7 +172,7 @@
 
   {
 
-    "key": "alt+[",         // [ key, usually no shift
+    "key": "alt+[",
 
     "command": "paredit.wrapSquare",
 
@@ -212,21 +182,13 @@
 
   {
 
-    "key": "alt+shift+[",  // Shift+[ = {
+    "key": "alt+shift+[",
 
     "command": "paredit.wrapCurly",
 
     "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
 
   },
-
-  
-
-  // ───────────────────────────────
-
-  // Kill & Copy
-
-  // ───────────────────────────────
 
   {
 
@@ -250,9 +212,9 @@
 
   {
 
-    "key": "alt+ctrl+k",
+    "key": "ctrl+shift+.",
 
-    "command": "paredit.copySexpForward",
+    "command": "paredit.selectForwardSexp",
 
     "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
 
@@ -260,15 +222,46 @@
 
   {
 
-    "key": "alt+ctrl+shift+k",
+    "key": "ctrl+shift+,",
 
-    "command": "paredit.copySexpBackward",
+    "command": "paredit.selectBackwardSexp",
 
     "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
 
   },
 
+   {
+
+    "key": "alt+f",
+
+    "command": "calva-fmt.formatCurrentForm",
+
+    "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
+
+  },
+
+  {
+
+    "key": "alt+c",
+
+    "command": "editor.action.commentLine",
+
+    "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
+
+  },
+
+  {
+
+    "key": "alt+shift+c",
+
+    "command": "editor.action.removeCommentLine",
+
+    "when": "calva:keybindingsEnabled && editorTextFocus && editorLangId == 'clojure' && paredit:keyMap =~ /original|strict/"
+
+  }
+
   
 
 ]
+
 ```
