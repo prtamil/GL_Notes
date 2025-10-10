@@ -1,4 +1,6 @@
 I created WTL code which uses WinRT/Cpp17 so i can combine COM/WinRT(not UWP) and WIN32 to create sysapps
+so motto is 
+**CombineAll Win32/Com/WinRT(native not uwp)**
 
 ### 1️⃣ C++/WinRT is **not inherently sandboxed**
 
