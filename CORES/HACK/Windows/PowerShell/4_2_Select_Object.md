@@ -73,6 +73,33 @@ This is where things get powerful. You use a hashtable with `Name` (or `Label`) 
 Instead of wrapping in an object, you can unwrap a single property:
 
 `Get-Service | Select-Object -ExpandProperty Name # -> returns plain strings, not objects`
+its also used to flatten list
+
+| Case                             | What’s inside the property | What -ExpandProperty does                         |
+| -------------------------------- | -------------------------- | ------------------------------------------------- |
+| Single value (e.g., string, int) | Just that scalar           | Outputs the value itself (string/int)             |
+| Collection (array/list)          | Multiple items             | Outputs each element as separate pipeline objects |
+| Nested Object                    | Complex Object             | Outputs that object directly                      |
+💡 Key intuition
+
+Think of `-ExpandProperty` as:
+
+`# Conceptual equivalent 
+```psh
+ForEach-Object { $_.<prop> } | ForEach-Object { $_ }  # flattening pass`
+```
+It’s a _flattened projection_ operator — just like `SelectMany` in LINQ or `flatMap` in functional programming.
+
+🧠 Practical way to reason
+
+When you see this chain:
+
+`... | Select-Object -ExpandProperty Group | Select-Object -ExpandProperty Name`
+
+you can think:
+
+> "I'm peeling two layers: first the group (array of processes), then the process name (string). Each time I expand, I flatten one level deeper into the data structure."
+
 
 ---
 
