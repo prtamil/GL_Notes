@@ -64,9 +64,9 @@ triangle2:
 	Since squares exist only between points, we loop over `segments` for rows and columns when creating indices, 
 	using the extra vertices at the top and right edges only as boundaries for the topmost and rightmost squares.
 */
-const verticesPerRow  = widthSegments + 1; // Number of vertex points in each horizontal row
-for (let row = 0; row < heightSegments; row++) {
-  for (let col = 0; col < widthSegments; col++) {
+const verticesPerRow  = numOfCols + 1; // Number of vertex points in each horizontal row
+for (let row = 0; row < numOfRows; row++) {
+  for (let col = 0; col < numOfCols; col++) {
 
     // Find indices of the 4 corners of this cell
     const bottomLeftIndex  = row * verticesPerRow  + col;          // index of bottom-left vertex
