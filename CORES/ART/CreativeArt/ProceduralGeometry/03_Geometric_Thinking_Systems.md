@@ -200,14 +200,14 @@ $$
 
 ## 🔑 Mental Model Summary
 
-| If you think in…   | You’re working with…   |
-| ------------------ | ---------------------- |
-| Rows & Columns     | Parametric surfaces    |
-| Graphs & Faces     | Unstructured meshes    |
-| Equations          | Implicit geometry      |
-| 3D Grids           | Volumetric geometry    |
-| Control Points     | NURBS / Bézier         |
-| Refinement Rules   | Subdivision surfaces   |
+| If you think in… | You’re working with… |
+| ---------------- | -------------------- |
+| Rows & Columns   | Parametric surfaces  |
+| Graphs & Faces   | Unstructured meshes  |
+| Equations        | Implicit geometry    |
+| 3D Grids         | Volumetric geometry  |
+| Control Points   | NURBS / Bézier       |
+| Refinement Rules | Subdivision surfaces |
 
 All are **ways of encoding space** — different mental maps for the same geometric reality.
 
