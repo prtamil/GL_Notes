@@ -1,278 +1,174 @@
-# 🧭 Geometric Thinking Systems
-*A developer’s reference to geometric representation paradigms*
+# 🧠 Geometry as Logic
+
+### A practical mental model for procedural geometry
+
+> **Geometry is not data — geometry is logic.  
+> Coordinates are only the result of that logic.**
+
+In graphics, beginners see arrays of floats and buffers of numbers:
+
+`[ x1, y1, z1,  x2, y2, z2,  ... ]`
+
+and assume that _geometry = storing coordinates._
+
+But experts think differently:
+
+**Geometry is rules that _produce_ coordinates.**
+
+Coordinates are merely the expression — not the idea.
 
 ---
 
-## 🎯 Overview
+## 1 — Geometry = Rules → Representation
 
-Every geometry pipeline — from procedural meshes to NURBS — is based on a **thinking system**:  
-a way of organizing, generating, and traversing spatial data.
+Every shape in graphics can be described in two layers:
 
-Your so-called **“row-major thinking”** corresponds to one of these systems — the **parametric surface representation**.
+|Layer|What it is|Question you ask|
+|---|---|---|
+|**Logic (abstract)**|rules, functions, generative systems|_How is this shape defined?_|
+|**Representation (concrete)**|sampled points, vertex buffers, mesh data|_How do I store/use the result?_|
 
-This note organizes the six major geometric thinking systems, from structured grids to implicit and volumetric forms, with math, examples, and references.
+> You don’t _have_ a sphere.  
+> You have a rule that produces points that lie on a sphere.
 
----
-
-## 🧩 1. Row-Major Thinking → Parametric Surface Representation
-
-**Formal name:**  
-➡️ *Parametric Surface*  
-➡️ *Structured 2D Grid* or *Regular Mesh Topology*
-
----
-
-### 🔹 Mathematical Definition
-
-A **parametric surface** is a function mapping 2D parameter space to 3D space:
+Example — sphere rule:
 
 $$
-P(u,v) = (x(u,v),\; y(u,v),\; z(u,v))
+P(u,v)=(sin⁡(u).cos(⁡v),sin(⁡u).sin⁡(v),cos⁡(u))
 $$
 
-where \( u,v \in [0,1] \) (or any continuous range).
-
-Each \((u,v)\) in this rectangular domain maps to a unique point on the surface.
-
-```
-(u,v) domain → (x,y,z) surface
-```
+You evaluate (sample) this rule to produce coordinates — _when you need them._
 
 ---
 
-### 🔹 Discretization (Row-Major Traversal)
+## 2 — The Geometry Pipeline (the clean 3-stage model)
 
-When sampled over a discrete grid:
+`GENERATE  →  TRANSFORM  →  PROJECT`
 
-- **Rows** correspond to the **v direction**
-- **Columns** correspond to the **u direction**
-- **Storage** in memory is typically row-major:
+|Stage|What happens|Output|
+|---|---|---|
+|**GENERATE**|logic produces geometry|points / surfaces / volume|
+|**TRANSFORM**|move/rotate/scale geometry|same geometry, different placement|
+|**PROJECT**|convert 3D world → 2D screen|final pixels|
+
+Short pseudocode:
 
 ```js
-// Example: row-major traversal of a parametric surface
-for (let vIndex = 0; vIndex <= vSegments; vIndex++) {
-  const v = vIndex / vSegments;
-  for (let uIndex = 0; uIndex <= uSegments; uIndex++) {
-    const u = uIndex / uSegments;
-    const position = P(u, v); // Evaluate surface
-    vertices.push(position);
-  }
-}
-```
-
-| Concept           | Meaning                                              |
-| ----------------- | ---------------------------------------------------- |
-| Mathematical form | \( P(u,v) \)                                         |
-| Domain type       | 2D rectangular parameter space                       |
-| Discrete storage  | Row-major array (`row * cols + col`)                 |
-| Geometric meaning | Regular sampling of a surface                        |
-| Used for          | Planes, spheres, cylinders, terrains, cloth, UV maps |
-
----
-
-## 🧱 2. Other Geometric Thinking Systems
-
-When surfaces can’t be mapped with a rectangular (u,v) domain, other **topological representations** are used.
-
----
-
-### A. **Parametric / Structured Meshes**
-> The “row-major world” — structured, efficient, regular.
-
-| Used for     | Planes, terrains, UV-mapped objects   |
-| ------------ | ------------------------------------- |
-| Structure    | Regular 2D grid                       |
-| Math analogy | Tensor product surface                |
-| Pros         | Simple, GPU-friendly                  |
-| Cons         | Limited topology (no holes, branches) |
-
-
----
-
-### B. **Unstructured / Triangular Meshes**
-> Arbitrary connectivity — used in all game and sculpted models.
-
-| Used for     | Imported/sculpted 3D assets, scanned geometry  |
-| ------------ | ---------------------------------------------- |
-| Structure    | Graph of triangles (no regular order)          |
-| Storage      | Vertex list + face (triangle) list             |
-| Example      | `.obj`, `.gltf`, `.fbx`                        |
-| Math analogy | Piecewise-linear manifold / simplicial complex |
-| Pros         | Extremely flexible                             |
-| Cons         | Requires adjacency graph, no row/col order     |
-
-💡 *Dominant in real-time rendering pipelines.*
-
----
-
-### C. **Subdivision / Topological Meshes**
-> Smooth models from coarse control meshes.
-
-| Used for     | Pixar-style organic surfaces          |
-| ------------ | ------------------------------------- |
-| Structure    | Base mesh + subdivision rules         |
-| Algorithms   | Catmull–Clark, Loop, Doo–Sabin        |
-| Math analogy | Limit surface of recursive refinement |
-| Pros         | Produces smooth, continuous surfaces  |
-| Cons | More complex; graph-based processing |
-
-💡 *Smooths polygonal meshes into continuous surfaces.*
-
----
-
-### D. **Implicit Surfaces**
-> Geometry defined by equations instead of vertices.
-
-$$
-F(x,y,z) = 0
-$$
-
-Example: sphere → $( x^2 + y^2 + z^2 - r^2 = 0 )$
-
-| Used for     | Metaballs, Signed Distance Fields (SDFs) |
-| ------------ | ---------------------------------------- |
-| Structure    | Implicit equation                        |
-| Math analogy | Level set / iso-surface                  |
-| Pros | Continuous, analytic |
-| Cons | Must be sampled (e.g., Marching Cubes) |
-
-💡 *Useful for blending shapes and volumetric effects.*
-
----
-
-### E. **Volumetric / Voxel Geometry**
-> Think in **3D grids**, not surfaces.
-
-| Used for     | Terrains, destructible solids, fluids |
-| ------------ | ------------------------------------- |
-| Structure    | 3D array of scalar values (voxels)    |
-| Example      | Minecraft, fluid simulations          |
-| Math analogy | 3D scalar field                       |
-| Pros         | Editable solids, procedural power     |
-| Cons         | Memory heavy, resolution-limited      |
-
-💡 *Key idea: geometry as density data.*
-
----
-
-### F. **Parametric Patches (NURBS / Bézier)**
-> Continuous, mathematically smooth surfaces — CAD standard.
-
-| Used for     | Industrial design, precision modeling                |
-| ------------ | ---------------------------------------------------- |
-| Structure    | Continuous (u,v) domain with weighted control points |
-| Example      | NURBS, Bézier surfaces                               |
-| Math analogy | Tensor product of Bézier curves                      |
-| Pros         | Precise, infinitely smooth                           |
-| Cons         | Complex math, not GPU-friendly for real-time use     |
-
-💡 *Combines control points + basis functions for exact curves.*
-
----
-
-## 🧠 3. Big Picture — Geometry Paradigm Comparison
-
-| Thinking Type                   | Structure             | Example Geometries    | Representation           |
-| ------------------------------- | --------------------- | --------------------- | ------------------------ |
-| **Row-major / Parametric Grid** | Regular 2D array      | Plane, sphere, torus  | \( P(u,v) \) function    |
-| **Unstructured Mesh**           | Graph / triangle list | Arbitrary models      | Face–vertex connectivity |
-| **Subdivision Surface**         | Topological base mesh | Smooth organic forms  | Recursive refinement     |
-| **Implicit Surface**            | Equation              | Sphere, metaballs     | \( F(x,y,z)=0 \)         |
-| **Volumetric (Voxel)**          | 3D grid               | Terrain, solids       | Scalar field             |
-| **NURBS / Bézier**              | Continuous parametric | CAD, industrial parts | Weighted control points  |
-
----
-
-## 🧩 4. Summary — The Essence of Row-Major Thinking
-
-**Row-major thinking = Structured Parametric Surface Generation**
-
-A 2D regular topology in (u,v) space,  
-discretized in row-major order for traversal and memory layout.
-
-$$
-P(u_i, v_j) \rightarrow \text{sampled vertex grid}
-$$
-
-> “I’m mapping a rectangular parameter domain to 3D space — in a structured, row-major way.”
-
----
-
-## 🔑 Mental Model Summary
-
-| If you think in… | You’re working with… |
-| ---------------- | -------------------- |
-| Rows & Columns   | Parametric surfaces  |
-| Graphs & Faces   | Unstructured meshes  |
-| Equations        | Implicit geometry    |
-| 3D Grids         | Volumetric geometry  |
-| Control Points   | NURBS / Bézier       |
-| Refinement Rules | Subdivision surfaces |
-
-All are **ways of encoding space** — different mental maps for the same geometric reality.
-
----
-
-## 📚 Recommended Reading
-
-### 🔹 Introductory / Foundational
-- **Ronald Goldman**, *An Integrated Introduction to Computer Graphics and Geometric Modeling*
-- **Eric Lengyel**, *Mathematics for 3D Game Programming and Computer Graphics*
-
-### 🔹 Intermediate / Advanced
-- **David Eberly**, *3D Game Engine Design / Geometry Toolbox*
-- **Jules Bloomenthal**, *Introduction to Implicit Surfaces*
-- **Les Piegl & Wayne Tiller**, *The NURBS Book*
-
-### 🔹 Supplementary
-- **Farin**, *Curves and Surfaces for CAGD*
-- **Hughes et al.**, *The Finite Element Method*
-
----
-
-## 🧮 Notes for Procedural Generation
-
-1. **Choose your representation**
-   - Grid → simple UV-based geometry
-   - Mesh → flexible connectivity
-   - Implicit → equation-driven modeling
-   - Voxel → volume-driven modeling
-   - NURBS → high-precision design
-
-2. **Define mapping**
-   - Map parameter space → world space
-   - Maintain continuity and sampling density
-
-3. **Optimize traversal**
-   - Use row-major iteration for cache efficiency
-   - Store UVs, normals, and indices efficiently
-
----
-
-## 🧭 Concept Hierarchy Map
+vec3 p = GENERATE(u, v);  // rule
+p = TRANSFORM(M, p);      // placement
+pixel = PROJECT(camera, p);
 
 ```
-Geometric Thinking Systems
-├── Parametric (Structured)
-│   ├── Row-major grids
-│   ├── Tensor product surfaces
-│   └── UV parameterization
-├── Unstructured (Graph-based)
-│   └── Face–vertex meshes
-├── Subdivision (Topological refinement)
-├── Implicit (Equation-defined)
-├── Volumetric (3D scalar field)
-└── Parametric Patches (NURBS/Bézier)
+Keep this order in your mind: **create → move → draw.**
+
+---
+
+## 3 — Generation vs Transformation
+
+Exactly one generates geometry; the other only moves it.
+
+|Component|Action|Mental model|
+|---|---|---|
+|**Generative / Parametric / Procedural**|produces geometry|“A shape is a function.”|
+|**Affine transformations**|move existing geometry|“Move space, not points.”|
+
+Generative creates new vertices.  
+Affine transformations reuse them with different placement.
+
+---
+
+## 4 — The Generative Geometry Map
+
+_(What actually creates geometry)_
+
+Use this like a menu — pick a category when designing shapes.
+
+|Category|Logic idea|What it generates|
+|---|---|---|
+|**Parametric functions**|P(u,v) → (x,y,z)|planes, circles, spheres, NURBS|
+|**Noise / Sampling**|sample a function or heightfield|terrain, textures, clouds|
+|**Implicit / SDF**|F(x,y,z)=0 defines a surface|metaballs, boolean CSG|
+|**Marching / Extraction**|convert volumes → mesh|caves, voxel → mesh|
+|**Recursive / Fractals**|rule expands itself|L-systems, fractal edges|
+|**Agent / Turtle**|behavior emits points|roads, vines, trails|
+|**Grammar / Procedural rules**|production rules|cities, architecture|
+|**Simulation**|physics produces form|cloth drapes, particle strands|
+|**Stochastic (random+constraint)**|controlled randomness|scattering rocks/trees|
+|**IO-driven**|data becomes geometry|scanned meshes, photogrammetry|
+
+> If the geometry comes from a rule → **generative**  
+> If the geometry just gets moved → **affine**
+
+---
+
+## 5 — Core Tools (the thinking tools of 3D)
+
+|Tool|Helps you reason about|
+|---|---|
+|**Vectors**|relationships, directions, offsets|
+|**Barycentric coordinates**|interpolation, skinning, blending|
+|**Quaternions**|rotation without gimbal lock|
+|**Affine matrices**|hierarchical transforms, scene graphs|
+|**Projection matrices**|how 3D becomes 2D on screen|
+
+These are not data-storage techniques —  
+they are **thinking tools.**
+
+---
+
+## 6 — A concrete example (showing the pipeline)
+
+**Goal:** Make a flower of N petals.
+
+```js
+// GENERATE   (parametric)
+vec3 petal(t) { return vec3(cos(t), sin(t), 0); }
+
+// TRANSFORM  (affine instancing)
+for (int i = 0; i < N; ++i)
+    draw( rotate(petal, angle * i) );
+
 ```
 
+- The petal shape came from a _rule_.
+    
+- Multiplying by rotation matrices simply _places_ petals.
+    
+
 ---
 
-**Summary Thought:**  
-> “Every geometry is a function from *parameters → space*.  
-> The difference lies in what parameters you choose — grids, graphs, equations, or volumes.”
+## 7 — A checklist before writing any procedural geometry
+
+1. **How should this shape be generated?**  
+    Pick a method from the generative map.
+    
+2. **How will you sample it?**  
+    Uniform grid, adaptive sampling, agent steps…
+    
+3. **How will it be transformed or instanced?**  
+    Translation, rotation, scene graph hierarchy.
+    
+
+This keeps code modular and prevents messy logic.
 
 ---
 
-**Created for:** Procedural geometry learning • Three.js / GLSL development • Conceptual mastery
-**Author note:** Combine with notes on *UV mapping*, *differential geometry basics*, and *surface sampling* for a complete foundation.
+## 8 — The final mental model (print this)
 
+```js
+Geometry = logic.
+Coordinates = the result.
+
+GENERATE  →  TRANSFORM  →  PROJECT
+function  →  matrix      →  pixels
+
+```
+
+When you think this way, you stop pushing coordinate arrays around  
+and start designing **systems that create shapes.**
+
+---
+
+### End of Preface
+
+The rest of your learning will build on this foundation.
