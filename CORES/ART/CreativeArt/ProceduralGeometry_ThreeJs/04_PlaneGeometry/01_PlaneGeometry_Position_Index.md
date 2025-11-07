@@ -58,8 +58,8 @@ for (let rowIndex = 0; rowIndex <= numOfRows; rowIndex++) {
     const xPos = colIndex * gridSpacingX; // step along X axis (grid spacing)
     const x = xPos - centerX;             // center the grid horizontally
     const z = 0.0;
-
-    positions.push([x, y, z]);             // vertex position
+ 
+    positions.push([x, y, z]);             // vertex position      positions.push([x, -y, z]);             // fixes texturing
     normals.push([0, 0, 1]);               // normal facing +Z
     let u = colIndex / numOfCols;
     let v = 1 - (rowIndex / numOfRows);
