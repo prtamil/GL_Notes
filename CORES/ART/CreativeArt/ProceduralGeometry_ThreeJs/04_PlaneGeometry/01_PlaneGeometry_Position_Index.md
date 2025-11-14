@@ -132,16 +132,32 @@ const indices = [];
 
 // 1️⃣ Generate vertex positions
 function generatePositions(numRows, numCols, gridSpacingX, gridSpacingY, centerX, centerY) {
+
+  function computeX(col) {
+    return col * gridSpacingX - centerX;
+  }
+
+  function computeY(row) {
+    return row * gridSpacingY - centerY;
+  }
+
+  function computeZ() {
+    return 0.0;                 // in a 2D grid on XY plane, Z is constant
+  }
+
   const positions = [];
 
   for (let row = 0; row <= numRows; row++) {
-    const y = row * gridSpacingY - centerY;
+    const yPosition = computeY(row);
+
     for (let col = 0; col <= numCols; col++) {
-      const x = col * gridSpacingX - centerX;
-      const z = 0.0;
-      positions.push([x, y, z]);
+      const xPosition = computeX(col);
+      const zPosition = computeZ();
+
+      positions.push([xPosition, yPosition, zPosition]);
     }
   }
+
   return positions;
 }
 
@@ -152,32 +168,76 @@ function generateNormals(positions) {
 
 // 3️⃣ Generate UV coordinates
 function generateUVs(numRows, numCols) {
-  const uvs = [];
-  for (let row = 0; row <= numRows; row++) {
-    for (let col = 0; col <= numCols; col++) {
-      const u = col / numCols;
-      const v = 1 - (row / numRows);
-      uvs.push([u, v]);
-    }
-  }
-  return uvs;
+	function horizontalPercent(col, numCols) {
+	  return col / numCols;   // how far we are across the grid (left → right)
+	}
+	
+	function verticalPercent(row, numRows) {
+	  return row / numRows;   // how far we are down the grid (bottom → top)
+	}
+	
+	function flipVertical(percentage) {
+	  return 1 - percentage;  // UV space expects top to be 1 and bottom to be 0
+	}
+	
+	function computeUV(col, row, numCols, numRows) {
+	  const u = horizontalPercent(col, numCols);
+	  const v = flipVertical(verticalPercent(row, numRows));
+	  return [u, v];
+	}
+	  const uvs = [];
+	  for (let row = 0; row <= numRows; row++) {
+	    for (let col = 0; col <= numCols; col++) {
+	      const [u,v] = computeUV(col,row, numCols, numRows)
+	      uvs.push([u,v]);
+	    }
+	  }
+	  return uvs;
 }
 
-// 4️⃣ Generate triangle indices
 function generateIndices(numRows, numCols) {
-  const indices = [];
+
   const verticesPerRow = numCols + 1;
 
+  // ────────────────────────────────────────────
+  // Convert (row, col) position -> 1D vertex index
+  // ────────────────────────────────────────────
+  function flattenGridPosition(row, col) {
+    return row * verticesPerRow + col;
+  }
+
+  // ────────────────────────────────────────────
+  // Get the 4 vertex indices of a quad in the grid
+  // ────────────────────────────────────────────
+  function quadCornerVertices(row, col) {
+    const bottomLeft  = flattenGridPosition(row,     col);
+    const bottomRight = flattenGridPosition(row,     col + 1);
+    const topLeft     = flattenGridPosition(row + 1, col);
+    const topRight    = flattenGridPosition(row + 1, col + 1);
+
+    return { bottomLeft, bottomRight, topLeft, topRight };
+  }
+
+  // ────────────────────────────────────────────
+  // A quad → two triangles (because WebGL draws triangles only)
+  // ────────────────────────────────────────────
+  function trianglesFromQuad(corners) {
+    return [
+      [corners.bottomLeft, corners.topLeft, corners.bottomRight],
+      [corners.topLeft, corners.topRight, corners.bottomRight]
+    ];
+  }
+
+  const indices = [];
+
+  // iterate every quad in the grid
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const bottomLeft = row * verticesPerRow + col;
-      const bottomRight = bottomLeft + 1;
-      const topLeft = bottomLeft + verticesPerRow;
-      const topRight = topLeft + 1;
 
-      // Two triangles per cell
-      indices.push([bottomLeft, topLeft, bottomRight]);
-      indices.push([topLeft, topRight, bottomRight]);
+      const corners = quadCornerVertices(row, col);
+      const triangles = trianglesFromQuad(corners);
+
+      indices.push(...triangles);
     }
   }
 
