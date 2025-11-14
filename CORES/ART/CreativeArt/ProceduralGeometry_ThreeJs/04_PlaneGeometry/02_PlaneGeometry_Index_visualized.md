@@ -54,28 +54,23 @@ triangle2:
 ```
 
 ```js
-// Loop through each cell (subdivided rectangle) in the grid
-//Think: vertices are points, squares are gaps between points. You always have 1 more point than gaps.
-//Thats why in vertices we include last vertex and index we have focusing on squares so its equvalent to heightSegment 
+export const vertexIndexAt = (row, col, verticesPerRow) => {
+  return row * verticesPerRow + col;
+};
 
-/*
-	reasong for row < heightSegments
-	Indices define the squares (cells) between vertices. 
-	Since squares exist only between points, we loop over `segments` for rows and columns when creating indices, 
-	using the extra vertices at the top and right edges only as boundaries for the topmost and rightmost squares.
-*/
-const verticesPerRow  = numOfCols + 1; // Number of vertex points in each horizontal row
+const verticesPerRow = numOfCols + 1;
+
 for (let row = 0; row < numOfRows; row++) {
   for (let col = 0; col < numOfCols; col++) {
 
-    // Find indices of the 4 corners of this cell
-    const bottomLeftIndex  = row * verticesPerRow  + col;          // index of bottom-left vertex
-    const bottomRightIndex = row * verticesPerRow  + (col + 1);    // index of bottom-right vertex
-    const topLeftIndex     = (row + 1) * verticesPerRow  + col;    // index of top-left vertex
-    const topRightIndex    = (row + 1) * verticesPerRow  + (col + 1); // index of top-right vertex
-    // Create two triangles using the corner indices
-    indices.push([bottomLeftIndex, topLeftIndex, bottomRightIndex]); // first triangle
-    indices.push([topLeftIndex, topRightIndex, bottomRightIndex]);   // second triangle
+    const bottomLeftIndex  = vertexIndexAt(row,     col,     verticesPerRow);
+    const bottomRightIndex = vertexIndexAt(row,     col + 1, verticesPerRow);
+    const topLeftIndex     = vertexIndexAt(row + 1, col,     verticesPerRow);
+    const topRightIndex    = vertexIndexAt(row + 1, col + 1, verticesPerRow);
+
+    indices.push([bottomLeftIndex, topLeftIndex, bottomRightIndex]);
+    indices.push([topLeftIndex, topRightIndex, bottomRightIndex]);
   }
 }
+
 ```
