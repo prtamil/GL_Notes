@@ -106,7 +106,6 @@ r(φ) = innerRadius + φ * (outerRadius - innerRadius)
 A **ring** is a 2D parametric grid:
 
 - **φ axis** → interpolates radius
-    
 - **θ axis** → interpolates angle
     
 
