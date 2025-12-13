@@ -118,6 +118,21 @@ This removes guilt, self-hatred, and inner harshness.
 Your ego softens instead of resisting.  
 You lose attachment not by force but by _being guided playfully by grace._
 
+**Primary meaning**
+
+- **Conversation**, **talk**, **chat**, **friendly speech**  
+    (especially light, pleasant, affectionate, or intimate conversation)
+    
+**Nuances**
+
+Depending on the context, _sallāpa_ can also mean:
+
+- **Polite or gentle speech**
+- **Mutual dialogue**
+- **Friendly banter**
+- **Lover’s talk** (in poetry)
+- **Social interaction / companionship expressed through speech**
+
 ---
 
 ## **6. Vinoda — The Wonder of the Divine Play**
