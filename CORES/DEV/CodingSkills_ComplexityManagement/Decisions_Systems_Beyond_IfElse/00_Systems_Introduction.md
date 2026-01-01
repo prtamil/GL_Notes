@@ -5,15 +5,15 @@ Modern software systems often fail not because of algorithms or performance, but
 
 Several overlapping names exist:
 
-|Term|Meaning|Notes|
-|---|---|---|
-|**Rule-based systems / Rule engines**|Systems that evaluate rules (conditions → outcomes)|Includes primitive and complex engines, forward/backward chaining|
-|**Expert systems**|AI systems that reason about knowledge using rules|Think medical diagnosis, fraud detection, classic AI in 1980s–90s|
-|**Decision support systems (DSS)**|Software that helps humans make decisions|Often includes rules + data analysis|
-|**Business rules management (BRM / BRMS)**|Enterprise-focused systems for managing complex rules|Includes audit, explainability, decision tables|
-|**Finite state machines (FSM / state machines)**|Modeling systems as discrete states + transitions|Often used for workflows, UIs, embedded systems, games|
-|**Workflow engines / process automation**|Systems managing steps and state of processes|Often use state machines + rules under the hood|
-|**Knowledge-based systems**|Systems reasoning about facts, rules, and inference|AI-oriented, uses chaining|
+| Term                                             | Meaning                                               | Notes                                                             |
+| ------------------------------------------------ | ----------------------------------------------------- | ----------------------------------------------------------------- |
+| **Rule-based systems / Rule engines**            | Systems that evaluate rules (conditions → outcomes)   | Includes primitive and complex engines, forward/backward chaining |
+| **Expert systems**                               | AI systems that reason about knowledge using rules    | Think medical diagnosis, fraud detection, classic AI in 1980s–90s |
+| **Decision support systems (DSS)**               | Software that helps humans make decisions             | Often includes rules + data analysis                              |
+| **Business rules management (BRM / BRMS)**       | Enterprise-focused systems for managing complex rules | Includes audit, explainability, decision tables                   |
+| **Finite state machines (FSM / state machines)** | Modeling systems as discrete states + transitions     | Often used for workflows, UIs, embedded systems, games            |
+| **Workflow engines / process automation**        | Systems managing steps and state of processes         | Often use state machines + rules under the hood                   |
+| **Knowledge-based systems**                      | Systems reasoning about facts, rules, and inference   | AI-oriented, uses chaining                                        |
 
 > TL;DR: This is the **intersection of software engineering, AI, and operations research**.
 
