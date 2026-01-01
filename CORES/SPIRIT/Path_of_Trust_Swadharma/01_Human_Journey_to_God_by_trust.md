@@ -1,4 +1,4 @@
-# **The Human Path: Trust, Service, and Divine Peace**
+# **Designed to Trust: The Human Journey to God**
 
 _(Based on Chovot HaLevavot — Gate of Trust)_
 
@@ -132,6 +132,12 @@ When a person:
     
 
 then **God grants assistance beyond human calculation** — not always in the form the person expected, but in the form that is ultimately best.
+
+True guidance flows through **gentle, flexible, and uncertain paths**. When we act with **peaceful, sincere effort rooted in trust**, God provides countless blessings: **inner peace, guidance, clarity on next steps, perfect timing, focus, the right subjects to work on, steady effort, and even the natural flow of events**. These blessings **can come only from God**; no human action, no matter how clever, hardworking, or ambitious, can create them. God gives these gifts to those who move through uncertainty and difficulty with trust, letting His care and wisdom guide every step. When we work with this trust, our hearts remain calm even while we act, and our effort becomes a **vessel for His blessings**.
+
+By contrast, **ego-driven effort** — focused on fixed results, certainty, or proving oneself to others — creates **stress, anxiety, procrastination, and inner conflict**. The ego demands control over outcomes, timing, and processes, which turns even rightful effort into struggle. Tasks feel heavy, decisions are delayed, and doubt grows, often leading to frustration or depression. Effort without trust becomes a burden; effort with trust becomes **support and guidance**.
+
+**Trust transforms uncertainty into clear guidance, effort into blessing, and challenges into growth**. Ego transforms guidance into strain, uncertainty into fear, and work into paralysis. God wants us to **move forward into the unknown with faith**, relying on Him for the timing, direction, and support we cannot create ourselves. When we do, we experience the fullness of His blessings and earn true inner peace.
 
 The book calls this:
 
