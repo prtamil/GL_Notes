@@ -8,7 +8,7 @@ Life and action become confusing only when we forget the **natural structure of 
 
 Mistakes, hesitation, confusion, and correction are not failures—they are the mechanism of growth. Expecting perfection or flawless certainty is expecting to be something you were never meant to be. Every misstep is a teacher, every correction a guide toward deeper understanding.
 
-## **2. Steady Effort Outlasts Ego-Driven Intensity**
+### **2. Steady Effort Outlasts Ego-Driven Intensity**
 
 Life rewards **patience, repetition, and sincerity**. Ego-driven shortcuts—rushing, cramming, or forcing results—never last. The ego wants life to be hard, demanding, and full of struggle, which creates anxiety and the feeling that we are “not enough.”
 
