@@ -76,6 +76,11 @@ Tail latency reflects **real user pain**.
 - Pre-warm caches
     
 
+
+
+
+
+
 ---
 
 ### 1.3 Max Latency
