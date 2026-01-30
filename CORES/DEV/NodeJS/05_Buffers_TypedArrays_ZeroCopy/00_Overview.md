@@ -95,7 +95,7 @@ You **cannot** do this:
 
 ```js
 const ab = new ArrayBuffer(1024);
-
+ab[0] = 2;
 ```
 
 You need a _view_.

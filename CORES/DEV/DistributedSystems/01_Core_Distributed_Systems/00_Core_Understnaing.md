@@ -1,5 +1,12 @@
 # Distributed Systems — Ordering → Invariants → Resolution → Reconciliation
 
+```txt
+
+Ordering → Invariants → Resolution
+   ↑                         ↓
+   └── Reconciliation loop ──┘
+```
+
 ---
 
 ## 1. There is no global time
