@@ -1,4 +1,4 @@
-# 🔜 LEVEL 5 — Atomic State Machines (VERY IMPORTANT)
+# Atomic State Machines (VERY IMPORTANT)
 
 ## The Big Idea (One Sentence)
 

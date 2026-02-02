@@ -1,4 +1,4 @@
-# 🔜 LEVEL 7 — Atomics + Event Loop (JS-Specific)
+# Atomics + Event Loop (JS-Specific)
 
 ## Why This Level Is Special
 

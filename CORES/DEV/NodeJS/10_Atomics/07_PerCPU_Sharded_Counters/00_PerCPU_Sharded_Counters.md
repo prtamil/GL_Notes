@@ -1,4 +1,4 @@
-# 🔜 LEVEL 6 — Per-CPU / Sharded Counters
+# Per-CPU / Sharded Counters
 
 ## The Core Problem (Simple Truth)
 
