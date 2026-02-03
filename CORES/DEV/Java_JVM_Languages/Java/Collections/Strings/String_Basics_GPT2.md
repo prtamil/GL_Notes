@@ -156,7 +156,7 @@ Here's a comprehensive guide to foundational string processing methods in modern
     
 7. **Tokenize String**
     
-   ```java
+```java
 	String str = "This is a sample sentence.";
 	StringTokenizer tokenizer = new StringTokenizer(str);
 	while (tokenizer.hasMoreTokens()) {
@@ -164,7 +164,8 @@ Here's a comprehensive guide to foundational string processing methods in modern
 	    // Process token
 	}
 
-	```
+```
+	
     
 8. **Build String using StringBuilder vs StringBuffer**
     
@@ -256,7 +257,7 @@ Here's a comprehensive guide to foundational string processing methods in modern
     
 13. **Combination of Given String**
     
-   ```java
+```java
 	public static void combine(String str) {
 	    int n = str.length();
 	    for (int i = 0; i < (1 << n); i++) {
@@ -270,7 +271,7 @@ Here's a comprehensive guide to foundational string processing methods in modern
 	    }
 }
 
-	```
+```
     
 
 These examples cover foundational string processing methods in modern Java. For more advanced string manipulations, you might consider using third-party libraries like Apache Commons Lang or Google's Guava, which offer additional utilities to simplify complex string operations.
