@@ -1,4 +1,5 @@
 # Distributed Systems — Ordering → Invariants → Resolution → Reconciliation
+# How Distributed Systems Decide, Break, and Heal
 
 ```txt
 
