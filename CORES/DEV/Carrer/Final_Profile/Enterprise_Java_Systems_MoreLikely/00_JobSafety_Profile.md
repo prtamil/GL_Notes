@@ -17,7 +17,7 @@ Senior Backend / Staff Engineer
 **Distributed Systems & Scalable Cloud-Native Services**
 
 **Primary Languages:** Java (Spring Boot), Python  
-**Secondary:** Go, Node.js
+**Secondary:**  Node.js
 
 **Why this works:**
 
