@@ -13,8 +13,8 @@ Staying long brings blessings clear.
 
 ```js
 my Existence is my permission from God.  
-The gifts I was given are not trophies but tools.  
-Service is my response — and my prayer.
+The gifts I was given are not trophies but tools are meant to gods purpose.  
+Enhancing it and Apply to Service is my response — and my prayer.
 ```
 
 # Choice Analysis
