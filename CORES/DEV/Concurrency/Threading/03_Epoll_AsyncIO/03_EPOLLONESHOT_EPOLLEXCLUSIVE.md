@@ -27,10 +27,10 @@ Many threads wake up for one event.
 
 These are different problems.
 
-|Problem|Solution|
-|---|---|
-|Multiple threads handling same fd|EPOLLONESHOT|
-|Too many threads waking up|EPOLLEXCLUSIVE|
+| Problem                           | Solution       |
+| --------------------------------- | -------------- |
+| Multiple threads handling same fd | EPOLLONESHOT   |
+| Too many threads waking up        | EPOLLEXCLUSIVE |
 
 ---
 
