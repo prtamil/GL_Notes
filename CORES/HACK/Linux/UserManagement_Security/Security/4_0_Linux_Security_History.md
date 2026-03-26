@@ -122,13 +122,12 @@ Authentication (Auth) and Authorization (AuthZ) in Linux have evolved significan
     
     - Used for centralized authentication in enterprises.
     - Example: `/etc/nsswitch.conf`
-   ```bash
+    - ```bash
 	   passwd: files ldap
 	   shadow: files ldap
-	   group: files ldap
-
-	```
-        
+	   group: files ldap ```
+	   ```
+	     
 - **MFA (Multi-Factor Authentication)**
     
     - Google Authenticator, Yubikey, Duo.
@@ -192,13 +191,13 @@ How authentication & authorization is managed depends on the **scale of the orga
 
 ## **Conclusion: The Evolution of Linux Authentication & Authorization**
 
-|**Era**|**Authentication**|**Authorization**|
-|---|---|---|
-|**1970s–1980s**|`/etc/passwd`, passwords stored in plaintext|Unix file permissions (`chmod`)|
-|**1980s–1990s**|`/etc/shadow`, encrypted passwords|User groups (`/etc/group`)|
-|**1990s–2000s**|PAM, ACLs, SSH keys|POSIX ACLs, sudo|
-|**2000s–2010s**|LDAP, Kerberos, MFA|SELinux, AppArmor|
-|**2010s–Present**|OAuth, OpenID, Cloud IAM|Kubernetes RBAC, Zero Trust|
+| **Era**           | **Authentication**                           | **Authorization**               |
+| ----------------- | -------------------------------------------- | ------------------------------- |
+| **1970s–1980s**   | `/etc/passwd`, passwords stored in plaintext | Unix file permissions (`chmod`) |
+| **1980s–1990s**   | `/etc/shadow`, encrypted passwords           | User groups (`/etc/group`)      | 
+| **1990s–2000s**   | PAM, ACLs, SSH keys                          | POSIX ACLs, sudo                |
+| **2000s–2010s**   | LDAP, Kerberos, MFA                          | SELinux, AppArmor               |
+| **2010s–Present** | OAuth, OpenID, Cloud IAM                     | Kubernetes RBAC, Zero Trust     |
 
 ### **Enterprise Uses**
 

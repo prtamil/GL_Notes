@@ -1,402 +1,170 @@
-Here is your second **first-principles storage-engine essay** completing the fragmentation + compaction mental model layer. Together with your previous essay on tuple headers, this finishes the **core hypothetical heap-storage engine lifecycle** needed before moving comfortably into PostgreSQL internals.
+# Logical Deletion, Fragmentation, and Page Compaction
 
 ---
 
-# Logical Deletion, Fragmentation, Slot Reuse, and Page Compaction
+## The Problem: Why You Can't Just Erase a Row
 
-## Why Deleting a Row Cannot Immediately Reclaim Physical Storage Space
+Imagine two transactions running at the same time:
 
-A relational database stores table data inside fixed-size storage units called pages. Each page contains rows arranged using a structured layout that includes a page header, a slot directory, free space, and tuple storage regions. While this structure allows efficient insertion and lookup of rows, it introduces an important constraint: removing a row cannot immediately reclaim its physical storage space without harming performance and correctness.
+```
+T1 (started at time 100): SELECT * FROM orders WHERE id = 5
+T2 (started at time 101): DELETE FROM orders WHERE id = 5
+```
 
-To understand why, one must first understand how rows are stored inside pages.
+T2 commits first. If the engine physically erased that row immediately, T1 would lose the data it's supposed to be reading — violating its snapshot. T1 started before the delete; from its perspective, the row still exists.
+
+This is the core reason: **a deleted row may still be visible to other active transactions**. You cannot reclaim its space until you're certain no one needs it anymore.
+
+There's a second reason too — performance. Physically removing a row means shifting every neighbor tuple to close the gap, then updating all their slot offsets. On a busy page with frequent deletes, this is constant expensive memory movement.
+
+The solution: separate deletion into two phases.
 
 ---
 
-# Row Storage Inside Pages Using Slot Directories
+## What Logical Deletion Actually Does (Backend Mechanics)
 
-Inside a page, rows are not accessed directly by their physical byte positions. Instead, they are accessed through slot directory entries.
-
-Conceptually:
+A delete is just a **write to the tuple header**. Nothing moves.
 
 ```
-slot0 → offset 7900
-slot1 → offset 7600
-slot2 → offset 7200
+DELETE FROM orders WHERE id = 5
 ```
 
-Each slot acts as a stable reference pointing to a row’s location within the page. External structures such as indexes refer to rows using a logical address:
+Backend steps:
+1. Locate the tuple via its slot: `page.slots[slot_id] → offset`
+2. Read the tuple header at that offset
+3. Set `xmax = current_transaction_id` — this stamps "deleted by TxN"
+4. Mark the slot as reusable in the slot directory
+5. Done. The bytes stay exactly where they are.
 
 ```
-(page_number, slot_number)
+Before DELETE:                    After DELETE:
+
+tuple header:                     tuple header:
+  xmin = 50   (created by Tx50)     xmin = 50
+  xmax = 0    (not deleted)   →→→   xmax = 101   ← stamped
+  flags = live                      flags = dead
+  columns: id=5, amount=200         columns: id=5, amount=200  ← still there
 ```
 
-Because slot numbers remain stable even when row locations change, the storage engine can reorganize data safely without invalidating references.
-
-However, this design also introduces a consequence: removing a row does not automatically create reusable contiguous free space inside the page.
-
-Instead, it creates fragmentation.
-
----
-
-# Why Row Deletion Creates Internal Fragmentation
-
-Suppose a page contains three rows:
+The tuple is now a **dead tuple** — bytes intact, marked invisible. Any transaction with `snapshot_start >= 101` will skip it. Any transaction with `snapshot_start < 101` (like T1 above) will still see it as live.
 
 ```
-[header]
-[slot0]
-[slot1]
-[slot2]
-
-free space
-
-[row2]
-[row1]
-[row0]
-```
-
-If row1 is deleted, the storage engine cannot simply shift row2 downward immediately. Doing so would require rewriting memory and updating slot offsets during every delete operation.
-
-Instead, the deleted row becomes an empty region:
-
-```
-[header]
-[slot0]
-[slot1 = empty]
-[slot2]
-
-free space
-
-[row2]
-[deleted space]
-[row0]
-```
-
-This empty region is not contiguous with the main free-space region. Therefore it cannot be reused efficiently until later reorganization occurs.
-
-This condition is called internal fragmentation.
-
----
-
-# Logical Deletion Versus Physical Deletion
-
-To manage fragmentation safely, storage engines distinguish between logical deletion and physical deletion.
-
-Logical deletion means marking a row as deleted without removing its bytes from the page.
-
-Conceptually:
-
-```
-slot still exists
-row bytes still exist
-row marked invisible
-```
-
-Physical deletion means reclaiming the storage occupied by the row and reorganizing the remaining data inside the page.
-
-Conceptually:
-
-```
-row bytes removed
-neighbor rows shifted
-slot directory updated
-free space merged
-```
-
-Logical deletion happens immediately.
-
-Physical deletion happens later.
-
-This separation allows databases to maintain performance while preserving correctness.
-
----
-
-# Slot Reuse
-
-Even though deleted rows leave fragmented storage behind, their slot entries remain useful.
-
-Instead of allocating a new slot for every inserted row, the storage engine may reuse an existing empty slot created by a deletion.
-
-For example:
-
-```
-slot1 = empty
-```
-
-A later insert operation can reuse slot1:
-
-```
-slot1 → offset 7000
-```
-
-This avoids unnecessary slot directory growth and preserves stable addressing for row references.
-
-Slot reuse is therefore a lightweight form of storage recycling that occurs without reorganizing the entire page.
-
----
-
-# Why Deleted Row Bytes Are Temporarily Preserved
-
-When a row is deleted, the storage engine does not immediately remove its bytes from memory.
-
-Instead:
-
-```
-row marked deleted
-slot retained
-row bytes preserved
-```
-
-This behavior exists for two important reasons.
-
-First, some transactions may still need to read the deleted row because their logical view of the database began earlier. Removing the row immediately would violate snapshot consistency.
-
-Second, shifting rows during every delete operation would require moving large amounts of memory repeatedly, reducing performance significantly.
-
-Thus, logical deletion allows deletion to occur quickly while preserving correctness.
-
----
-
-# Why Immediate Memory Movement Would Reduce Performance
-
-Consider a page containing many rows.
-
-If each delete operation triggered immediate memory reorganization:
-
-```
-shift rows
-update slots
-merge free space
-rewrite offsets
-```
-
-Then even small delete operations would become expensive.
-
-In workloads with frequent updates and deletes, this would result in excessive CPU usage and cache disruption.
-
-Instead, storage engines delay reorganization until it becomes necessary.
-
-This approach improves overall throughput by spreading maintenance work across time rather than performing it immediately.
-
----
-
-# Deferred Cleanup and Background Maintenance
-
-Because logical deletion leaves fragmented space behind, storage engines eventually perform maintenance operations that reorganize pages.
-
-These operations:
-
-```
-remove obsolete row versions
-merge fragmented regions
-shift remaining rows
-update slot offsets
-restore contiguous free space
-```
-
-Maintenance may occur:
-
-```
-periodically
-during background processing
-during explicit maintenance commands
-```
-
-Deferred cleanup ensures that the system remains efficient without slowing down normal operations.
-
----
-
-# Analogy: Removing Books From a Library Shelf
-
-A useful analogy is a library shelf.
-
-Suppose books are arranged on shelves with fixed index numbers:
-
-```
-Shelf position 1 → Book A
-Shelf position 2 → Book B
-Shelf position 3 → Book C
-```
-
-If Book B is removed, librarians do not immediately shift every remaining book leftward. Instead:
-
-```
-position 2 becomes empty
-```
-
-Later, a new book may be placed in that position.
-
-Occasionally, librarians reorganize shelves to make better use of space.
-
-Similarly, databases leave empty storage temporarily and reorganize pages later when appropriate.
-
----
-
-# Slot Reuse During Insert Operations
-
-When inserting a new row, the storage engine first checks whether any empty slots exist.
-
-If an empty slot is available, it is reused:
-
-```
-empty slot → assigned new row offset
-```
-
-If no empty slot exists, a new slot entry is created at the end of the slot directory.
-
-This strategy reduces metadata growth while preserving stable addressing.
-
----
-
-# Page Compaction
-
-Over time, fragmented storage inside a page may accumulate.
-
-When fragmentation becomes significant, the storage engine performs page compaction.
-
-Page compaction reorganizes rows inside the page so that fragmented regions merge into a single contiguous free-space block.
-
-Conceptually:
-
-Before compaction:
-
-```
-[row3]
-[gap]
-[row2]
-[gap]
-[row1]
-```
-
-After compaction:
-
-```
-[row3]
-[row2]
-[row1]
-
-free space
-```
-
-During compaction:
-
-```
-rows shifted
-slot offsets updated
-free space merged
-```
-
-Importantly, slot numbers remain unchanged. Only their offsets are modified.
-
-Thus, external references to rows remain valid.
-
----
-
-# Logical Delete Algorithm
-
-Logical deletion marks a row as removed without reclaiming storage immediately.
-
-```
-function delete_row(page, slot_id):
-
-    if slot_id is invalid:
-        return ERROR
-
-    tuple = page.slots[slot_id]
-
-    if tuple already deleted:
-        return ERROR
-
-    mark tuple as deleted
-
-    mark slot as reusable
-
+function delete_row(page, slot_id, txn):
+    if slot_id invalid or already deleted: return ERROR
+    tuple = read tuple at page.slots[slot_id]
+    tuple.xmax = txn.id          # stamp deletion time
+    tuple.flags |= DEAD          # mark invisible to new readers
+    page.slots[slot_id].reusable = true
     return SUCCESS
 ```
 
-This operation executes quickly because it avoids memory movement.
+This is O(1). No memory movement. The page doesn't change shape.
 
 ---
 
-# Slot Reuse During Insert Algorithm
+## What Fragmentation Looks Like
 
-Insertion prefers reusing empty slots before creating new ones.
+After several deletes, live tuples have gaps between them:
+
+```
+After deleting row1 and row3:
+
+SLOT DIRECTORY:              TUPLE AREA:
+[slot0] → offset 900         offset 900: [row0 — live]
+[slot1] = reusable           offset 840: [row1 — dead, xmax=101]
+[slot2] → offset 780         offset 780: [row2 — live]
+[slot3] = reusable           offset 720: [row3 — dead, xmax=98]
+                             offset 660: [row4 — live]
+```
+
+The dead tuples sit between live ones. That space isn't contiguous with the main free-space region at the top of the page — so a new insert **can't use it** until compaction runs. The page appears fuller than it actually is.
+
+---
+
+## When Is a Dead Tuple Safe to Remove?
+
+The engine can't just delete dead tuples whenever — some transaction might still be reading them. A dead tuple is safe to physically remove only when:
+
+```
+xmax < oldest_active_transaction_snapshot
+```
+
+In other words: every transaction that started before this tuple was deleted has either committed or aborted. No one alive can see this version anymore.
+
+The component that tracks this is called the **transaction horizon** (in PostgreSQL: `OldestXmin`). Vacuum uses this boundary to decide what to clean.
+
+---
+
+## Slot Reuse
+
+Empty slots don't go to waste. Before growing the slot directory, the engine scans for a reusable slot:
 
 ```
 function insert_row(page, row):
+    if free_space(page) < size(row): return PAGE_FULL
 
-    if free_space(page) < size(row):
-        return PAGE_FULL
+    slot_id = find_reusable_slot(page)     # scan for slot.reusable == true
+    if not found:
+        slot_id = allocate_new_slot(page)  # grow directory
 
-    slot_id = find_reusable_slot(page)
-
-    if slot_id exists:
-
-        offset = allocate_space(page, row)
-
-        write row at offset
-
-        page.slots[slot_id] = offset
-
-        return slot_id
-
-    else:
-
-        slot_id = allocate_new_slot(page)
-
-        offset = allocate_space(page, row)
-
-        write row at offset
-
-        page.slots[slot_id] = offset
-
-        return slot_id
+    offset = page.free_space_end - size(row)
+    write row at offset
+    page.slots[slot_id] = offset
+    page.slots[slot_id].reusable = false
+    page.free_space_end -= size(row)
+    return slot_id
 ```
 
-This approach balances efficiency with structural stability.
+The slot number is reused but gets a new offset — indexes referencing the old `(page, slot)` will read the new tuple. This is safe because indexes always go through the tuple header visibility check.
 
 ---
 
-# Page Compaction Algorithm
+## Page Compaction (Vacuum)
 
-Page compaction restores contiguous free space by relocating rows.
+When dead tuples accumulate past a threshold, vacuum runs compaction on the page. It physically removes all dead tuples and packs live ones together:
+
+```
+Before compaction:           After compaction:
+
+[row4 — live ]               [row4]
+[row3 — dead ]               [row2]
+[row2 — live ]     →→→       [row0]
+[row1 — dead ]
+[row0 — live ]               [    free space    ]
+```
 
 ```
 function compact_page(page):
-
     new_offset = page.end_of_page
-
     for each slot in slot_directory:
-
-        if slot contains live row:
-
-            row = read row
-
+        if slot has live tuple:
+            row = read row at slot.offset
             new_offset -= size(row)
-
             move row to new_offset
-
-            update slot offset
-
-    update free_space_boundaries(page)
-
-    return SUCCESS
+            slot.offset = new_offset      # slot number unchanged, only offset moves
+    clear all dead tuple regions
+    update page.free_space_boundaries
 ```
 
-Compaction reorganizes storage without changing slot identities.
+Slot numbers never change. Only their offsets update. All external references (`(page, slot)` in indexes) remain valid.
 
 ---
 
-# Fragmentation Management Enables Scalable Storage Systems
+## The Full Lifecycle
 
-Fragmentation is a natural consequence of efficient deletion strategies. Instead of removing rows immediately, storage engines separate deletion into logical and physical phases.
+```
+INSERT  →  write tuple (xmin=TxN, xmax=0), assign slot
 
-Logical deletion preserves correctness and performance during normal operation.
+DELETE  →  set tuple.xmax=TxN, mark slot reusable          ← logical, instant, O(1)
+           tuple bytes stay in place
 
-Slot reuse allows efficient recycling of metadata structures.
+READ    →  check xmin/xmax against snapshot, skip dead tuples
 
-Page compaction restores storage efficiency when fragmentation becomes significant.
+VACUUM  →  find dead tuples where xmax < oldest_snapshot   ← physical, deferred
+           remove them, compact page, restore free space
+```
 
-Together, these techniques allow databases to manage large volumes of changing data without sacrificing speed or correctness.
-
-By controlling fragmentation carefully, storage engines transform fixed-size pages into flexible containers capable of supporting dynamic workloads at scale.
+**Why this split works:**
+- Logical deletion is instant and non-blocking — writers stamp a header, readers skip dead tuples, no one waits.
+- Physical cleanup is deferred until the transaction horizon advances far enough — correctness is preserved automatically.
+- The page always knows its own state through the header's `free_space_start/end` — inserts never need to scan for space.
