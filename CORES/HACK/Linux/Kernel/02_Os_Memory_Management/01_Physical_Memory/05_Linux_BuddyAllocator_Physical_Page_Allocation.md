@@ -1,0 +1,1 @@
+> Write a deep Linux kernel essay explaining the buddy allocator and how Linux allocates physical pages efficiently across nodes and zones. Describe fragmentation problems, free lists, allocation orders, page migration, compaction, and huge page support. Explain how GFP flags influence allocation behavior and how NUMA locality interacts with the buddy allocator.
