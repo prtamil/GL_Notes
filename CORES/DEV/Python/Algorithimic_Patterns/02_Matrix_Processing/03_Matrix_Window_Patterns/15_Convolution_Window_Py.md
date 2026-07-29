@@ -13,7 +13,7 @@ window                kernel              output
   sum of (cell × weight), all k² of them
 ```
 
-A **kernel** is a tiny matrix of coefficients. Slide it over the input, and at each position take the **weighted sum** of the window. That single operation — multiply-and-add over a sliding window — is blur, sharpen, edge detection, embossing, gradient, and every convolutional layer in every neural network.
+A **kernel** is a tiny matrix of coefficients. Slide it over the input and at each position take the **weighted sum** of the window. That one operation, multiply-and-add over a sliding window, gives you blur, sharpen, edge detection, embossing, gradients, and every convolutional layer in every neural network.
 
 Everything you already know applies:
 
@@ -23,11 +23,11 @@ Everything you already know applies:
 |Lesson 13|stride — a strided convolution is a tiled one|
 |Lesson 14|padding modes, and `im2col`|
 
-Two details are genuinely new and both trip people up:
+Two details here are genuinely new, and both catch people out:
 
-- **Convolution flips the kernel; correlation does not.** What deep learning calls "convolution" is actually correlation. It only matters for asymmetric kernels — but then it matters completely.
+- **Convolution flips the kernel. Correlation doesn't.** What deep learning calls "convolution" is really correlation. This only matters for asymmetric kernels, but when it matters it matters completely.
     
-- **Normalization.** A blur kernel of nine `1`s makes the image nine times brighter unless you divide by the kernel's sum.
+- **Normalization.** A blur kernel made of nine `1`s makes the image nine times brighter unless you divide by the kernel's sum.
     
 
 ---
@@ -547,6 +547,6 @@ window (size, stride)
                  └── reduce × weights ► 15
 ```
 
-Everything in this section is the same two slices — `m[r:r+k]` and `row[c:c+w]` — under four different intentions.
+Everything in this section is the same two slices, `m[r:r+k]` and `row[c:c+w]`, put to four different purposes.
 
-> **Mental shift:** traversal chose an *order*, neighborhood chose a *shape*, and windows choose a *shape plus a stride plus what you do with it*. Once those three are parameters rather than assumptions, blur, pooling, Sudoku boxes, im2col and a CNN layer are all the same loop.
+> **Mental shift:** traversal picked an *order*, neighborhood picked a *shape*, and windows pick a *shape, a stride, and what you do with the contents*. Turn those three into parameters instead of assumptions and blur, pooling, Sudoku boxes, im2col and a CNN layer all become the same loop.

@@ -14,9 +14,9 @@ np.arange(0, 1, 0.25)      ->  [0.  , 0.25, 0.5 , 0.75      ]   stop EXCLUSIVE
 np.linspace(0, 1, 5)       ->  [0.  , 0.25, 0.5 , 0.75, 1.  ]   stop INCLUSIVE
 ```
 
-Note the endpoints: `arange` excludes `stop` (like Python's `range`), `linspace` includes it. That difference alone decides which one you want most of the time.
+Watch the endpoints. `arange` excludes `stop`, like Python's `range`. `linspace` includes it. That difference alone usually decides which one you want.
 
-And there is a genuine hazard in `arange` that `linspace` does not have:
+There's also a real hazard in `arange` that `linspace` doesn't have:
 
 > **`np.arange` with a float step has an unpredictable element count.**
 
@@ -24,9 +24,9 @@ And there is a genuine hazard in `arange` that `linspace` does not have:
 np.arange(1, 1.3, 0.1)   ->  [1. , 1.1, 1.2, 1.3]      FOUR elements
 ```
 
-`1.3` should have been excluded. The count is computed as `ceil((stop-start)/step)` in floating point, and `0.1` is not exactly representable, so the arithmetic lands just over the boundary. **Use `arange` for integers and `linspace` for floats** and the problem never arises.
+`1.3` should have been excluded. The count comes from `ceil((stop-start)/step)` in floating point, and `0.1` isn't exactly representable, so the arithmetic tips just over the boundary. **Use `arange` for integers and `linspace` for floats** and this never bites you.
 
-Together with `reshape`, `arange` is also the workhorse of this entire course: `np.arange(24).reshape(2, 3, 4)` has built the example tensor in every lesson since 1.
+Paired with `reshape`, `arange` is also the workhorse of this whole course. `np.arange(24).reshape(2, 3, 4)` has built the example tensor in every lesson since lesson 1.
 
 ---
 
@@ -343,4 +343,4 @@ Finally, the idiom this course has leaned on throughout: **`np.arange(n).reshape
    linspace: |---|---|---|---|        you set the number of points
 ```
 
-> **Mental shift:** part 1's `range` was always integers, so the step/count distinction never mattered. The moment you sample a continuous interval it becomes the whole question — and `linspace` exists because "give me n points" is almost always the real requirement, while "step by 0.1" is a fragile way of saying it.
+> **Mental shift:** part 1's `range` only ever dealt in integers, so step versus count never came up. The moment you're sampling a continuous interval it becomes the whole question. `linspace` exists because "give me n points" is almost always what you actually mean, while "step by 0.1" is a fragile way of saying it.

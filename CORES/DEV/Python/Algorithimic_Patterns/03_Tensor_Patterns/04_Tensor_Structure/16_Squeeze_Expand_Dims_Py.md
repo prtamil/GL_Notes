@@ -9,20 +9,20 @@ expand:   (2, 3, 4)  ->  (2, 1, 3, 4)
 squeeze:  (2, 1, 3, 4)  ->  (2, 3, 4)
 ```
 
-A size-1 axis holds no data — the element count is unchanged, the flat order is unchanged. It is a **slot**, and slots exist for two reasons:
+A size-1 axis holds no data. The element count doesn't change and neither does the flat order. It's a **slot**, and slots exist for two reasons:
 
-- **Alignment.** Broadcasting matches shapes from the right and stretches every `1`. A size-1 axis is how you tell NumPy which dimensions should line up (lesson 9 used the indexing form, `t[:, None]`).
+- **Alignment.** Broadcasting matches shapes from the right and stretches every `1`. A size-1 axis is how you tell NumPy which dimensions should line up. Lesson 9 did this with the indexing form, `t[:, None]`.
     
-- **Meaning.** A batch of one image is `(1, 3, 32, 32)`, not `(3, 32, 32)`. The `1` records that there *is* a batch axis. Dropping it changes what the tensor is, even though the numbers are identical.
+- **Meaning.** A batch of one image is `(1, 3, 32, 32)`, not `(3, 32, 32)`. That `1` records that there *is* a batch axis. Drop it and you've changed what the tensor is, even though the numbers are identical.
     
 
-Which sets up the trap this lesson exists for:
+Which sets up the trap this whole lesson exists for:
 
 > **Bare `squeeze()` drops *every* size-1 axis.**
 
-A legitimate batch-of-one silently becomes an unbatched sample, and the failure appears somewhere else entirely. Always name the axis: `squeeze(axis=1)`.
+A perfectly legitimate batch-of-one quietly becomes an unbatched sample, and the failure surfaces somewhere else entirely. Always name the axis: `squeeze(axis=1)`.
 
-The mirror-image trap is a **missing** size-1 axis — a reduction without `keepdims=True`. On a non-square tensor that raises. On a square one it broadcasts against the wrong axis and returns confidently wrong numbers.
+The mirror-image trap is a **missing** size-1 axis, which is what a reduction without `keepdims=True` leaves you with. On a non-square tensor that raises. On a square one it broadcasts against the wrong axis and hands you confidently wrong numbers.
 
 ---
 
@@ -377,6 +377,6 @@ The habit that prevents both: **whenever you reduce and then use the result agai
                   └── reorder the tape     ──►  14, 15       (permute)
 ```
 
-That dividing line — **does the flat order change?** — is exactly the one part 2's structure section ended on, and it is still the question that tells you which operation you actually want. `flat(reshape(t)) == flat(t)`; `flat(transpose(t))` generally does not.
+That dividing line, **does the flat order change?**, is exactly where part 2's structure section ended, and it's still the question that tells you which operation you want. `flat(reshape(t)) == flat(t)`. `flat(transpose(t))` generally doesn't.
 
-> **Mental shift:** part 2's structure lessons were about *pictures* — rotating and flipping a grid you could see. Part 3's are about *contracts*: which axis means what, which ones line up, and whether the operation you just wrote preserved the tape or reordered it. The tensor is too big to picture, so the shape tuple becomes the thing you reason about — and `keepdims` and named `squeeze` are how you keep it honest.
+> **Mental shift:** part 2's structure lessons were about *pictures*, rotating and flipping a grid you could see. Part 3's are about *contracts*: which axis means what, which ones line up, and whether the operation you just wrote kept the tape order or reordered it. The tensor is too big to picture, so the shape tuple becomes the thing you reason about, and `keepdims` plus a named `squeeze` are how you keep it honest.

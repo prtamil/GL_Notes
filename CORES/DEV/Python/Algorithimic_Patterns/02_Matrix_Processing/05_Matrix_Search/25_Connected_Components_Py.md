@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 24 found *one cell*. This one finds **every group of cells that touch each other**, and reports the whole partition.
+Lesson 24 found *one cell*. This one finds **every group of cells that touch each other** and reports the whole partition.
 
 ```text
 [[1, 1, 0, 0, 1],          [[1, 1, 0, 0, 2],
@@ -13,11 +13,11 @@ Lesson 24 found *one cell*. This one finds **every group of cells that touch eac
     the grid                 five components, labelled
 ```
 
-The move that makes this tractable is the one from lesson 9:
+What makes this tractable is the move from lesson 9:
 
 > **A neighborhood function turns a matrix into a graph.**
 
-Once `neighbors4(r, c)` exists, "connected component" stops being a grid problem and becomes the standard graph problem. The algorithm is three lines of idea:
+Once you have `neighbors4(r, c)`, "connected component" stops being a grid problem and becomes the standard graph problem. The idea fits in three lines:
 
 ```text
 for every unvisited cell that qualifies:
@@ -485,4 +485,4 @@ def count_components(g):
 
 Verified on the worked grid: `5`, the same as `len(components(g))`.
 
-> **Mental shift:** lesson 26 is the primitive — *expand from here*. Lesson 25 is the sweep that applies it everywhere and never repeats itself. Exactly as lesson 5's spiral was lesson 8's boundary in a loop, this is that pairing again: a local operation, plus an outer scan that guarantees full coverage.
+> **Mental shift:** lesson 26 is the primitive: *expand from here*. Lesson 25 is the sweep that applies it everywhere without ever repeating itself. Just as lesson 5's spiral turned out to be lesson 8's boundary in a loop, this is the same pairing again: a local operation plus an outer scan that guarantees you cover everything.

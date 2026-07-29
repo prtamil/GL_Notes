@@ -18,7 +18,7 @@ overlapping windows         non-overlapping tiles
                             4 tiles, they partition
 ```
 
-That single change turns a *scan* into a **partition**. Every cell now belongs to exactly one tile — no overlap, no double-counting, and the tiles can be processed **independently and in any order**.
+That one change turns a *scan* into a **partition**. Every cell now belongs to exactly one tile, so there's no overlap and no double-counting, and you can process the tiles **independently, in any order you like**.
 
 That independence is the whole point. It is why tiling shows up wherever work is divided: JPEG's 8×8 blocks, Sudoku's 3×3 boxes, CNN pooling layers, cache-blocked matrix multiply, parallel chunking, screen tiles in a renderer.
 
@@ -439,4 +439,4 @@ Sliding Window          Block / Tile
   "best placement?"       "process each region"
 ```
 
-> **Mental shift:** a window **searches** — you compare placements and pick one. A tile **divides** — you keep them all, and their results reassemble into the whole. Ask yourself which you want, and the stride follows automatically.
+> **Mental shift:** a window **searches**. You compare placements and pick one. A tile **divides**. You keep all of them, and their results reassemble into the whole. Decide which of the two you want and the stride follows on its own.

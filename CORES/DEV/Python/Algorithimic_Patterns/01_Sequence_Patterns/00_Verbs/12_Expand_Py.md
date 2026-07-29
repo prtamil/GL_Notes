@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes one element needs to become **multiple elements**.
+Sometimes a single element needs to turn into **several**.
 
-**Expand** is the act of replacing each element with zero, one, or many output elements, producing a larger sequence.
+**Expand** swaps each element for zero, one, or many outputs, so the sequence usually comes out bigger.
 
-The mental question is:
+The question you're asking:
 
 > **"How can one element become many?"**
 
-Unlike **Transform**, which maps one element to one element, **Expand** maps one element to many elements.
+**Transform** takes one element and gives back one. **Expand** takes one and gives back as many as it likes.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Transform**, which maps one element to one element, **Expand** maps one
 |---|---|---|
 |**Expand**|How can one element become many?|`[y for x in xs for y in f(x)]`, `itertools.chain.from_iterable`, `itertools.product`, `repeat`, `cycle`, `yield from`|
 
-> **Note:** Python has no `mapcat`. The nested comprehension **is** flatMap — and the `for` clauses read **outer first**, exactly as if you had written the nested loops.
+> **Note:** There's no `mapcat` in Python. The nested comprehension **is** flatMap. Read the `for` clauses **outer first**, exactly the way you'd have written the nested loops by hand.
 
 ---
 
@@ -42,14 +42,14 @@ Unlike **Transform**, which maps one element to one element, **Expand** maps one
 
 # The Python-specific catches
 
-**The order of `for` clauses is outer-to-inner.** `[y for x in xs for y in x]` iterates `xs` first, then each `x`. Reversing them is the classic comprehension error, and it usually raises a confusing `NameError`.
+**The `for` clauses run outer to inner.** `[y for x in xs for y in x]` walks `xs` first, then each `x`. Swap them around and you get the classic comprehension mistake, usually announced by a baffling `NameError`.
 
-**Expand subsumes Select.** Yielding an empty list for an element drops it — which is why `[y for x in xs for y in f(x)]` can shrink a sequence as well as grow one.
+**Expand can do Select's job too.** Yield an empty list for an element and that element disappears, which is why `[y for x in xs for y in f(x)]` can shrink a sequence as easily as grow it.
 
-**`[[0]*3]*2` shares the inner list.** Repetition copies *references*, not objects. Use `[[0]*3 for _ in range(2)]`.
+**`[[0]*3]*2` shares one inner list across both rows.** Repetition copies *references*, not objects. Write `[[0]*3 for _ in range(2)]` instead.
 
 ---
 
 # One Sentence to Remember
 
-> **Expand produces a larger sequence by allowing each input element to generate multiple output elements.**
+> **Expand lets every input element produce as many outputs as it needs, so the sequence grows.**

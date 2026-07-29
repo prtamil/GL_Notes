@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The **Moore neighborhood** is the 4-neighborhood plus the four diagonals — every cell that shares an **edge or a corner** with `(r, c)`.
+The **Moore neighborhood** is the 4-neighborhood plus the four diagonals: every cell sharing an **edge or a corner** with `(r, c)`.
 
 ```text
 (r-1,c-1) (r-1,c) (r-1,c+1)
@@ -10,14 +10,14 @@ The **Moore neighborhood** is the 4-neighborhood plus the four diagonals — eve
 (r+1,c-1) (r+1,c) (r+1,c+1)
 ```
 
-Two mental models, and both are worth carrying:
+Two mental models, both worth carrying:
 
-- **Eight offsets.** A king's move in chess; Chebyshev distance 1.
+- **Eight offsets.** A king's move in chess. Chebyshev distance 1.
     
-- **A 3×3 block minus its center.** This is the one that generalizes — it turns the neighborhood into a *window*, which is what convolution, blurring and Game of Life actually operate on.
+- **A 3×3 block minus its centre.** This is the one that generalises. It turns the neighborhood into a *window*, and windows are what convolution, blurring and Game of Life actually work on.
     
 
-The second model is why Moore, not Von Neumann, is the default in image processing and cellular automata: it is the natural 3×3 stencil, and in Python you can take it with **slicing** instead of an offset loop.
+That second model is why image processing and cellular automata default to Moore rather than Von Neumann. It's the natural 3×3 stencil, and in Python you can grab it with **slicing** instead of an offset loop.
 
 ---
 
@@ -493,4 +493,4 @@ Von Neumann          Moore
    . S .             D S D
 ```
 
-> **Mental shift:** Von Neumann asks *"can I step there?"*. Moore asks *"what is around me?"* — and "around me" is a 3×3 window, which is why Moore leads into windows and convolution while Von Neumann leads into graphs and paths.
+> **Mental shift:** Von Neumann asks *"can I step there?"*. Moore asks *"what's around me?"*, and "around me" is a 3×3 window. That's why Moore leads into windows and convolution while Von Neumann leads into graphs and paths.

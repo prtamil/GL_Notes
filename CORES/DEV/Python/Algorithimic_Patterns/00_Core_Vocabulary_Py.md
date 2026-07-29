@@ -1,19 +1,19 @@
 # Core Vocabulary — what the whole course actually uses
 
-Measured, not guessed: every fenced Python block across parts 1–3 was extracted and counted.
+These numbers aren't a guess. I pulled out every fenced Python block across parts 1–3 and counted what was in them.
 
 ```text
 130 files   150 code blocks   6,935 lines of Python
 P1 Sequences  2,154 loc     P2 Matrices  2,412 loc     P3 Tensors  2,369 loc
 ```
 
-Counts below are occurrences in that corpus, split by part.
+The counts below are how often each thing shows up, split by part.
 
 ---
 
 ## The Top 20
 
-Learn these and you can read essentially every code block in the course.
+Learn these and you can read almost every code block in the course.
 
 |#|Thing|Total|P1|P2|P3|What it is for|
 |---|---|---|---|---|---|---|
@@ -42,14 +42,14 @@ Learn these and you can read essentially every code block in the course.
 
 ## The same 20, grouped by idea
 
-Easier to memorise in clusters than as a flat list.
+Clusters stick in your head better than a flat list does.
 
 ### 1. Get a piece of something — *slicing*
 ```python
 a[i:j]        a[::k]        a[::-1]        a[-1]
 m[r][c]       [row[c] for row in m]        row[c:c+k]
 ```
-`492 + 176 + 124` uses. Slicing is the highest-value syntax in the language: it does *take*, *skip*, *reverse* and *crop* with no function call. Parts 2 and 3 are built almost entirely on it.
+`492 + 176 + 124` uses. Slicing gives you the most for the least typing of anything in Python. It can *take*, *skip*, *reverse* and *crop*, and you never call a function to do it. Parts 2 and 3 lean on it almost the whole way through.
 
 ### 2. Build a new sequence — *comprehensions*
 ```python
@@ -59,7 +59,7 @@ m[r][c]       [row[c] for row in m]        row[c:c+k]
 (f(x)      for x in xs)              # lazy version        67
 {k: v      for k, v in pairs}        # dict                14
 ```
-One form, four jobs. Read it **left to right**: `for` → `if` → expression.
+One form doing four jobs. Read it **left to right**: `for` → `if` → expression.
 
 ### 3. Walk more than one thing — *zip / enumerate / unpacking*
 ```python
@@ -70,7 +70,7 @@ rows, cols  = len(m), len(m[0])      # 190
 zip(*m)                              #  99   ← transpose
 f(*args)                             # 128
 ```
-`zip(*m)` deserves separate memorising. It is transpose, it is unzip, and it makes every column operation a row operation.
+Memorise `zip(*m)` on its own. It transposes, it unzips, and it turns any column job into a row job.
 
 ### 4. Reduce to one value — *the aggregate family*
 ```python
@@ -78,14 +78,14 @@ sum(xs)   max(xs)   min(xs)   len(xs)   any(xs)   all(xs)   sorted(xs)
 max(m, key=sum)                      # key= is what makes them general
 sum(x > 0 for x in xs)               # count, because True == 1
 ```
-The `key=` parameter turns four functions into forty.
+One `key=` parameter turns those four functions into forty.
 
 ### 5. Find something — *lazy search*
 ```python
 next((x for x in xs if p(x)), None)  #  58   first match, or None
 [x for x in xs if p(x)]              #        all matches
 ```
-The `None` default is the whole idiom — a miss becomes a value, not an exception.
+That `None` default is the whole point. When nothing matches you get a value back instead of an exception.
 
 ### 6. The two imports that carry part 1
 ```python
@@ -104,13 +104,13 @@ from collections import Counter, defaultdict, deque
 |`product`|24|nested loops, flattened|
 |`batched`|22|fixed-size chunks (3.12+)|
 
-**501 uses in total — but 455 of them are in part 1.** These two modules essentially *are* part 1's vocabulary, and they almost vanish by part 3, where NumPy does the same jobs on arrays.
+**501 uses in total, and 455 of them sit in part 1.** These two modules are basically part 1's whole vocabulary. By part 3 they've nearly disappeared, because NumPy does the same jobs on arrays.
 
 ---
 
 ## Part 3 adds a second vocabulary (NumPy)
 
-Parts 1–2 are pure stdlib. Part 3 replaces most of the above with array operations — the concepts do not carry over one-for-one, so learn it as a separate layer.
+Parts 1 and 2 are pure stdlib. Part 3 swaps most of the above for array operations. The concepts don't map one-for-one, so treat it as a separate layer rather than a translation.
 
 |NumPy|uses|Replaces|
 |---|---|---|
@@ -123,17 +123,17 @@ Parts 1–2 are pure stdlib. Part 3 replaces most of the above with array operat
 |`np.stack` / `concatenate` / `split`|97|`+` and slicing on lists|
 |`np.moveaxis`|41|"bring this axis to the front"|
 
-**The one parameter to internalise:** `axis=` appears **429 times** — every reduction, stack, split, concatenate and argmax takes it. Together with `keepdims=True` (70 uses) it is most of what part 3 teaches.
+**If you learn one parameter, learn `axis=`.** It shows up **429 times**. Every reduction, stack, split, concatenate and argmax takes it. Add `keepdims=True` (70 uses) and you've got most of what part 3 teaches.
 
 ---
 
 ## Honest notes on the numbers
 
-- **`list()` at 485 is inflated.** Much of it is `list(...)` wrapped around lazy `itertools` results just to *display* them. That is itself the lesson — `itertools` is lazy and one-shot — but you will write it less in real code.
-- **`range` is 328× in part 2** because grid loops are `for r in range(rows)`. In part 3 it drops to 51 — replaced by `axis=`.
-- **"keyword argument" was the raw #1 at 693**, but 429 of those are NumPy's `axis=`. It is listed under part 3 rather than as a general concept, which is more honest.
-- **`np.array_equal` / `shares_memory` / `allclose`** appear often in part 3 but are *verification* calls used to prove claims in the text — not idioms to memorise.
-- Counts come from fenced ```python blocks only. Part 1's `00_Verbs/` folder (21 files) is reference tables with no fenced code; its vocabulary is counted separately and matches the list above.
+- **`list()` at 485 is inflated.** A lot of that is `list(...)` wrapped around lazy `itertools` results just to *show* what came out. That's a lesson in itself, since `itertools` is lazy and one-shot, but you'll write it far less in real code.
+- **`range` hits 328 in part 2** because grid loops are `for r in range(rows)`. It drops to 51 in part 3, where `axis=` takes over.
+- **"keyword argument" was the raw #1 at 693**, but 429 of those are NumPy's `axis=`. Listing it under part 3 instead of as a general concept felt more honest.
+- **`np.array_equal` / `shares_memory` / `allclose`** turn up a lot in part 3, but they're there to *check* claims made in the text. They aren't idioms to memorise.
+- Counts come from fenced ```python blocks only. Part 1's `00_Verbs/` folder (21 files) is reference tables with no fenced code, so I counted its vocabulary separately. It matches the list above.
 
 ---
 
@@ -147,4 +147,4 @@ zip(a, b)      and      zip(*m)      # 4. lockstep, and transpose
 next((x for x in xs if p(x)), None)  # 5. first match or None
 ```
 
-Those five appear in **over 1,600** of the ~6,900 lines of code in this course.
+Those five show up in **over 1,600** of the roughly 6,900 lines of code in this course.

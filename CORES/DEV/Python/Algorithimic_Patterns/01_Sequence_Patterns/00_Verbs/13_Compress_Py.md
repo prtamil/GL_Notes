@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes a sequence contains **redundant, repeated, or unnecessary information**.
+Plenty of sequences carry **repeated or redundant junk** you don't need.
 
-**Compress** is the act of reducing the size or complexity of a sequence while preserving the information that matters.
+**Compress** shrinks a sequence, or simplifies it, without losing the information that matters.
 
-The mental question is:
+The question you're asking:
 
 > **"How can I make this sequence smaller?"**
 
-Unlike **Reject**, which removes elements based on a rule, **Compress** removes redundancy or simplifies the representation of the sequence.
+**Reject** drops elements that fail a rule. **Compress** goes after redundancy instead, or finds a tighter way to say the same thing.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Reject**, which removes elements based on a rule, **Compress** removes 
 |---|---|---|
 |**Compress**|How can I make this sequence smaller?|`dict.fromkeys`, `set`, `itertools.groupby`, `collections.Counter`, `deque(maxlen=n)`|
 
-> **Note:** `set(xs)` removes all duplicates but **loses order**; `list(dict.fromkeys(xs))` removes all duplicates and **keeps first-seen order**. `groupby` removes only **adjacent** duplicates and needs no memory at all.
+> **Note:** `set(xs)` kills every duplicate but **throws away the order**. `list(dict.fromkeys(xs))` kills every duplicate and **keeps first-seen order**. `groupby` only collapses **adjacent** duplicates, and it needs no memory at all to do it.
 
 ---
 
@@ -41,14 +41,14 @@ Unlike **Reject**, which removes elements based on a rule, **Compress** removes 
 
 # The Python-specific catches
 
-**`set` and `dict.fromkeys` need hashable elements** — a list of lists won't dedupe this way. `groupby` compares with `==` and works on anything.
+**`set` and `dict.fromkeys` need hashable elements.** A list of lists won't dedupe this way. `groupby` just compares with `==`, so it works on anything.
 
-**Distinct is O(n) memory; dedupe is O(1).** `dict.fromkeys` holds every value seen; `groupby` only compares each element to its predecessor, so it runs on an infinite stream.
+**Distinct costs O(n) memory. Dedupe costs O(1).** `dict.fromkeys` remembers every value it has seen. `groupby` only ever compares an element to the one before it, which is why it can run on an infinite stream.
 
-**Sorting turns dedupe into distinct.** `[k for k,_ in groupby(sorted(xs))]` and `sorted(set(xs))` give the same answer by opposite trade-offs — one spends time, the other memory.
+**Sort first and dedupe becomes distinct.** `[k for k,_ in groupby(sorted(xs))]` and `sorted(set(xs))` land on the same answer through opposite trade-offs: one spends time, the other spends memory.
 
 ---
 
 # One Sentence to Remember
 
-> **Compress reduces redundancy in a sequence while preserving its essential information.**
+> **Compress strips the redundancy out of a sequence and keeps what actually matters.**

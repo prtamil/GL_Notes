@@ -2,12 +2,12 @@
 
 ## Mental Model
 
-Traverse a sequence **as if the end connects back to the beginning**, allowing iteration to wrap around indefinitely or for a fixed number of cycles.
+Walk a sequence **as if the end joins back onto the beginning**, so iteration wraps around forever or for a set number of laps.
 
-Python offers two spellings, and they are not interchangeable:
+Python gives you two ways to write this, and they are not interchangeable:
 
-- **`itertools.cycle(xs)`** — an infinite stream; you stop it with `islice` or a `break`.
-- **`xs[i % len(xs)]`** — arithmetic wrap-around; you keep random access and never build a stream.
+- **`itertools.cycle(xs)`** — an infinite stream. You stop it with `islice` or a `break`.
+- **`xs[i % len(xs)]`** — arithmetic wrap-around. You keep random access and never build a stream at all.
 
 ---
 
@@ -19,7 +19,7 @@ Traversal
 Circular Traversal
 ```
 
-Circular Traversal is a **Traversal** pattern where reaching the end of a sequence **wraps back to the start** instead of stopping.
+Circular Traversal is a **Traversal** pattern where hitting the end **wraps you back to the start** instead of stopping.
 
 ---
 
@@ -314,8 +314,8 @@ deque(xs, maxlen=3)                     # bounded ring, self-evicting
 
 ### Key Insight
 
-**Circular traversal has two implementations, and choosing wrong is what makes it feel hard.** `cycle` is a *stream* — perfect for "keep taking turns", useless when you need to know *where* you are. `i % len(xs)` is *arithmetic* — perfect for neighbours, edges, and clocks, because the index survives.
+**There are two ways to implement this, and picking the wrong one is what makes it feel hard.** `cycle` is a *stream*, perfect for "keep taking turns" and useless the moment you need to know *where* you are. `i % len(xs)` is *arithmetic*, perfect for neighbours, edges and clocks, because you still have the index.
 
-The reusable trick for circular *windows*: **append the first `k-1` elements and treat it as a linear problem.** `pairwise(xs + xs[:1])` gives polygon edges; `xs + xs[:2]` gives circular triples. No modular indexing, no special-casing the last element.
+For circular *windows* there's a trick worth stealing: **tack the first `k-1` elements onto the end and treat it as a linear problem.** `pairwise(xs + xs[:1])` gives you polygon edges; `xs + xs[:2]` gives you circular triples. No modular indexing, no special case for the last element.
 
-And the Python-specific warning: **`cycle` memorizes its input.** It has to, in order to replay it — so it silently converts any iterator into a fully-buffered list. On a small ring of players that's nothing; on a log file it's your entire memory budget.
+One Python-specific warning: **`cycle` memorises its input.** It has to, so it can replay it, which means it quietly turns any iterator into a fully buffered list. On a small ring of players that costs nothing. On a log file it's your whole memory budget.

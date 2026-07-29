@@ -2,32 +2,32 @@
 
 ## Mental Model
 
-Slicing takes **regular** blocks — a start, a stop, a step. Fancy indexing takes **arbitrary** ones: you hand it a list of positions and it gathers exactly those.
+Slicing takes **regular** blocks: a start, a stop, a step. Fancy indexing takes **arbitrary** ones. You hand it a list of positions and it gathers exactly those.
 
 ```text
 m[[0, 2]]           rows 0 and 2
 m[[2, 0, 2]]        row 2, row 0, row 2 again  — reorder and repeat
 ```
 
-Two properties follow immediately, and neither is available to slicing: **any order**, and **duplicates**.
+Two properties follow straight away, and slicing can do neither: **any order** you like, and **duplicates**.
 
-But the rule that actually matters is what happens with **more than one index array**:
+The rule that really matters, though, is what happens with **more than one index array**:
 
 ```text
 m[[0, 1], [1, 2]]   ->  [m[0,1], m[1,2]]  ->  array([1, 6])
 ```
 
-They **pair up elementwise**. This is not the sub-matrix at rows 0–1, columns 1–2. Everyone expects a sub-matrix the first time and everyone is wrong. The index arrays are zipped, not crossed. For the cross product you ask explicitly:
+They **pair up elementwise**. That's not the sub-matrix at rows 0–1, columns 1–2. Everyone expects a sub-matrix the first time and everyone is wrong. The index arrays get zipped, not crossed. If you want the cross product, ask for it explicitly:
 
 ```python
 m[np.ix_([0, 1], [1, 2])]       # the 2x2 sub-matrix
 ```
 
-And the third property, the one this section has been building toward:
+And the third property, which this section has been building toward:
 
 > **Fancy indexing returns a copy, not a view.**
 
-It has to. The gathered elements are scattered through memory, so no `shape`/`strides` pair can describe them — there is nothing to make a view *of*. That flips the aliasing rule you learned in lessons 8 and 9.
+It has no choice. The gathered elements are scattered through memory, so no `shape`/`strides` pair can describe them. There's nothing to make a view *of*. That reverses the aliasing rule from lessons 8 and 9.
 
 ---
 
@@ -423,4 +423,4 @@ A `(2,2)` index over a `(3,4)` array gives `(2,2,4)`.
   gather ──►  a new array of the elements you named
 ```
 
-> **Mental shift:** slicing asks *"which contiguous region?"* and the answer is always describable by three numbers per axis. Fancy indexing asks *"which elements, in what order?"* — an arbitrary question with an arbitrary answer, which is why it costs a copy and why it can return more data than it was given.
+> **Mental shift:** slicing asks *"which contiguous region?"*, and the answer always fits in three numbers per axis. Fancy indexing asks *"which elements, in what order?"*. That's an arbitrary question with an arbitrary answer, which is why it costs a copy and why it can hand back more data than it was given.

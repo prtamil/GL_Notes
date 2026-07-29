@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Join tensors **along an axis that already exists**. That axis grows; every other axis must match exactly; the rank is unchanged.
+Join tensors **along an axis that already exists**. That axis grows, every other axis has to match exactly, and the rank stays put.
 
 ```text
 a  (2, 3)
@@ -16,13 +16,13 @@ The rule in one line:
 
 > **All shapes must be identical except on the join axis, where the sizes add.**
 
-That is stricter than it sounds. `(2,3)` and `(2,4)` can be joined on axis 1 (`3+4=7`) but not on axis 0, because 3 ≠ 4. And arrays of *different rank* cannot be joined at all — a `(2,3)` and a `(3,)` need the vector promoted to `(1,3)` first.
+That's stricter than it sounds. `(2,3)` and `(2,4)` can be joined on axis 1 (`3+4=7`) but not on axis 0, because 3 ≠ 4. Arrays of *different rank* can't be joined at all — a `(2,3)` and a `(3,)` need the vector promoted to `(1,3)` first.
 
-Two things separate this from everything in the last few sections:
+Two things set this apart from everything in the last few sections:
 
-- **It always copies.** The result is a new buffer; there is no stride trick that makes two separate allocations look contiguous. Every combination in this section allocates.
+- **It always copies.** The result is a new buffer. There's no stride trick that makes two separate allocations look contiguous, so every combination in this section allocates.
     
-- **The `*stack` shortcuts change behaviour by rank.** `np.vstack` on two 1-D arrays gives a `(2,3)` matrix, while `np.concatenate` gives a `(6,)` vector. Convenient, and a genuine source of bugs.
+- **The `*stack` shortcuts change behaviour depending on rank.** `np.vstack` on two 1-D arrays gives you a `(2,3)` matrix, while `np.concatenate` gives a `(6,)` vector. Convenient, and a real source of bugs.
     
 
 ---
@@ -361,4 +361,4 @@ And a structural observation worth noting: **this is the first section since les
    stack:        (2,3) + (2,3)  ->  (2,2,3)    an axis APPEARS
 ```
 
-> **Mental shift:** part 1 joined sequences with `+` and part 2 concatenated rows with slicing. At rank 3+ the question "join along which axis?" has more than two answers, and the difference between *growing* an axis and *creating* one becomes a decision you must make explicitly — which is exactly what the next lesson is about.
+> **Mental shift:** part 1 joined sequences with `+`, and part 2 concatenated rows with slicing. At rank 3 and up, "join along which axis?" has more than two answers, and the difference between *growing* an axis and *creating* one becomes a decision you have to make out loud. That's exactly what the next lesson covers.

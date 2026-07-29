@@ -1,12 +1,12 @@
 # Sequence Processing
 
-Sequence processing is the art of taking an ordered collection of values and answering questions about it, reorganizing it, or producing a new collection.
+Sequence processing means taking an ordered pile of values and doing something useful with it: answering a question, rearranging it, or building something new out of it.
 
-Instead of thinking in terms of loops, indices, and mutable variables, we think in terms of **verbs**. Each verb represents a single cognitive action that we naturally perform when working with information.
+The shift here is to stop thinking in loops, indices and mutable variables, and start thinking in **verbs**. Each verb is one thing your brain already does when you work with information.
 
-Python provides comprehensions, built-ins, and the `itertools` / `collections` / `functools` modules, but these are merely **tools**. The real goal is to develop a vocabulary of sequence-processing verbs that can be applied regardless of programming language.
+Python hands you comprehensions, built-ins, and the `itertools` / `collections` / `functools` modules. Those are just tools. What you actually want is a vocabulary of sequence verbs that travels with you to any language.
 
-Once these verbs become second nature, array problems become descriptions of transformations rather than instructions for iteration.
+Once the verbs feel automatic, array problems stop reading like iteration instructions and start reading like descriptions of a transformation.
 
 ---
 
@@ -40,11 +40,11 @@ Once these verbs become second nature, array problems become descriptions of tra
 
 ## The three Python facts that shape all of this
 
-**1. The comprehension is the default.** `[f(x) for x in xs if p(x)]` covers Transform, Select, and Reject in one form — and it reads *for → if → f*, not left to right. `map` and `filter` exist, but they only win when you already have a named function.
+**1. Reach for a comprehension first.** `[f(x) for x in xs if p(x)]` handles Transform, Select and Reject in a single form. Read it *for → if → f*, not left to right. `map` and `filter` are still around, but they only beat a comprehension when you already have a named function to hand them.
 
-**2. Lazy or eager is a choice you make on every line.** A comprehension builds a list; a generator expression builds nothing until you consume it. `itertools` is entirely lazy, and most of its outputs are **one-shot iterators** — consume them twice and the second read is empty, with no error. `list()` at the point where you need to keep something.
+**2. You choose lazy or eager on every line.** A comprehension builds a list right away. A generator expression builds nothing until something consumes it. `itertools` is lazy all the way through, and most of what it returns is a **one-shot iterator**: read it twice and the second read comes back empty without complaining. Call `list()` at the moment you need to hold onto something.
 
-**3. Small, sharp data structures replace whole categories of code.** `Counter` replaces manual histogram loops, `defaultdict(list)` replaces grouping loops, `deque(maxlen=n)` replaces ring-buffer bookkeeping, `bisect` replaces linear scans on sorted data. Recognizing which structure a verb wants is most of the work.
+**3. The right little data structure deletes whole piles of code.** `Counter` kills your manual histogram loop. `defaultdict(list)` kills the grouping loop. `deque(maxlen=n)` kills the ring-buffer bookkeeping. `bisect` kills the linear scan over sorted data. Spotting which structure a verb is asking for is most of the job.
 
 ---
 
@@ -52,7 +52,7 @@ Once these verbs become second nature, array problems become descriptions of tra
 
 ### **Scan** vs **Accumulate** vs **Summarize**
 
-These three sound similar, but they represent different ways of thinking.
+They sound like the same thing. They aren't.
 
 - **Scan** → _Show me every intermediate state._
     - Python: `itertools.accumulate`
@@ -86,8 +86,8 @@ Summarize     sum(sales)
 750
 ```
 
-Note the naming collision worth keeping straight: Python's function called **`accumulate`** implements the **Scan** verb, and Python's function called **`reduce`** implements the **Accumulate** verb. The library named them after mechanics; the verbs name them after intent.
+There's a naming collision here worth pinning down. Python's **`accumulate`** does the **Scan** verb, and Python's **`reduce`** does the **Accumulate** verb. The library named them after how they work; the verbs name them after what you meant.
 
-This distinction mirrors how humans think: we may want to **watch the process** (Scan), **perform the process** (Accumulate), or **know only the conclusion** (Summarize).
+That split matches how you actually think about a problem. Sometimes you want to **watch the process** (Scan), sometimes you want to **run the process** (Accumulate), and sometimes you only care about **the answer** (Summarize).
 
-This cognitive vocabulary stays independent of Python while mapping naturally onto its standard library, making it easy to transfer the same mental models to Clojure, Java Streams, JavaScript arrays, SQL, Spark, Rust iterators, or any other data-processing framework.
+None of this vocabulary is Python-specific, even though it maps cleanly onto Python's standard library. The same mental models carry straight over to Clojure, Java Streams, JavaScript arrays, SQL, Spark, Rust iterators, or whatever you pick up next.

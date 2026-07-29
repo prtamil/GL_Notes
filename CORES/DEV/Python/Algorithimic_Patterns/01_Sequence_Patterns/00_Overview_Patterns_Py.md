@@ -68,11 +68,11 @@ from operator import itemgetter, attrgetter
 import heapq, bisect
 ```
 
-Three rules cut across all of it:
+Three rules run through all of it:
 
-1. **The comprehension is the default** — it covers Transform, Select, Reject, and flatMap in one form, and it reads *for → if → expression*.
-2. **`itertools` is lazy and one-shot** — nothing is computed until consumed, and consuming it twice gives you an empty second read with no error.
-3. **The right structure removes the code** — `Counter` for histograms, `defaultdict(list)` for grouping, `deque(maxlen=n)` for rolling windows, `bisect` for sorted lookups, `heapq` for top-k.
+1. **Start with a comprehension.** One form handles Transform, Select, Reject and flatMap, and you read it *for → if → expression*.
+2. **`itertools` is lazy and one-shot.** Nothing runs until you consume it, and if you consume it twice the second read comes back empty without raising anything.
+3. **Pick the right structure and the code disappears.** `Counter` for histograms, `defaultdict(list)` for grouping, `deque(maxlen=n)` for rolling windows, `bisect` for sorted lookups, `heapq` for top-k.
 
 ---
 

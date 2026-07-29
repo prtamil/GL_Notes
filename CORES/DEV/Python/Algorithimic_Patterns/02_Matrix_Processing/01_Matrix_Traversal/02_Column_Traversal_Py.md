@@ -4,9 +4,9 @@
 
 Column traversal processes one complete column at a time before moving to the next column.
 
-Unlike row traversal, columns are **not stored contiguously** in a typical row-major matrix, so accessing a column usually means visiting the same column index across all rows.
+Columns aren't **stored contiguously** in a row-major matrix the way rows are, so reading a column means visiting the same index in every row.
 
-In Python there is one idiom that dominates this entire pattern: **`zip(*m)`**. It turns columns into rows, after which every row-traversal tool works unchanged.
+One idiom dominates this whole pattern in Python: **`zip(*m)`**. It turns columns into rows, and after that every row-traversal tool works untouched.
 
 ---
 
@@ -290,13 +290,13 @@ list(zip_longest(*ragged, fillvalue=0))     # => [(1, 4, 6), (2, 5, 7), (3, 0, 8
 
 ## Key Insight
 
-**A column is simply a vertical sequence.** Since Python matrices are lists of rows, column traversal means **taking the same index out of every row** — or, far more idiomatically, **transposing first with `zip(*m)`** and reusing every row-processing pattern from the previous lesson.
+**A column is just a vertical sequence.** Python matrices are lists of rows, so column traversal means **pulling the same index out of every row**. Better still, **transpose first with `zip(*m)`** and reuse every row-processing pattern from the previous lesson.
 
-Two things worth burning into memory:
+Two things worth burning in:
 
-- `zip(*m)` yields **tuples**, not lists. Wrap with `list(...)` only when you actually need to mutate.
+- `zip(*m)` gives you **tuples**, not lists. Only wrap it in `list(...)` when you actually need to mutate.
     
-- `zip` **stops at the shortest row**, silently dropping data on ragged input. Reach for `itertools.zip_longest` the moment rows might differ in length.
+- `zip` **stops at the shortest row** and drops data on ragged input without saying anything. The moment rows might differ in length, switch to `itertools.zip_longest`.
     
 
 ---

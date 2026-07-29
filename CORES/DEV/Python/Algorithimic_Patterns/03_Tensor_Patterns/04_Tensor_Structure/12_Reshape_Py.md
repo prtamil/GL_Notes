@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Part 2's lesson 22 said a matrix is **a tape with cuts in it**, and reshape moves the cuts. That is still exactly true — there are just more cuts now.
+Part 2's lesson 22 described a matrix as **a tape with cuts in it**, and reshape as moving the cuts. That's still exactly right. There are just more cuts now.
 
 ```text
 shape (2, 3, 4)      the tape:  0 1 2 3 4 5 ... 23
@@ -14,10 +14,10 @@ Two rules, unchanged from rank 2:
 
 - **The linear order never changes.** `t.reshape(...).ravel() == t.ravel()`, always.
     
-- **The element count must be conserved.** `prod(new_shape) == t.size`, or it raises.
+- **The element count has to be conserved.** `prod(new_shape) == t.size`, or it raises.
     
 
-And the comparison that matters most, which is part 2's lesson-22 warning at rank 3:
+And here's the comparison that matters most: part 2's lesson-22 warning, now at rank 3.
 
 ```text
 t.reshape(3, 2, 4)          t.transpose(1, 0, 2)
@@ -359,4 +359,4 @@ Three practical points:
                   └── reorder the tape     ──►  14, 15
 ```
 
-> **Mental shift:** part 2 could get away with treating reshape as a curiosity, because a `2×3` matrix has few interesting regroupings. At rank 3+ reshape is *plumbing you write constantly* — merging batch and time, flattening before a dense layer, splitting channels into heads. The rules did not change; the frequency did.
+> **Mental shift:** part 2 could treat reshape as a curiosity, because a `2×3` matrix doesn't have many interesting regroupings. At rank 3 and up, reshape is *plumbing you write constantly*: merging batch and time, flattening before a dense layer, splitting channels into heads. The rules didn't change. The frequency did.

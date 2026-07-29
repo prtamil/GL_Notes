@@ -4,9 +4,9 @@
 
 Convert a **nested sequence** into a **single linear sequence**.
 
-Unlike **FlatMap**, which transforms then flattens one level, **Flatten** removes the nested structure itself.
+**FlatMap** transforms and then flattens one level. **Flatten** goes after the nesting itself.
 
-Python flattens **one level** with `chain.from_iterable(xs)` and flattens **all levels** with an explicit recursive generator. There is no built-in deep flatten, and that absence is deliberate — "how deep" and "what counts as a leaf" are decisions only you can make.
+Python flattens **one level** with `chain.from_iterable(xs)` and **all levels** with an explicit recursive generator. There's no built-in deep flatten, and that gap is on purpose: how deep to go and what counts as a leaf are calls only you can make.
 
 ---
 
@@ -18,7 +18,7 @@ Structure
 Flatten
 ```
 
-Flatten is a **Structure** pattern because it changes the organization of data without changing the values.
+Flatten is a **Structure** pattern: it rearranges how the data is organised without touching the values.
 
 ---
 
@@ -360,8 +360,8 @@ zip(*rows)                      # rows → columns        → Transpose
 
 ### Key Insight
 
-**Python gives you one-level flattening and stops there, on purpose.** `chain.from_iterable` handles the case that's actually well-defined — a list of lists becomes a list. Deep flattening requires two decisions no library can make for you: how deep to go, and what counts as a leaf. A dict, a string, a namedtuple, and a numpy array are all iterable; whether they should dissolve is a domain question.
+**Python gives you one-level flattening and deliberately stops there.** `chain.from_iterable` covers the case that's genuinely well-defined: a list of lists becomes a list. Deep flattening needs two decisions no library can make for you — how deep to go, and what counts as a leaf. A dict, a string, a namedtuple and a numpy array are all iterable, and whether any of them should dissolve is a question about your domain.
 
-**Strings are the trap that turns a clever one-liner into a `RecursionError`.** `"a"` is an iterable containing `"a"`, so a naive deep flatten recurses forever on any single character. Every serious flatten function carries `not isinstance(item, (str, bytes))`, and if you write one without it, the bug shows up on real data rather than on your test list of ints.
+**Strings are the trap that turns a clever one-liner into a `RecursionError`.** `"a"` is an iterable containing `"a"`, so a naive deep flatten recurses forever on any single character. Every serious flatten function carries `not isinstance(item, (str, bytes))`. Write one without it and the bug won't show up on your test list of ints — it'll show up on real data.
 
-The habit worth forming is **suspicion of the deep flatten itself**. `[x for row in rows for x in row]` on a matrix is honest work. Recursively dissolving arbitrary nesting usually means the structure carried meaning — depth *was* the parent-child relationship — and flattening threw it away. The tree walk is the same recursion with the structure preserved, and it's almost always what the problem actually wanted.
+The habit worth forming is **being suspicious of the deep flatten in the first place**. `[x for row in rows for x in row]` on a matrix is honest work. Recursively dissolving arbitrary nesting usually means the structure meant something — the depth *was* the parent-child relationship — and you just threw it away. The tree walk is the same recursion with the structure kept, and it's almost always what the problem actually wanted.

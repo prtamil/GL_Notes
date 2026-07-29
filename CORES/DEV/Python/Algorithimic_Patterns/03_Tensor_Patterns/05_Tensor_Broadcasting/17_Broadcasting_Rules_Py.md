@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every operation so far needed two tensors of the **same shape**. Broadcasting is the rule that lets shapes disagree — and it is not a convenience feature, it is *how tensor arithmetic works*.
+Every operation so far wanted two tensors of the **same shape**. Broadcasting is the rule that lets shapes disagree. It isn't a convenience feature bolted on the side; it's *how tensor arithmetic works*.
 
 The algorithm is three lines:
 
@@ -20,13 +20,13 @@ The algorithm is three lines:
        (3, 4)             (2, 3, 4)             (3, 4)
 ```
 
-The word doing the work is **right-align**. Shapes are matched from the *last* axis backwards, which is why `(3,4)` and `(4,)` combine and `(3,4)` and `(3,)` do not — the `3` lands under the `4`.
+The word doing all the work is **right-align**. Shapes get matched from the *last* axis backwards, which is why `(3,4)` and `(4,)` combine while `(3,4)` and `(3,)` don't. In the second case the `3` lands under the `4`.
 
-And the mechanical fact that makes it free:
+And here's the mechanical fact that makes it free:
 
 > **A broadcast axis is a view with stride 0.**
 
-Stretching a length-4 vector across 3 rows does not copy it three times. It sets that axis's stride to **0**, so every step along it reads the *same* memory. No allocation, at any size.
+Stretching a length-4 vector across 3 rows doesn't copy it three times. It sets that axis's stride to **0**, so every step along it reads the *same* memory. No allocation, at any size.
 
 ```text
 b.strides                       (8,)
@@ -34,7 +34,7 @@ np.broadcast_to(b, (3,4)).strides   (0, 8)
                                      ↑ step nowhere
 ```
 
-That is lesson 4's stride machinery doing one more job. Broadcasting is not a special case bolted on — it is the same view mechanism with a zero in it.
+That's lesson 4's stride machinery pulling one more shift. Broadcasting isn't a special case bolted on the side; it's the same view mechanism with a zero in it.
 
 ---
 
@@ -403,4 +403,4 @@ Three practical consequences:
   19   the payoff      all-pairs, grids, distances — no loops
 ```
 
-> **Mental shift:** parts 1 and 2 wrote a loop whenever two things of different shapes had to combine. Part 3 states the shapes and lets the alignment rule do it — at no memory cost, at any rank. The skill being built is not "remember the rule" but *predicting the output shape before running the code*, because a broadcast that succeeds when you expected an error is the quietest bug in this course.
+> **Mental shift:** parts 1 and 2 wrote a loop whenever two differently-shaped things had to combine. Part 3 states the shapes and lets the alignment rule handle it, at no memory cost and at any rank. The skill you're building isn't "remember the rule" but *predicting the output shape before you run the code*, because a broadcast that succeeds when you expected an error is the quietest bug in this whole course.

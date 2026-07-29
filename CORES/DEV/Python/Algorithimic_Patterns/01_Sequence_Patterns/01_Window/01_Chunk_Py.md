@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Cut a sequence into **fixed-size, non-overlapping blocks**. Each element belongs to **exactly one** chunk.
+Cut a sequence into **fixed-size blocks that don't overlap**. Every element lands in **exactly one** chunk.
 
-Chunking is the degenerate case of a window where **step size == window size**: the window never revisits an element.
+Chunking is what a window becomes when **step size equals window size**. The window moves on and never looks back at an element it has already seen.
 
 ---
 
@@ -16,7 +16,7 @@ Window
 Chunk
 ```
 
-Chunk is a **Window** pattern where the window advances by **its own width**, so consecutive windows never share elements.
+Chunk is a **Window** pattern where the window jumps forward by **its own width**, so two windows in a row never share an element.
 
 ---
 
@@ -220,6 +220,6 @@ buckets = [xs[i::3] for i in range(3)]
 
 ### Key Insight
 
-**Chunk and Sliding Window are the same operation with a different step.** Window size `n` with step `n` gives you disjoint chunks; step `1` gives you overlapping windows. Everything between them is a Jump Window.
+**Chunk and Sliding Window are the same operation with a different step.** Window size `n` and step `n` gives you separate chunks. Step `1` gives you overlapping windows. Anything in between is a Jump Window.
 
-The only real decision in Python is **what happens to the leftover tail** — `batched` keeps it, the `zip(*[iter()]*n)` grouper drops it, and `zip_longest` pads it. Pick deliberately; a silently dropped tail is the classic chunking bug.
+In Python the only real decision is **what to do with the leftover tail**. `batched` keeps it, the `zip(*[iter()]*n)` grouper throws it away, and `zip_longest` pads it out. Choose on purpose, because a tail that disappears without a sound is the classic chunking bug.

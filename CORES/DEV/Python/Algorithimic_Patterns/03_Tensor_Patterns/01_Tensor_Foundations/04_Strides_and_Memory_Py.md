@@ -2,14 +2,14 @@
 
 ## Mental Model
 
-A tensor looks nested. In memory it is **flat** — one contiguous run of numbers — plus a recipe for interpreting it.
+A tensor looks nested. In memory it's **flat**: one contiguous run of numbers, plus a recipe for reading it.
 
 ```text
 shape   (2, 3, 4)
 memory  0 1 2 3 4 5 6 7 8 ... 23        one line of 24 values
 ```
 
-The recipe is the **strides**: how far to step, in memory, to advance each index by one.
+That recipe is the **strides**: how far to step through memory to move each index forward by one.
 
 ```text
 axis 2  (innermost)  step 1      the next number along
@@ -23,7 +23,7 @@ which turns any index into a position by a dot product:
 flat = i*12 + j*4 + k*1
 ```
 
-Part 2's lesson 23 had exactly this at rank 2 — `i = r*cols + c`. Strides are that formula generalised, and NumPy stores the multipliers instead of recomputing them.
+Lesson 23 in part 2 had exactly this at rank 2: `i = r*cols + c`. Strides are that same formula generalised, with NumPy storing the multipliers instead of recomputing them each time.
 
 The payoff is the thing to actually take away:
 
@@ -412,4 +412,4 @@ The one detail people misread: **strides are in bytes, not elements.** `(96, 32,
   buffer   0 1 2 ... 23   what actually exists
 ```
 
-> **Mental shift:** the nesting is a fiction. There is one flat array and a tuple of multipliers, and every "free" operation in part 3 — reshape, transpose, slice, moveaxis, sliding windows — is a change to those multipliers rather than to the data. Knowing which operations touch the buffer and which only touch the metadata is what separates tensor code that runs from tensor code that runs fast.
+> **Mental shift:** the nesting is a fiction. There's one flat array and a tuple of multipliers, and every "free" operation in part 3 — reshape, transpose, slice, moveaxis, sliding windows — changes those multipliers rather than the data. Knowing which operations touch the buffer and which only touch the metadata is what separates tensor code that runs from tensor code that runs fast.

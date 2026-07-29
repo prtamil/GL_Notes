@@ -2,11 +2,11 @@
 
 ## Mental Model
 
-Process **windows that intentionally share elements**. The amount of overlap can vary depending on the application.
+Work with **windows that deliberately share elements**. How much they share depends on what you're doing.
 
 > **Sliding Window is the most common type of Overlapping Window.**
 
-In Python you rarely say "overlap" directly — you say **step**, and overlap falls out of it: `overlap = n - step`.
+In Python you almost never write "overlap" directly. You write **step**, and the overlap falls out of it: `overlap = n - step`.
 
 ---
 
@@ -18,7 +18,7 @@ Window
 Overlapping Window
 ```
 
-Overlapping Window is a general pattern where consecutive windows reuse some of the previous elements.
+Overlapping Window is the general pattern where each window reuses part of the one before it.
 
 ---
 
@@ -267,6 +267,6 @@ windows(xs, 3, overlap=0)     # step 3  → Chunk, no sharing
 
 ### Key Insight
 
-**Overlap is not an operation — it is a number you compute: `overlap = n - step`.** Every "overlapping window" API in the wild (DSP hop size, tokenizer stride, chunked-embedding overlap) is this one subtraction wearing a different name.
+**Overlap isn't an operation, it's a number you work out: `overlap = n - step`.** Every "overlapping window" API you'll meet — DSP hop size, tokenizer stride, chunked-embedding overlap — is this one subtraction under a different name.
 
-The reason to overlap at all: **windows destroy context at their edges.** An event straddling a chunk boundary is invisible to both chunks. Overlap buys back that context at a cost of `n / step` × the work — which is why the tuning question is always "how much context do I need?", never "how big should the window be?".
+So why overlap at all? Because **windows destroy context at their edges.** An event sitting across a chunk boundary is invisible to both chunks. Overlap buys that context back, and it costs you `n / step` times the work. That's why the question you're really tuning is "how much context do I need?", not "how big should the window be?".

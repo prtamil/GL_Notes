@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Move a **fixed-size window** through a sequence by **jumping multiple elements** each time. Windows may overlap, touch, or have gaps depending on the jump size.
+Move a **fixed-size window** along a sequence, but **jump several elements** each time. Depending on how big the jump is, the windows overlap, sit flush against each other, or leave gaps.
 
-Python has no `partition n step` builtin, so the stride lives in **`range(0, len(xs), step)`** — the third argument of `range` (or of a slice) *is* the jump.
+There's no `partition n step` builtin in Python, so the stride ends up in **`range(0, len(xs), step)`**. That third argument of `range` (or of a slice) *is* the jump.
 
 ---
 
@@ -16,7 +16,7 @@ Window
 Jump Window
 ```
 
-Jump Window is a **Window** pattern where the window advances by a **fixed stride greater than one**.
+Jump Window is a **Window** pattern where the window moves by a **fixed stride bigger than one**.
 
 ---
 
@@ -240,6 +240,6 @@ xs[::3]                 # size 1       → Sample / Stride
 
 ### Key Insight
 
-**Stride is a single number that decides the entire Window family.** Fix the window size `n` and vary the step: `1` gives Sliding, `n` gives Chunk, `> n` gives Gapped sampling. There is no separate algorithm to learn — only a different third argument to `range`.
+**One number, the stride, decides the whole Window family.** Hold the window size `n` steady and change the step: `1` gives you Sliding, `n` gives you Chunk, anything `> n` gives you Gapped sampling. There's no new algorithm here, just a different third argument to `range`.
 
-The practical warning: when `step > n`, data is **silently discarded**. That is the point when downsampling, and a bug everywhere else — so make the stride an explicit named variable, never a magic number buried in a slice.
+A practical warning: once `step > n`, you're **throwing data away silently**. That's exactly what you want when downsampling and a bug everywhere else. Give the stride a real named variable rather than burying a magic number in a slice.

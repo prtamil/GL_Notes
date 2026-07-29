@@ -4,9 +4,9 @@
 
 Generate the **same value multiple times** or **repeat an entire sequence**.
 
-Unlike **FlatMap**, which expands by transformation, **Repeat** expands by duplication.
+**FlatMap** grows a sequence by transforming it. **Repeat** grows it by copying.
 
-Python splits this three ways: **`*`** for lists and strings (eager), **`itertools.repeat`** for one value (lazy), **`itertools.cycle`** for a whole sequence (lazy).
+Python splits this three ways: **`*`** for lists and strings (eager), **`itertools.repeat`** for a single value (lazy), and **`itertools.cycle`** for a whole sequence (lazy).
 
 ---
 
@@ -18,7 +18,7 @@ Expand
 Repeat
 ```
 
-Repeat is an **Expand** pattern because it increases the size of a sequence by duplicating values or sequences.
+Repeat is an **Expand** pattern because it grows a sequence by duplicating values or whole sequences.
 
 ---
 
@@ -292,6 +292,6 @@ list(islice(cycle(xs), 7))              # sequence, any len  → [1,2,3,1,2,3,1]
 
 ### Key Insight
 
-**`*` duplicates references, not objects.** `[0] * 5` is fine forever because you cannot mutate an integer; `[[]] * 5` gives you five names for one list, and the bug only appears when something writes to it. The rule that always holds: **`*` for immutable elements, a comprehension for mutable ones.**
+**`*` copies references, not objects.** `[0] * 5` is safe forever, because you can't mutate an integer. `[[]] * 5` gives you five names for one list, and the bug only shows up when something writes to it. The rule that always holds: **`*` for immutable elements, a comprehension for mutable ones.**
 
-The second distinction worth keeping sharp is *where* the repetition lands. `xs * 2` repeats the **whole sequence** (`1 2 3 1 2 3`); a flatmap over `[x] * 2` repeats **each element** (`1 1 2 2 3 3`). Both are "repeat twice", and they produce completely different data — the question to ask out loud is "repeat the list, or repeat the items?"
+The other distinction to keep sharp is *where* the repetition lands. `xs * 2` repeats the **whole sequence** (`1 2 3 1 2 3`). A flatmap over `[x] * 2` repeats **each element** (`1 1 2 2 3 3`). Both are "repeat twice" and they give you completely different data, so say it out loud: repeat the list, or repeat the items?

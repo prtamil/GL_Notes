@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Indexing is how you reach **one element** — or, more usefully, **one sub-tensor**.
+Indexing is how you reach **one element**, or more usefully **one sub-tensor**.
 
-The rule that organises everything:
+One rule organises everything:
 
 > **Each integer index consumes one axis.**
 
@@ -15,16 +15,16 @@ t[0][1]        shape (4,)          rank 1   — a vector
 t[0][1][2]     shape ()            rank 0   — a scalar
 ```
 
-You do not have to consume them all. **Partial indexing is the normal case**: `t[0]` is not "an error because you gave one index instead of three", it is the first `(3,4)` block.
+You don't have to consume them all. **Partial indexing is the normal case.** `t[0]` isn't an error for giving one index where three were expected; it's the first `(3,4)` block.
 
-The syntax difference from nested lists is small and matters a lot:
+The syntax difference from nested lists is tiny and matters enormously:
 
 ```text
 nested[0][1][2]     three separate lookups     (lists)
 t[0, 1, 2]          ONE lookup, a tuple key    (arrays)
 ```
 
-`t[0][1][2]` also works and gives the same value, but it builds two throwaway intermediate views. `t[0, 1, 2]` is one operation — and it is the form that lets you mix integers with slices:
+`t[0][1][2]` works too and gives the same value, but it creates two throwaway intermediate views along the way. `t[0, 1, 2]` is a single operation, and it's the form that lets you mix integers with slices:
 
 ```text
 t[0, :, 1]      axis 0 fixed, axis 1 all, axis 2 fixed
@@ -382,4 +382,4 @@ One smaller asymmetry, inherited straight from Python lists: **an out-of-range i
 |`t[[0, 2]]`|no — reorders|**copy**|lesson 10|
 |`t[t > 5]`|flattens to rank 1|**copy**|lesson 11|
 
-> **Mental shift:** in part 2 you indexed with `m[r][c]` and that was that. From rank 3 upward, indexing becomes a small language — integers, slices, ellipsis, lists and masks all appear in the same brackets, and each has a different effect on the rank *and* on whether you get a view or a copy. Section 03 covers the rest; this lesson is the half you use every day.
+> **Mental shift:** in part 2 you indexed with `m[r][c]` and that was the end of it. From rank 3 upward, indexing turns into a small language. Integers, slices, ellipsis, lists and masks all live in the same brackets, and each does something different to the rank *and* to whether you get a view or a copy. Section 03 covers the rest; this lesson is the half you'll use every day.

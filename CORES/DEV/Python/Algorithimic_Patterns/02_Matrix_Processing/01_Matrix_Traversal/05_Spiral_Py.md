@@ -4,9 +4,9 @@
 
 Spiral traversal visits a matrix by **walking around its boundary, then shrinking inward layer by layer** until every cell has been visited.
 
-Instead of thinking in terms of rows or columns, think in terms of **nested rectangles (layers or rings)**.
+Stop thinking in rows and columns here and think in **nested rectangles — layers, or rings**.
 
-Python offers a second mental model that is far easier to memorize than four moving boundaries: **take the top row, rotate what's left, repeat.** The spiral falls out of the rotation.
+Python offers a second mental model that's far easier to remember than four moving boundaries: **take the top row, rotate what's left, repeat.** The spiral just falls out of the rotation.
 
 ---
 
@@ -407,9 +407,9 @@ Repeat
 
 You can think of spiral traversal as **peeling an onion**: process the outermost ring, remove it conceptually, then repeat on the smaller inner matrix.
 
-> **Mental shift:** The fundamental unit is no longer a row, column, or diagonal—it is a **layer (ring)**.
+> **Mental shift:** the basic unit stops being a row, column or diagonal and becomes a **layer, or ring**.
 
-**The Python shortcut:** you can trade all four boundaries for a rotation.
+**The Python shortcut:** swap all four boundaries for a rotation.
 
 ```text
 take the top row
@@ -417,6 +417,6 @@ rotate the rest counter-clockwise
 repeat
 ```
 
-Because `[*zip(*rest)][::-1]` rotates, the edge you need next is *always the top row again* — the state lives in the matrix instead of in your variables. Reach for the boundary version when you must not copy the matrix or you need the indices; reach for peel-and-rotate when you need to write it correctly from memory under pressure.
+Since `[*zip(*rest)][::-1]` rotates, the edge you want next is *always the top row again*. The state lives in the matrix rather than in your variables. Use the boundary version when you can't afford to copy the matrix or you need the indices. Use peel-and-rotate when you have to write it correctly from memory with someone watching.
 
 ---

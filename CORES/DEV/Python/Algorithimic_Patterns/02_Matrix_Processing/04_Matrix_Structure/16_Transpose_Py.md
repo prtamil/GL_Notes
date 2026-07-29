@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every pattern so far *read* a matrix. This section **rearranges** it — the cells are unchanged, only their positions move.
+Every pattern so far *read* a matrix. This section **rearranges** one. The cells don't change; only where they sit does.
 
 Transpose is the first and most important rearrangement: **swap the two coordinates.**
 
@@ -15,11 +15,11 @@ Transpose is the first and most important rearrangement: **swap the two coordina
    2 x 3                3 x 2
 ```
 
-Rows become columns and columns become rows. The main diagonal is the mirror axis — cells on it never move.
+Rows become columns and columns become rows. The main diagonal is the mirror axis, so cells sitting on it never move.
 
-Two things make transpose worth a whole lesson rather than a footnote:
+Two things make transpose worth a whole lesson instead of a footnote:
 
-- **It is one expression in Python.** `zip(*m)` — unpack the rows as arguments to `zip`, which walks them in lockstep. This is the single most useful structural idiom in the language, and it is why "loop over columns" is almost never the right code.
+- **It's one expression in Python.** `zip(*m)` unpacks the rows as arguments to `zip`, which then walks them in lockstep. This is the most useful structural idiom in the language, and it's why "loop over columns" is almost never the right code.
     
 - **It generates everything else.** Every rotation in this section is a transpose followed by a flip. Learn transpose properly and lessons 17, 19 and 21 are one line each.
     
@@ -389,4 +389,4 @@ same cells, new POSITIONS   ->  16-21  (symmetry)
 same cells, new GROUPING    ->  22-23  (layout)
 ```
 
-> **Mental shift:** traversal, neighborhood and windows all asked *"which cells do I read?"*. Structure asks *"where does each cell go?"* — every operation here is a function from `(r, c)` to a new `(r, c)`, and writing that function down is usually easier than reasoning about the picture.
+> **Mental shift:** traversal, neighborhood and windows all asked *"which cells do I read?"*. Structure asks *"where does each cell end up?"*. Every operation here is a function from `(r, c)` to a new `(r, c)`, and writing that function down is usually easier than trying to reason about the picture.

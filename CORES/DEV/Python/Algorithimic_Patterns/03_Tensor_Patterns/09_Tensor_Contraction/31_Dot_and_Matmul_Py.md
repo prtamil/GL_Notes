@@ -11,9 +11,9 @@ B     (3, 4)
    -> (2, 4)
 ```
 
-`A @ B` pairs the last axis of `A` with the first axis of `B`, multiplies, and sums. The shared dimension must match, and it does not appear in the output — that is what "contracted" means.
+`A @ B` pairs the last axis of `A` with the first axis of `B`, multiplies, and sums. The shared dimension has to match, and it doesn't show up in the output. That's what "contracted" means.
 
-Compare with the two operations you already know:
+Set it beside the two operations you already know:
 
 ```text
 A * B      elementwise  — shapes align, nothing is summed
@@ -21,9 +21,9 @@ A.sum(1)   reduction    — an axis is summed, no second operand
 A @ B      contraction  — an axis is summed BETWEEN two operands
 ```
 
-Contraction is the missing third: a reduction that consumes an axis from each of two tensors.
+Contraction is the missing third one: a reduction that eats an axis from each of two tensors.
 
-One thing to settle immediately, because it causes real bugs: **`np.dot` and `@` are the same for rank ≤ 2 and different above it.**
+One thing to settle right now, because it causes real bugs: **`np.dot` and `@` agree at rank ≤ 2 and diverge above it.**
 
 ```text
 (2,3,4) @ (2,4,3)        ->  (2, 3, 3)        batched matmul
@@ -378,4 +378,4 @@ And a performance note that matters more than it looks: matrix products are **as
    34   einsum('ij,jk->ik', …)    name every axis
 ```
 
-> **Mental shift:** parts 1 and 2 had `sum(a*b for a,b in zip(u,v))` and a triple loop for matrix multiply. The loop is not gone — it moved into BLAS — and what you write instead is *which axis is shared*. Once contraction is the primitive, linear layers, covariance, attention and convolution are all the same operation with different axes chosen.
+> **Mental shift:** parts 1 and 2 gave you `sum(a*b for a,b in zip(u,v))` and a triple loop for matrix multiply. The loop hasn't gone anywhere; it moved into BLAS. What you write instead is *which axis is shared*. Once contraction is your primitive, linear layers, covariance, attention and convolution are all the same operation with different axes picked out.

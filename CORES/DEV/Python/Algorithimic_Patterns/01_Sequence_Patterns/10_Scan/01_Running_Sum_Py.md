@@ -4,9 +4,9 @@
 
 Compute the **cumulative total** at every step of a sequence.
 
-Instead of returning only the final sum, **Running Sum** keeps every intermediate result.
+Rather than handing back only the final sum, **Running Sum** keeps every step along the way.
 
-Python's tool is **`itertools.accumulate`** — `reduce` with the intermediate values kept. It is lazy, takes any binary function, and takes an optional `initial=` value.
+The tool is **`itertools.accumulate`**, which is `reduce` with the intermediate values kept. It's lazy, it takes any binary function, and it takes an optional `initial=` value.
 
 ---
 
@@ -18,7 +18,7 @@ Scan
 Running Sum (Prefix Sum)
 ```
 
-Running Sum is a **Scan** pattern because it scans the sequence while carrying forward an accumulated state.
+Running Sum is a **Scan** pattern: it walks the sequence carrying an accumulated state forward.
 
 ---
 
@@ -332,8 +332,8 @@ accumulate(xs, initial=0)       # +1 element, query-ready → Prefix Sum
 
 ### Key Insight
 
-**`accumulate` is `reduce` that shows its work.** Same one-pass traversal, same `f(acc, x)` signature — it just yields each intermediate instead of only the last. Any time you catch yourself writing a loop with a `total` variable and an `append`, that loop is already `accumulate`; the only question is what the binary function is.
+**`accumulate` is `reduce` showing its work.** Same single pass, same `f(acc, x)` signature. It just yields each intermediate value instead of only the last. Any time you catch yourself writing a loop with a `total` variable and an `append`, that loop is already an `accumulate`. The only open question is what the binary function should be.
 
-**The function argument order is `f(accumulated, next)`, and for anything non-commutative that order is the entire answer.** `accumulate(xs, sub)` computes `((1-2)-3)-4`, not the reverse. `max` and `min` don't care, `add` doesn't care, subtraction and string concatenation care very much. When a running computation gives a plausible but wrong series, check this first.
+**The argument order is `f(accumulated, next)`, and for anything non-commutative that order decides everything.** `accumulate(xs, sub)` computes `((1-2)-3)-4`, not the other way round. `max`, `min` and `add` don't care. Subtraction and string concatenation care a great deal. When a running computation produces a plausible but wrong series, check this first.
 
-The habit worth building is noticing the **inverse relationship with adjacent differences**. `accumulate` turns per-step values into cumulative ones; `pairwise` differencing turns cumulative values back into per-step ones. Real data arrives in both forms — a bank statement lists transactions, an odometer lists totals, a Prometheus counter lists totals — and knowing which form you have, plus these two one-liners, is most of what time-series preprocessing amounts to.
+The habit worth building is spotting the **inverse relationship with adjacent differences**. `accumulate` turns per-step values into cumulative ones; differencing with `pairwise` turns cumulative values back into per-step ones. Real data shows up in both forms — a bank statement lists transactions, an odometer lists totals, a Prometheus counter lists totals — and knowing which one you're holding, plus these two one-liners, covers most of what time-series preprocessing actually is.

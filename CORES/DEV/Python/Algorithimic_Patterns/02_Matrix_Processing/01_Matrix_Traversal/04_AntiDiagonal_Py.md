@@ -4,9 +4,9 @@
 
 Anti-diagonal traversal visits cells where the **row index increases while the column index decreases**. It follows the diagonal from the **top-right corner** to the **bottom-left corner**.
 
-Like the main diagonal, this is defined by a **coordinate relationship**, not by how the matrix is stored.
+Like the main diagonal, it's defined by a **relationship between coordinates**, not by how the matrix sits in memory.
 
-Python has a shortcut that makes this almost free: **negative indexing**. Counting from the right is built into the language, so `row[-1 - i]` walks the anti-diagonal without any `n` in sight.
+Python has a shortcut that makes this nearly free: **negative indexing**. Counting from the right is built into the language, so `row[-1 - i]` walks the anti-diagonal without an `n` anywhere in sight.
 
 ---
 
@@ -328,13 +328,13 @@ Notice the contrast with the main diagonal:
 |Main Diagonal|`row == col`|`row[i]`|
 |Anti-Diagonal|`row + col == n - 1`|`row[-1 - i]`|
 
-The anti-diagonal is essentially the **mirror image** of the main diagonal. Whenever one index increases while the other decreases, you're traversing an anti-diagonal.
+The anti-diagonal is the **mirror image** of the main diagonal. Any time one index rises while the other falls, that's what you're walking.
 
-Two Python-specific takeaways:
+Two things to take away:
 
-- **Negative indexing already means "from the right."** `row[-1 - i]` (or `row[~i]`) expresses the rule with no `n` and no chance of an off-by-one.
+- **Negative indexing already means "from the right."** `row[-1 - i]` (or `row[~i]`) says the rule with no `n` and no room for an off-by-one.
     
-- **You never need two sets of diagonal code.** Flip every row with `row[::-1]` and every main-diagonal recipe you already know works on the anti-diagonal unchanged.
+- **You never need a second set of diagonal code.** Flip every row with `row[::-1]` and every main-diagonal recipe you know already works on the anti-diagonal.
     
 
 ---

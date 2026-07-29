@@ -4,9 +4,9 @@
 
 Count **how many times each unique value appears** in a sequence.
 
-Unlike **Group By Key**, which stores the actual elements, a **Histogram** stores only their **counts**.
+**Group By Key** keeps the actual elements. A **Histogram** keeps only the **counts**.
 
-Python gives this one a dedicated type: **`collections.Counter`**. It is a `dict` subclass, so everything you know about dicts still applies — plus `.most_common()`, and arithmetic between counters.
+Python gives this one its own type: **`collections.Counter`**. It's a `dict` subclass, so everything you already know about dicts still holds, and you get `.most_common()` and arithmetic between counters on top.
 
 ---
 
@@ -18,7 +18,7 @@ Group
 Histogram (Frequencies)
 ```
 
-Histogram is a **Group** pattern that summarizes each group as a **frequency count** instead of keeping all the elements.
+Histogram is a **Group** pattern that reduces each group to a **frequency count** instead of holding all the elements.
 
 ---
 
@@ -349,8 +349,8 @@ set(xs)                         # which values exist       → Distinct
 
 ### Key Insight
 
-**A histogram is a group that threw away its members.** That is the whole economy of it: `group_by` allocates a list per key and holds every element; `Counter` holds one integer per key. When all you will ever call on the group is `len()`, building the list is pure overhead — and on a large stream it is the difference between fitting in memory and not.
+**A histogram is a group that threw its members away.** That's the whole economy of it. `group_by` allocates a list per key and holds every element; `Counter` holds one integer per key. If the only thing you were ever going to call on the group is `len()`, that list is pure overhead, and on a large stream it decides whether the job fits in memory at all.
 
-`Counter` earns its place in the standard library through the parts people forget: **`most_common(k)` is a heap, not a sort**, so top-K is O(n log k); **a missing key reads as 0 without inserting it**, so you can probe freely inside a comprehension; and **counters do arithmetic** — `a & b` is the multiset intersection that solves "which characters can I build from this bag of letters" in one character.
+`Counter` earns its spot in the standard library through the bits people forget. **`most_common(k)` uses a heap, not a sort**, so top-K is O(n log k). **A missing key reads as 0 without being inserted**, so you can probe it freely inside a comprehension. And **counters do arithmetic** — `a & b` is the multiset intersection that answers "which characters can I build from this bag of letters" in a single character of code.
 
-The limit is worth naming too: **`Counter` counts occurrences, not quantities.** The moment your data says `("apple", 5)` rather than five apples, you are back to `defaultdict(int)` and `d[k] += qty`. Recognizing which of the two you have is the actual skill; the syntax is the easy half.
+Worth naming the limit too: **`Counter` counts occurrences, not quantities.** As soon as your data says `("apple", 5)` instead of five separate apples, you're back to `defaultdict(int)` and `d[k] += qty`. Telling those two situations apart is the real skill; the syntax is the easy half.

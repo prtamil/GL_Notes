@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every operation in this section fixed *something*. `@` fixed which axes contract. `tensordot` freed the axes but lost batches. `einsum` fixes nothing: **you name every axis, and the notation says what happens to it.**
+Every operation in this section pinned *something* down. `@` pinned which axes contract. `tensordot` freed the axes but gave up batches. `einsum` pins nothing: **you name every axis, and the notation says what happens to it.**
 
 ```python
 np.einsum('ij,jk->ik', A, B)        # matrix product
@@ -17,9 +17,9 @@ Read it as: *"`A` has axes `i,j`; `B` has axes `j,k`; the output has axes `i,k`.
 3.  an index repeated WITHIN one operand ->  DIAGONAL
 ```
 
-Rule 2 is contraction. Rule 1 is broadcasting-and-keeping. Rule 3 gives you traces and diagonals for free.
+Rule 2 is contraction. Rule 1 is broadcast-and-keep. Rule 3 hands you traces and diagonals for free.
 
-That is enough to express the entire section — and most of the previous ones:
+Those three rules cover this whole section, and most of the previous ones too:
 
 ```text
 'ij->ji'            transpose               (lesson 14)
@@ -434,4 +434,4 @@ A.T                      ==  np.einsum('ij->ji', A)
 A.sum(axis=1)            ==  np.einsum('ij->i', A)
 ```
 
-> **Mental shift:** part 1 wrote `sum(a*b for a,b in zip(u,v))` and part 2 wrote a triple loop for matrix multiply. Both spelled out *how*. Einsum spells out *what*: which axes pair up, which survive, which are summed away. Once the axes have names, the distinction between a dot product, a matmul, an attention score and a convolution is just a different string — and the loop is somebody else's problem.
+> **Mental shift:** part 1 wrote `sum(a*b for a,b in zip(u,v))` and part 2 wrote a triple loop for matrix multiply. Both spelled out *how*. Einsum spells out *what*: which axes pair up, which survive, which get summed away. Once the axes have names, the difference between a dot product, a matmul, an attention score and a convolution is a different string, and the loop is somebody else's problem.

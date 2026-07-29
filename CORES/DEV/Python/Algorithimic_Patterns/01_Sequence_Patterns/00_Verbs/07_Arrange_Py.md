@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes the elements are correct, but their **order** is not.
+Sometimes you have exactly the right elements sitting in exactly the wrong **order**.
 
-**Arrange** is the act of reorganizing the elements of a sequence without changing the elements themselves.
+**Arrange** moves elements around without touching the elements themselves.
 
-The mental question is:
+The question you're asking:
 
 > **"How should these elements be arranged?"**
 
-Unlike **Transform**, which changes the values, **Arrange** changes only their position or ordering.
+**Transform** changes the values. **Arrange** only changes where they sit.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Transform**, which changes the values, **Arrange** changes only their p
 |---|---|---|
 |**Arrange**|How should these elements be arranged?|`sorted`, `list.sort`, `reversed`, `xs[::-1]`, `random.shuffle`, `random.sample`, `xs[n:] + xs[:n]`|
 
-> **Note:** Python separates **copy** from **mutate** for every arrangement: `sorted(xs)` / `xs.sort()`, `reversed(xs)` / `xs.reverse()`, `random.sample(xs, k)` / `random.shuffle(xs)`. The mutating forms all return **`None`**.
+> **Note:** For every arrangement Python gives you a **copy** version and a **mutate** version: `sorted(xs)` / `xs.sort()`, `reversed(xs)` / `xs.reverse()`, `random.sample(xs, k)` / `random.shuffle(xs)`. Every mutating one returns **`None`**.
 
 ---
 
@@ -43,14 +43,14 @@ Unlike **Transform**, which changes the values, **Arrange** changes only their p
 
 # The Python-specific catches
 
-**`xs = xs.sort()` sets `xs` to `None`.** The single most common arrangement bug in Python. `sorted()` when you want a value; `.sort()` when you want a side effect.
+**`xs = xs.sort()` sets `xs` to `None`.** This is the classic arrangement bug in Python. Use `sorted()` when you want a value back, `.sort()` when you want the side effect.
 
-**Sorting is stable (Timsort).** Equal elements keep their original order — which is what makes multi-pass sorting work: sort by the least significant key first, and the last sort is the primary key.
+**Sorting is stable, thanks to Timsort.** Equal elements stay in their original order, and that's what makes multi-pass sorting work: sort by the least important key first, and whatever you sort by last becomes the primary key.
 
-**`sorted(xs, reverse=True)` ≠ `sorted(xs)[::-1]`.** They agree on values and disagree on ties. Prefer `reverse=True`.
+**`sorted(xs, reverse=True)` is not the same as `sorted(xs)[::-1]`.** The values match, but ties come out in different orders. Stick with `reverse=True`.
 
 ---
 
 # One Sentence to Remember
 
-> **Arrange creates a new view of a sequence by changing the order of its elements without changing the elements themselves.**
+> **Arrange gives you the same elements in a different order, and never changes the elements themselves.**

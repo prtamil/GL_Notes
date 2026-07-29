@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The inverse of lessons 24 and 25: cut one tensor into several **along an axis**.
+The inverse of lessons 24 and 25. Cut one tensor into several **along an axis**.
 
 ```text
 w  (4, 3)
@@ -13,18 +13,18 @@ np.split(w, 3, axis=1)   ->  three (4, 1) pieces
 
 Two ways to say where the cuts go:
 
-- **A count** — `np.split(w, 2)` divides into 2 equal parts, and **raises** if the axis does not divide evenly.
+- **A count.** `np.split(w, 2)` divides into 2 equal parts and **raises** if the axis doesn't divide evenly.
     
-- **A list of indices** — `np.split(xs, [3, 7])` cuts *before* positions 3 and 7, giving three pieces of any sizes.
+- **A list of indices.** `np.split(xs, [3, 7])` cuts *before* positions 3 and 7, giving you three pieces of whatever sizes.
     
 
-`np.array_split` is the forgiving version of the count form: it accepts an uneven division and distributes the remainder.
+`np.array_split` is the forgiving version of the count form. It accepts an uneven division and spreads the remainder around.
 
-And the property that separates this from the rest of the section:
+And here's the property that sets this apart from the rest of the section:
 
 > **Split returns views.**
 
-Concatenate and stack must allocate — two buffers cannot become one for free. Splitting is the opposite: every piece is a contiguous or strided window into the *original* buffer, so it is just slicing (lesson 8), and it costs nothing. Writing to a piece writes to the original.
+Concatenate and stack have to allocate, because two buffers can't become one for free. Splitting is the opposite. Every piece is a contiguous or strided window into the *original* buffer, so it's just slicing (lesson 8) and it costs nothing. Write to a piece and you've written to the original.
 
 ---
 
@@ -364,4 +364,4 @@ Two smaller points: **out-of-range cut indices produce empty pieces rather than 
    list(t)     ──►  items   ──►  stack         (rank down, then up)
 ```
 
-> **Mental shift:** part 1 chunked a list with slicing and part 2 tiled a matrix with `range(0, n, k)`. Those still work and are still the right tool when you want a *fixed size*. What `split` adds is the other question — *"into how many?"* — plus the guarantee that the pieces are views, which is what makes splitting a packed tensor into Q, K and V cost nothing at all.
+> **Mental shift:** part 1 chunked a list with slicing and part 2 tiled a matrix with `range(0, n, k)`. Both still work, and both are still right when you want a *fixed size*. What `split` adds is the other question, *"into how many?"*, plus the guarantee that the pieces are views. That's what makes splitting a packed tensor into Q, K and V cost nothing at all.

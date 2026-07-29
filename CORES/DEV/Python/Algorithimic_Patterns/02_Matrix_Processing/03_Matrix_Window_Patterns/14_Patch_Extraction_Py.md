@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lessons 12 and 13 both **looked through** a window and threw it away, keeping one number per position. Patch extraction keeps the window itself.
+Lessons 12 and 13 both **looked through** a window and then discarded it, keeping one number per position. Patch extraction keeps the window.
 
 ```text
 sliding window            patch extraction
@@ -12,11 +12,11 @@ sliding window            patch extraction
   a matrix of numbers       a LIST of little matrices
 ```
 
-A window is a *view for computing*. A **patch is a value you store**, compare, count, hash, feed to a model, or paste back somewhere else.
+A window is a *view you compute through*. A **patch is a value you keep** — store it, compare it, count it, hash it, feed it to a model, paste it somewhere else.
 
-That change of intent brings three questions the earlier lessons never had to answer:
+That shift in intent raises three questions the earlier lessons never had to answer:
 
-- **Layout.** A list of `k×k` grids, or one flat `n × k²` table? The flat form has a name — **im2col** — and it is how every convolution library actually runs.
+- **Layout.** A list of `k×k` grids, or one flat `n × k²` table? The flat form has a name, **im2col**, and it's how every convolution library actually runs.
     
 - **Anchoring.** Top-left (like a window) or **centred on a cell** (like a neighborhood)? Centred is what you want when every cell needs its own patch.
     
@@ -518,4 +518,4 @@ window  ──┤
               weight  ──►  15
 ```
 
-> **Mental shift:** windows 12 and 13 answer a question and discard the evidence. Patch extraction *is* the evidence — which is why it is the interface to everything statistical: counting, matching, learning, reconstructing.
+> **Mental shift:** windows 12 and 13 answer a question and throw away the evidence. Patch extraction *is* the evidence, which is why it's the doorway into everything statistical: counting, matching, learning, reconstructing.

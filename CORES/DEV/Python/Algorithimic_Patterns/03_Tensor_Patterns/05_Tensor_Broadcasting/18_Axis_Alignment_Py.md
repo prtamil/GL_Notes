@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 17 gave the rule. This lesson is about the consequence nobody expects:
+Lesson 17 gave you the rule. This lesson is about the consequence nobody sees coming:
 
 > **Broadcasting aligns from the right, so which axis a vector lands on is decided by the shape, not by your intent.**
 
@@ -21,9 +21,9 @@ m / m.sum(axis=0)      (3,4) vs (4,)   ->  works
 m / m.sum(axis=1)      (3,4) vs (3,)   ->  RAISES
 ```
 
-**Normalising columns works without any help. Normalising rows does not.** Not because one is harder, but because right-alignment puts the `4` under the `4` in one case and the `3` under the `4` in the other.
+**Normalising columns just works. Normalising rows doesn't.** Not because one is harder, but because right-alignment puts the `4` under the `4` in one case and the `3` under the `4` in the other.
 
-So the skill is putting the size-1 axes where you need them:
+So the skill is putting size-1 axes exactly where you need them:
 
 ```python
 m / m.sum(axis=1, keepdims=True)        # (3,4) vs (3,1)   -> works
@@ -406,4 +406,4 @@ A `(3,4)` matrix protects you; a `(4,4)` matrix does not. Square shapes are comm
    18:  I wanted rows    ->  use keepdims          a decision
 ```
 
-> **Mental shift:** the rule in lesson 17 is mechanical and you will internalise it quickly. This lesson is about intent, which the rule cannot see. NumPy will happily align a per-row statistic with your columns if the numbers permit — so the discipline is to state the alignment explicitly (`keepdims`, an explicit `None`) rather than letting it fall out of whatever shapes happen to exist.
+> **Mental shift:** lesson 17's rule is mechanical and you'll pick it up fast. This lesson is about intent, which the rule can't see. NumPy will cheerfully align a per-row statistic with your columns if the numbers happen to permit it. The discipline is to state the alignment out loud — `keepdims`, an explicit `None` — instead of letting it fall out of whatever shapes happen to be lying around.

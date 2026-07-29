@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lessons 16–21 moved cells to new **positions**. Reshape leaves the cells in exactly the order they were and only changes how they are **grouped into rows**.
+Lessons 16–21 moved cells to new **positions**. Reshape leaves the cells in exactly the order they were already in and only changes how they're **grouped into rows**.
 
 ```text
 [[1, 2, 3],        flatten        [[1, 2],
@@ -11,16 +11,16 @@ Lessons 16–21 moved cells to new **positions**. Reshape leaves the cells in ex
     2 x 3          the tape         3 x 2
 ```
 
-The mental model is a **tape**. Every matrix is really a single sequence of cells, laid out row by row; the row boundaries are just where you decide to cut. Reshape re-cuts the tape.
+The mental model is a **tape**. A matrix is really one long sequence of cells laid out row by row, and the row boundaries are just where you chose to cut. Reshape re-cuts the tape.
 
-Two rules follow immediately, and they are the whole lesson:
+Two rules follow straight away, and together they're the whole lesson:
 
 - **The linear order never changes.** `flat(reshape(m, h, w)) == flat(m)`, always.
     
-- **The cell count must match.** `h * w` has to equal `rows * cols`, or there is no answer.
+- **The cell count has to match.** `h * w` must equal `rows * cols`, or there's no answer.
     
 
-And the comparison that makes it click — both of these turn a `2×3` into a `3×2`, and they are **different matrices**:
+Here's the comparison that makes it click. Both of these turn a `2×3` into a `3×2`, and they give you **different matrices**:
 
 ```text
 reshape(m, 3, 2)      transpose(m)
@@ -394,4 +394,4 @@ Three practical things:
   flatten  ->  stop cutting            1 2 3 4 5 6
 ```
 
-> **Mental shift:** the rest of this section asks *"where does each cell go?"*. Reshape asks *"where do the row breaks go?"* — the cells never move at all. Which is why reshape is nearly free in real array libraries: it changes the metadata, not the memory.
+> **Mental shift:** the rest of this section asks *"where does each cell go?"*. Reshape asks *"where do the row breaks go?"*, and the cells never move at all. That's why reshape is nearly free in real array libraries: it changes the metadata, not the memory.

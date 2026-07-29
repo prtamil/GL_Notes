@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 5 peeled one axis. Nested traversal peels **all of them** — you reach individual cells, and you know **where each one is**.
+Lesson 5 peeled one axis. Nested traversal peels **all of them**, so you reach individual cells and you know **where each one lives**.
 
 ```text
 for i in range(2):
@@ -11,7 +11,7 @@ for i in range(2):
             t[i, j, k]          24 cells, with coordinates
 ```
 
-Part 2 wrote this as two nested loops and that was fine, because the rank was known. At rank `n` the same code is impossible to write by hand — you cannot type a loop nest whose depth is a variable.
+Part 2 wrote this as two nested loops, which was fine because the rank was known. At rank `n` you can't write that by hand at all — there's no way to type a loop nest whose depth is a variable.
 
 So the pattern changes shape. Instead of nesting loops, you **generate the index tuples**:
 
@@ -23,7 +23,7 @@ for idx, v in np.ndenumerate(t):        # index AND value
     ...
 ```
 
-`np.ndindex` is the rank-agnostic replacement for a loop nest, and `np.ndenumerate` is its `enumerate`. Both walk in **row-major order** — last index fastest — which is the same order as `t.ravel()` and part 2's flatten.
+`np.ndindex` is the rank-agnostic stand-in for a loop nest, and `np.ndenumerate` is its `enumerate`. Both walk in **row-major order**, last index fastest, the same order as `t.ravel()` and part 2's flatten.
 
 The pure-Python counterpart is **recursion**: descend the nesting, accumulating a prefix of indices. That version is worth writing once, because it is what makes the rank-independence concrete — the same eight lines handle rank 3 and rank 4 without modification.
 
@@ -367,4 +367,4 @@ Each right-hand column is shorter and roughly two orders of magnitude faster (le
    06:  t  ──►  (0,0,0)→0  (0,0,1)→1  ...  24 cells
 ```
 
-> **Mental shift:** part 2 could hard-code `for r: for c:` because the rank was fixed at 2. The moment rank is a parameter, the loop nest has to become data — a stream of index tuples. Once you make that move, the same function works at every rank, which is the whole promise of "tensor" over "matrix".
+> **Mental shift:** part 2 could hard-code `for r: for c:` because rank was fixed at 2. The moment rank becomes a parameter, the loop nest has to turn into data: a stream of index tuples. Make that move and the same function works at every rank, which is the whole promise of "tensor" over "matrix".

@@ -12,9 +12,9 @@ Every pattern so far processed the *whole* matrix. Search asks a narrower questi
  [7, 8, 9]]     find 99 ->  None
 ```
 
-The answer is a **coordinate, or nothing** — and both halves of that matter. A search that finds nothing is the normal case, not an error, so the shape of the code is always *"return the position, or a sentinel."*
+The answer is a **coordinate, or nothing**, and both halves matter. Finding nothing is a normal outcome, not an error, so the shape of the code is always *"return the position, or a sentinel."*
 
-Three levels of search, distinguished entirely by what you know about the data:
+There are three levels of search here, and what separates them is entirely what you know about the data:
 
 |What you know|Cost|Technique|
 |---|---|---|
@@ -22,9 +22,9 @@ Three levels of search, distinguished entirely by what you know about the data:
 |Rows and columns sorted|O(rows + cols)|**staircase** from a corner|
 |Fully sorted in row-major|O(log(rows × cols))|binary search on the flat index|
 
-The unsorted scan is the one you write most; the staircase is the one interviews are about; the binary search is lesson 23's `divmod` doing real work.
+The unsorted scan is the one you'll write most often. The staircase is the one interviews ask about. The binary search is lesson 23's `divmod` finally doing real work.
 
-And the Python detail that catches everyone: **there is no 2D `.index()`, and `x in m` does not mean what you want.** `5 in m` asks whether `5` is one of the *rows*.
+And here's the Python detail that catches everyone: **there's no 2D `.index()`, and `x in m` doesn't mean what you want.** `5 in m` asks whether `5` is one of the *rows*.
 
 ---
 
@@ -399,4 +399,4 @@ The Python trap is worth repeating because it fails *quietly*: **`5 in m` is `Fa
   26  local expansion    ◉ ──►   one region from a seed
 ```
 
-> **Mental shift:** lesson 24 treats the matrix as a **bag of cells** — position is just where the answer happens to be. Lessons 25 and 26 treat it as a **graph**, where adjacency is the whole point. That is why they need `neighbors4` from lesson 9 and this one does not.
+> **Mental shift:** lesson 24 treats the matrix as a **bag of cells**, where position is just where the answer happened to be. Lessons 25 and 26 treat it as a **graph**, where adjacency is the entire point. That's why they need `neighbors4` from lesson 9 and this one doesn't.

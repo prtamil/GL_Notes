@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 3 reached elements with integers. Slicing reaches **rectangular sub-blocks** — and the syntax is Python's familiar `start:stop:step`, once per axis.
+Lesson 3 reached elements with integers. Slicing reaches **rectangular sub-blocks**, using Python's familiar `start:stop:step` once per axis.
 
 ```text
 t[ 0:2 , 1:3 , ::2 ]
@@ -10,9 +10,9 @@ t[ 0:2 , 1:3 , ::2 ]
    axis0  axis1 axis2
 ```
 
-Each position in the bracket controls one axis, independently. An axis you do not mention is taken whole.
+Each position in the bracket controls one axis on its own. Any axis you don't mention comes through whole.
 
-The rule that ties it to lesson 3:
+Here's the rule that ties this back to lesson 3:
 
 > **An integer consumes an axis. A slice keeps it.**
 
@@ -21,9 +21,9 @@ t[0]        (2,3,4) -> (3,4)      integer: axis gone
 t[0:1]      (2,3,4) -> (1,3,4)    slice: axis kept, size 1
 ```
 
-Same data, different rank. That distinction is the single most common source of shape errors downstream.
+Same data, different rank. That one distinction causes more downstream shape errors than anything else.
 
-And the property that makes slicing cheap — and occasionally dangerous:
+And here's the property that makes slicing cheap, and occasionally dangerous:
 
 > **Basic slicing returns a view.**
 
@@ -395,4 +395,4 @@ The idiom to take away for real code: when the axis is a **variable**, build the
   advanced indexing  ──►  copy   (gathers scattered elements)
 ```
 
-> **Mental shift:** part 2's slicing was `row[c:c+k]` — one axis at a time, always producing new lists. Here every axis is sliced in one expression and nothing is built. Once you internalise that a slice is free and shared, the question stops being "is this fast enough?" and becomes "did I mean to alias that?"
+> **Mental shift:** part 2's slicing was `row[c:c+k]`, one axis at a time, always building new lists. Here you slice every axis in one expression and nothing gets built at all. Once it sinks in that a slice is free and shared, the question stops being "is this fast enough?" and becomes "did I mean to alias that?"

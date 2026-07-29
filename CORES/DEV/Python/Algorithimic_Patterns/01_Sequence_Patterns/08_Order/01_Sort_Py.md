@@ -4,9 +4,9 @@
 
 Rearrange a sequence into a **defined order** based on natural ordering or a custom key.
 
-Unlike **Group**, which partitions data, **Sort** produces a **single ordered sequence**.
+**Group** splits data into buckets. **Sort** gives you back **one ordered sequence**.
 
-Python gives you exactly two entry points — **`sorted(xs)`** returns a new list from any iterable, **`xs.sort()`** rearranges a list in place and returns `None`. Both are **Timsort**: stable, O(n log n), and near-linear on partly-ordered input.
+You get exactly two entry points. **`sorted(xs)`** takes any iterable and returns a new list. **`xs.sort()`** rearranges a list in place and returns `None`. Both run **Timsort**: stable, O(n log n), and close to linear when the input is already partly ordered.
 
 ---
 
@@ -18,7 +18,7 @@ Order
 Sort
 ```
 
-Sort is the fundamental **Order** pattern. It establishes a consistent ordering of elements.
+Sort is the core **Order** pattern. It puts the elements into a consistent order.
 
 ---
 
@@ -352,8 +352,8 @@ xs.sort()                        # in place, returns None      → mutation
 
 ### Key Insight
 
-**Python sorts by key, not by comparator — and the key is a tuple when you need more than one field.** That single fact replaces every custom comparison function most code ever needs: `(dept, age)` for two ascending keys, `(dept, -age)` for one of each, `(x is None, x)` to push missing values to the end. The key function is called exactly once per element, so it can be as expensive as it likes.
+**Python sorts by key, not by comparator, and the key becomes a tuple when you need more than one field.** That one fact covers just about every custom comparison function you'd otherwise write: `(dept, age)` for two ascending keys, `(dept, -age)` for one of each, `(x is None, x)` to shove missing values to the end. The key function runs exactly once per element, so it can be as expensive as you like.
 
-**Stability is the feature that makes multi-pass sorting work.** Timsort never reorders elements that compare equal, so sorting by name and *then* by age gives you age-major, name-minor order — the last sort is the primary key. It's the only clean way to mix ascending and descending on non-numeric fields, and it's why `reverse=True` is not the same as `[::-1]`.
+**Stability is what makes multi-pass sorting work.** Timsort never reorders elements that compare equal, so sorting by name and *then* by age gives you age-major, name-minor order. Whatever you sort by last becomes the primary key. It's the only clean way to mix ascending and descending on non-numeric fields, and it's why `reverse=True` isn't the same as `[::-1]`.
 
-The last habit worth building: **ask whether you need the whole order.** `max()` is O(n), `nlargest(k)` is O(n log k), a full sort is O(n log n). Sorting to find one element is the most common casually-wasteful line in Python. But when sorting is the *precondition* for something else — binary search, `groupby`, median, interval merging — it stops being presentation and becomes the algorithm.
+One habit worth building: **ask whether you need the full order at all.** `max()` is O(n), `nlargest(k)` is O(n log k), a full sort is O(n log n). Sorting a list to find one element is the most common bit of casual waste in Python. That said, when sorting is the *precondition* for something else — binary search, `groupby`, median, interval merging — it stops being presentation and becomes the algorithm.

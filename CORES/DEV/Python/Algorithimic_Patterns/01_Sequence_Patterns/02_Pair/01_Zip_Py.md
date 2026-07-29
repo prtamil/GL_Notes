@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Combine **multiple sequences element-by-element** into a single sequence of tuples.
+Fold **several sequences together element by element** into one sequence of tuples.
 
-Python names this pattern directly: **`zip`** is a builtin, and it is lazy — it yields tuples on demand and stops at the shortest input.
+Python names this pattern outright: **`zip`** is a builtin. It's lazy, handing over tuples as you ask for them, and it stops the moment the shortest input runs out.
 
 ---
 
@@ -16,7 +16,7 @@ Pair
 Zip
 ```
 
-Zip is the simplest implementation of the **Pair** verb. It pairs corresponding elements from two or more sequences.
+Zip is the simplest form of the **Pair** verb, matching up corresponding elements from two or more sequences.
 
 ---
 
@@ -270,6 +270,6 @@ list(chain(xs, ys))          # one after other → Concatenate
 
 ### Key Insight
 
-**`zip` is its own inverse.** `zip(*zip(a, b))` gives you `a, b` back — which is why the same builtin does pairing, unzipping, and matrix transposition. Recognizing that one function covers all three removes three things from memory.
+**`zip` undoes itself.** `zip(*zip(a, b))` hands `a, b` straight back, which is why one builtin covers pairing, unzipping and matrix transposition. Once you see that, three things collapse into one.
 
-The one thing that bites everyone: **`zip` truncates to the shortest input without a word.** If the sequences are meant to be parallel, a length mismatch is a bug in your data, and `strict=True` is how you find out about it instead of quietly processing three of your five records.
+The part that catches everyone: **`zip` truncates to the shortest input and never mentions it.** If your sequences are supposed to be parallel, a length mismatch means your data is broken, and `strict=True` is how you hear about it instead of quietly processing three of your five records.

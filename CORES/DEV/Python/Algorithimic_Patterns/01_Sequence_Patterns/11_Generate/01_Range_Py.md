@@ -4,9 +4,9 @@
 
 Generate a **sequence of values following a regular interval**.
 
-Unlike **Repeat**, which duplicates the same value, **Range** generates **progressively changing values**.
+**Repeat** hands you the same value over and over. **Range** hands you **values that keep changing**.
 
-Python's `range` is not a generator — it is a **lazy sequence object**. It has a length, supports indexing and slicing, tests membership in O(1), and can be iterated any number of times. `itertools.count` is the unbounded, float-capable cousin.
+`range` isn't a generator. It's a **lazy sequence object**: it has a length, supports indexing and slicing, tests membership in O(1), and you can iterate it as many times as you like. `itertools.count` is the unbounded, float-capable cousin.
 
 ---
 
@@ -18,7 +18,7 @@ Generate
 Range
 ```
 
-Range is a **Generate** pattern because it creates a new sequence from a start, end, and optional step.
+Range is a **Generate** pattern: it builds a new sequence from a start, an end, and an optional step.
 
 ---
 
@@ -321,8 +321,8 @@ cycle([1, 2, 3])                # repeats a pattern            → Cycle
 
 ### Key Insight
 
-**`range` is a lazy *sequence*, not a lazy *stream*, and the difference is worth understanding precisely.** It supports `len`, indexing, slicing, reversal, O(1) membership testing, and unlimited re-iteration — all from three stored integers. A generator can do none of that. This is why `range(10**9)` costs 48 bytes while `list(range(10**9))` costs tens of gigabytes, and why you can pass a `range` around and iterate it twice without it silently emptying.
+**`range` is a lazy *sequence*, not a lazy *stream*, and that distinction is worth getting exactly right.** It gives you `len`, indexing, slicing, reversal, O(1) membership testing and unlimited re-iteration, all out of three stored integers. A generator gives you none of it. That's why `range(10**9)` costs 48 bytes while `list(range(10**9))` costs tens of gigabytes, and why you can pass a `range` around and iterate it twice without it quietly emptying.
 
-**Half-open bounds are a feature, not a quirk.** `range(a, b)` has exactly `b - a` elements, `range(n)` covers every valid index of a length-`n` list, adjacent ranges tile without overlap or gaps (`range(0,3)` then `range(3,6)`), and `xs[i:j]` matches `range(i, j)` element for element. Every "1 to 10" bug comes from fighting that convention rather than using it.
+**Half-open bounds are a feature, not a quirk.** `range(a, b)` has exactly `b - a` elements. `range(n)` covers every valid index of a length-`n` list. Adjacent ranges tile with no overlap and no gaps (`range(0,3)` then `range(3,6)`). And `xs[i:j]` lines up with `range(i, j)` element for element. Every "1 to 10" bug comes from fighting that convention instead of using it.
 
-The habit to build is **generating offsets rather than values**. `range` only makes integers, but almost nothing you actually want is an integer — you want dates, chunk boundaries, grid cells, page windows, characters. In each case `range` produces the index and the domain does the arithmetic: `start + timedelta(days=i)`, `xs[i:i+n]`, `chr(65 + i)`. Once you see `range` as an index generator rather than a number generator, it stops being a loop counter and becomes the backbone of every batching and windowing pattern in the book.
+The habit to build is **generating offsets, not values**. `range` only makes integers, and almost nothing you actually want is an integer. You want dates, chunk boundaries, grid cells, page windows, characters. In every case `range` supplies the index and the domain does the arithmetic: `start + timedelta(days=i)`, `xs[i:i+n]`, `chr(65 + i)`. Start seeing `range` as an index generator rather than a number generator and it stops being a loop counter — it becomes the backbone of every batching and windowing pattern in this book.

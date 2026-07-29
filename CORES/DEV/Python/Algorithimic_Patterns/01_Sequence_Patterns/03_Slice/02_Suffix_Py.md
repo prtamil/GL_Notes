@@ -4,9 +4,9 @@
 
 Take the **ending portion** of a sequence.
 
-Python gives this one a gift Clojure doesn't have: **negative indices**. `xs[-3:]` is the last three, no arithmetic, no length needed.
+Python hands you something Clojure doesn't have here: **negative indices**. `xs[-3:]` is the last three, with no arithmetic and no length to look up.
 
-But the gift comes with a condition — negative indices require a **known length**. On a stream you must reach for `deque(maxlen=n)` instead.
+There's a catch, though. Negative indices need a **known length**. On a stream you have to reach for `deque(maxlen=n)` instead.
 
 ---
 
@@ -18,7 +18,7 @@ Slice
 Suffix
 ```
 
-Suffix is a **Slice** pattern that extracts elements **from the end** of a sequence.
+Suffix is a **Slice** pattern that takes elements **from the end** of a sequence.
 
 ---
 
@@ -299,8 +299,8 @@ list(deque(it, maxlen=3))       # last 3 of a stream    → Suffix (bounded)
 
 ### Key Insight
 
-**Negative indexing makes suffixes as cheap as prefixes — but only for sized sequences.** The moment your data is a file, a socket, or a generator, "the last N" stops being a slice and becomes `deque(maxlen=n)`: you cannot know where the end is until you get there, so you keep a rolling buffer of candidates and let the rest fall away.
+**Negative indexing makes suffixes as cheap as prefixes, as long as the sequence has a size.** The moment your data is a file, a socket, or a generator, "the last N" stops being a slice and turns into `deque(maxlen=n)`. You can't know where the end is until you reach it, so you keep a rolling buffer of candidates and let everything else fall off the back.
 
-That is the deep asymmetry of this pattern. **A prefix can be taken without reading the whole input; a suffix cannot.** `islice(f, 100)` reads 100 lines; `deque(f, maxlen=100)` reads all ten million and remembers 100. Same-looking code, completely different cost — and the reason `tail` is a harder program than `head`.
+That's the real asymmetry here. **You can take a prefix without reading the whole input. You can't take a suffix that way.** `islice(f, 100)` reads 100 lines. `deque(f, maxlen=100)` reads all ten million and keeps 100. The code looks the same and the cost isn't remotely the same, which is why `tail` is a harder program to write than `head`.
 
-And when a suffix problem gets genuinely hard, reverse it: `s[::-1]` turns every suffix question into the prefix question you already know how to answer.
+And when a suffix problem gets genuinely awkward, flip it. `s[::-1]` turns any suffix question into the prefix question you already know how to answer.

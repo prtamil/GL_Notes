@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-A reduction takes many values and returns one. In a tensor, the question is always **along which axis** — and the answer determines the shape by one rule:
+A reduction takes many values and gives back one. With a tensor the question is always **along which axis**, and the answer sets the output shape by a single rule:
 
 > **Reducing along axis `k` deletes entry `k` from the shape.**
 
@@ -15,7 +15,7 @@ t.sum(axis=2)  ->  (2, 3)      the 4 collapsed
 t.sum()        ->  ()          everything collapsed
 ```
 
-That was stated back in lesson 2; this lesson is where it becomes the everyday tool. Part 1 reduced sequences with `sum`, `max`, `Counter`. Part 2 reduced rows and columns. Here it is the same set of operations with one extra argument — and that argument is the whole design:
+Lesson 2 stated that rule. This is where it becomes your everyday tool. Part 1 reduced sequences with `sum`, `max` and `Counter`. Part 2 reduced rows and columns. Here it's the same set of operations with one extra argument, and that argument carries the whole design:
 
 ```python
 t.sum(axis=1)       # per (block, column)
@@ -23,9 +23,9 @@ t.mean(axis=0)      # per (row, column), averaged over blocks
 t.max(axis=-1)      # per (block, row)
 ```
 
-Two practical points that only appear at rank 3+:
+Two practical points that only show up at rank 3 and above:
 
-- **`axis=None` is the default and it collapses *everything***. `t.mean()` is a single number, not a per-row mean. Never rely on the default — write the axis.
+- **`axis=None` is the default and it collapses *everything***. `t.mean()` is one number, not a per-row mean. Don't lean on the default. Write the axis.
     
 - **Empty reductions return the operation's identity**, not an error: `sum` of nothing is `0`, `prod` of nothing is `1`, `all` of nothing is `True`. But `max` of nothing *raises*, because there is no identity for maximum.
     
@@ -376,4 +376,4 @@ Two smaller gotchas worth carrying: `np.max` reduces while `np.maximum` is eleme
               --argmax------>   indices         23
 ```
 
-> **Mental shift:** part 1 reduced a sequence to a number and that was the end of it. In part 3 a reduction is rarely the end — the result is usually about to meet the original tensor again, in a subtraction or a division. That is why the next lesson is about *not* losing the axis you just collapsed.
+> **Mental shift:** part 1 reduced a sequence to a number and that was the end of the story. In part 3 a reduction is rarely the end. The result is usually about to meet the original tensor again in a subtraction or a division. That's why the next lesson is about *not* losing the axis you just collapsed.

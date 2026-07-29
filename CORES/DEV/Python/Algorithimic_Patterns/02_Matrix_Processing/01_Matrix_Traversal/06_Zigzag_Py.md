@@ -2,11 +2,11 @@
 
 ## Mental Model
 
-Zigzag traversal visits the matrix by **alternating the traversal direction** after each line. Instead of always moving in the same direction, the traversal **bounces back and forth**.
+Zigzag traversal **flips direction after every line**. Rather than always moving the same way, the traversal **bounces back and forth**.
 
-The line being traversed can be rows, columns, or diagonals. The most famous zigzag pattern is the **JPEG diagonal zigzag scan**.
+The line can be a row, a column, or a diagonal. The most famous version is the **JPEG diagonal zigzag scan**.
 
-In Python the whole pattern collapses to one decision per line: **plain, or `[::-1]`?**
+In Python the whole thing collapses to one decision per line: **plain, or `[::-1]`?**
 
 ---
 
@@ -361,13 +361,13 @@ Change step 1 and you change the pattern. Step 2 never changes.
 
 ### Zigzag vs Snake
 
-Although many resources use the terms interchangeably, it's useful to distinguish them conceptually:
+Plenty of sources use the two words interchangeably, but it's worth keeping them apart:
 
 |Pattern|Primary Idea|
 |---|---|
 |**Zigzag**|Alternate the direction of each traversal unit (rows, columns, or diagonals). The concept is general.|
 |**Snake**|A specific zigzag where the traversal unit is **rows** (or sometimes columns), producing a continuous snake-like path.|
 
-In this course, we'll treat **Snake Traversal** as a specialized form of zigzag because it appears frequently in graphics, game maps, and interview problems.
+Here we'll treat **Snake Traversal** as a special case of zigzag, because it turns up so often in graphics, game maps and interview questions.
 
 ---

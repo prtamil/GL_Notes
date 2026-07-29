@@ -4,11 +4,11 @@
 
 Transform each element into **zero, one, or many elements**, then **flatten** the results into a single sequence.
 
-Unlike `map`, which returns one output per input, **FlatMap can change the size of the sequence**.
+`map` gives you one output per input. **FlatMap can change the size of the sequence.**
 
-Python has no `flatMap` function. Instead it has **two spellings**, and you should know both:
+There's no `flatMap` function in Python. There are **two spellings**, and both are worth knowing:
 
-- **`[y for x in xs for y in f(x)]`** — the comprehension; the everyday form.
+- **`[y for x in xs for y in f(x)]`** — the comprehension, and the one you'll write most days.
 - **`chain.from_iterable(map(f, xs))`** — the lazy form, for streams and pipelines.
 
 ---
@@ -318,6 +318,6 @@ list(chain.from_iterable(xss))           # flatten only → FlatMap with f = ide
 
 ### Key Insight
 
-**FlatMap is `map` and `filter` in a single operation.** Return one element and it's a map; return none and it's a filter; return several and it's an expansion. That is why so many pipelines collapse into one comprehension — you don't need a separate filtering pass when the mapping function can simply return an empty list.
+**FlatMap is `map` and `filter` rolled into one.** Return one element and it's a map. Return none and it's a filter. Return several and it's an expansion. That's why so many pipelines collapse into a single comprehension: you don't need a separate filtering pass when the mapping function can just return an empty list.
 
-The thing that trips people: **it flattens exactly one level.** `chain.from_iterable` will not dig into `[1, [2, 3]]` — arbitrary depth needs recursion, and that recursion needs an `isinstance(..., str)` guard, because a string is an iterable of one-character strings and will recurse until the stack gives out.
+The bit that trips people up: **it flattens exactly one level.** `chain.from_iterable` won't reach into `[1, [2, 3]]`. Arbitrary depth means recursion, and that recursion needs an `isinstance(..., str)` guard, because a string is an iterable of one-character strings and will happily recurse until the stack gives out.

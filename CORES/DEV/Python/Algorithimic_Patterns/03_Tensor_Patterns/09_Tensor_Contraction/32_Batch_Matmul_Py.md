@@ -12,21 +12,21 @@
  batch  matrix              batch, matrix
 ```
 
-`out[b] == A[b] @ B[b]` — two independent matrix products, computed in one call.
+`out[b] == A[b] @ B[b]`: two independent matrix products, done in one call.
 
-And because the batch axes *broadcast* (lesson 17), a single matrix applies to a whole batch with no tiling:
+And since the batch axes *broadcast* (lesson 17), one matrix applies to a whole batch with no tiling:
 
 ```text
 (2, 3, 4) @ (4, 5)  ->  (2, 3, 5)      the same (4,5) used twice
 ```
 
-That is a linear layer applied to a batch, and it costs nothing extra — the weight matrix is not copied.
+That's a linear layer applied to a batch, and it costs nothing extra, because the weight matrix never gets copied.
 
-Two traps follow directly from "the last two axes are the matrix":
+Two traps follow straight from "the last two axes are the matrix":
 
-- **`.T` is wrong.** On rank 3 it reverses *all* axes (lesson 14), giving `(4,3,2)` where you wanted `(2,4,3)`. The correct batch transpose is `swapaxes(-1, -2)`.
+- **`.T` is wrong.** On rank 3 it reverses *all* the axes (lesson 14), handing you `(4,3,2)` where you wanted `(2,4,3)`. The correct batch transpose is `swapaxes(-1, -2)`.
     
-- **`np.dot` is wrong.** It has no batch concept and takes an outer product over the free axes: `(2,3,4)` with `(2,4,5)` gives `(2,3,2,5)` instead of `(2,3,5)`.
+- **`np.dot` is wrong.** It has no notion of a batch and takes an outer product over the free axes, so `(2,3,4)` with `(2,4,5)` gives `(2,3,2,5)` instead of `(2,3,5)`.
     
 
 ---
@@ -357,4 +357,4 @@ Attention is the pattern's showcase: contract the *feature* axis to score every 
    dot:     batch is just another free axis -> outer product
 ```
 
-> **Mental shift:** lesson 31's matmul was a single linear-algebra operation. Adding leading axes turns it into "do this to every item", which is the shape of nearly all deep-learning code — and the reason `@` is written with the *matrix* axes last. Put the axes you want contracted at the end, and the batch takes care of itself.
+> **Mental shift:** lesson 31's matmul was one linear-algebra operation. Add leading axes and it becomes "do this to every item", which is the shape of nearly all deep-learning code, and the reason `@` puts the *matrix* axes last. Put the axes you want contracted at the end and the batch handles itself.

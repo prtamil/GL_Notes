@@ -4,9 +4,9 @@
 
 Swap **rows and columns** of a 2D sequence.
 
-A Transpose changes the **orientation** of data without changing the values.
+A transpose changes the **orientation** of the data and leaves the values alone.
 
-Python's answer is one of the language's best tricks: **`zip(*rows)`**. Unpacking the rows as arguments turns "take one from each row" into "build a column" — transpose and unzip are literally the same call.
+Python's answer is one of its best tricks: **`zip(*rows)`**. Unpacking the rows as arguments turns "take one from each row" into "build a column", which means transpose and unzip are literally the same call.
 
 ---
 
@@ -18,7 +18,7 @@ Structure
 Transpose
 ```
 
-Transpose is a **Structure** pattern because it reorganizes the layout of data from **row-major** to **column-major** (or vice versa).
+Transpose is a **Structure** pattern that flips the layout from **row-major** to **column-major**, or back again.
 
 ---
 
@@ -339,8 +339,8 @@ batched(flat, n)                # 1D → 2D                 → Reshape
 
 ### Key Insight
 
-**`zip(*m)` is the whole pattern, and the `*` is doing the work.** Unpacking turns a list of rows into separate arguments, and `zip`'s "one item from each argument" rule then produces columns by definition. The same expression unzips a list of pairs, which is not a coincidence — zipping and transposing are the same operation viewed from different sides, and `zip(*zip(*m))` returns you to where you started.
+**`zip(*m)` is the whole pattern, and the `*` is what does the work.** Unpacking turns a list of rows into separate arguments, and zip's "one item from each argument" rule then produces columns by definition. The same expression unzips a list of pairs, and that's no accident: zipping and transposing are one operation seen from two sides, which is why `zip(*zip(*m))` puts you back where you started.
 
-**`zip` truncates at the shortest input, so a ragged matrix loses data with no error.** This is the failure that reaches production: it works perfectly on your clean test matrix and silently drops the tail of every long row in real data. If rows can differ in length — CSV, scraped tables, user input — use `zip_longest` and decide what the filler means.
+**`zip` truncates at the shortest input, so a ragged matrix loses data without a word.** This is the failure that reaches production. It works perfectly on your clean test matrix and quietly drops the tail of every long row in real data. If rows can vary in length — CSV, scraped tables, user input — use `zip_longest` and decide what the filler means.
 
-The reason transposing matters at all is that **it converts a column-wise question into a row-wise one**, and row-wise is the only thing Python iterates naturally. Column sums, per-field statistics, checking Sudoku columns, unzipping records into parallel series — each of these is a loop you already know how to write, applied to `zip(*m)` instead of `m`. Write the check once, transpose, run it again. For large numeric data, reach for `numpy.T`, where the same flip costs nothing at all because only the strides change.
+Transposing matters because **it turns a column-wise question into a row-wise one**, and row-wise is the only direction Python iterates naturally. Column sums, per-field statistics, checking Sudoku columns, unzipping records into parallel series: each of these is a loop you already know how to write, pointed at `zip(*m)` instead of `m`. Write the check once, transpose, run it again. For large numeric data reach for `numpy.T`, where the same flip is free because only the strides change.

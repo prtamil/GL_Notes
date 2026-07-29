@@ -4,9 +4,9 @@
 
 Traverse a sequence until the **first element satisfying a condition** is found, then **stop immediately**.
 
-Unlike **Filter**, which returns **all matching elements**, **First Match** returns only the first one.
+**Filter** hands back **every matching element**. **First Match** hands back just the first.
 
-Python's spelling is **`next(x for x in xs if p(x), default)`** — a generator expression that is never fully consumed, so the scan stops on the first hit. The `default` is not optional in practice: without it, "not found" is a `StopIteration`.
+Python spells it **`next(x for x in xs if p(x), default)`**. The generator expression never gets fully consumed, so the scan stops the moment it hits. Treat that `default` as mandatory: leave it out and "not found" arrives as a `StopIteration`.
 
 ---
 
@@ -18,7 +18,7 @@ Search
 First Match
 ```
 
-First Match is a **Search** pattern because it searches until a match is found, then terminates.
+First Match is a **Search** pattern: it looks until it finds a match, then stops.
 
 ---
 
@@ -341,8 +341,8 @@ bisect_left(sorted_xs, t)               # O(log n) position   → First Match
 
 ### Key Insight
 
-**The parentheses are the pattern.** `next((x for x in xs if p(x)), None)` reads as noise until you see what each piece buys: the generator expression makes the scan lazy so it stops at the first hit, and the second argument to `next` converts "not found" from an exception into a value. Drop the default and a routine miss becomes a `StopIteration` — which inside a generator function turns into a `RuntimeError` with a stack trace that points nowhere useful.
+**The parentheses are the pattern.** `next((x for x in xs if p(x)), None)` looks like noise until you see what each piece buys you. The generator expression keeps the scan lazy so it stops at the first hit, and the second argument to `next` turns "not found" from an exception into a value. Drop that default and an ordinary miss becomes a `StopIteration`, which inside a generator function mutates into a `RuntimeError` with a stack trace pointing nowhere useful.
 
-**Early termination is the entire point, and it is invisible in the output.** `next(...)` and `[... ][0]` return the same element on the same data; they differ only in how much work happened. On a large list that's a constant factor, on an infinite generator it's correctness. Any time you write `[x for x in xs if p(x)][0]` you have built the whole list to throw away all but one element.
+**Stopping early is the whole point, and you can't see it in the output.** `next(...)` and `[...][0]` return the same element on the same data. All that differs is how much work happened. On a big list that's a constant factor; on an infinite generator it's the difference between working and hanging. Every time you write `[x for x in xs if p(x)][0]` you've built an entire list to throw away all but one element.
 
-The trap worth internalizing is the **repeated** first match. One `next()` scan is O(n) and fine. The same scan inside a loop over n keys is O(n²), and it never looks like a mistake because each individual line is idiomatic. The moment you search the same collection more than a couple of times, stop searching it — **build a `dict` once and look up forever**, or sort it and `bisect`.
+The trap to internalise is the **repeated** first match. One `next()` scan is O(n) and perfectly fine. The same scan inside a loop over n keys is O(n²), and it never looks wrong because every individual line is idiomatic. Once you're searching the same collection more than a couple of times, stop searching it: **build a `dict` once and look up forever**, or sort it and `bisect`.

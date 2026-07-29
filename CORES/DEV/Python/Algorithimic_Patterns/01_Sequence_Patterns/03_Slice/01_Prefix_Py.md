@@ -4,7 +4,7 @@
 
 Take the **beginning portion** of a sequence.
 
-In Python this splits along one axis: **`xs[:n]`** for indexable data (eager, needs `len`), **`islice` / `takewhile`** for iterators and streams (lazy, one pass).
+In Python the choice comes down to one thing: **`xs[:n]`** for indexable data (eager, needs `len`), or **`islice` / `takewhile`** for iterators and streams (lazy, one pass).
 
 ---
 
@@ -16,7 +16,7 @@ Slice
 Prefix
 ```
 
-Prefix is a **Slice** pattern that extracts elements **from the start** of a sequence.
+Prefix is a **Slice** pattern that takes elements **from the start** of a sequence.
 
 ---
 
@@ -277,6 +277,6 @@ xs[0], xs[1:]                       # one + the rest        → Head & Tail
 
 ### Key Insight
 
-**"First N" and "first while" are different patterns wearing the same word.** `islice`/`[:n]` cuts by **count**; `takewhile` cuts by **condition** and stops at the first failure. Confusing `takewhile` with `filter` — one stops, the other keeps scanning — is the single most common bug in this pattern.
+**"First N" and "first while" are two different patterns sharing a word.** `islice` and `[:n]` cut by **count**. `takewhile` cuts by **condition** and stops the instant the condition fails. Mixing up `takewhile` and `filter` — one stops, the other keeps scanning — is the most common bug in this pattern by a mile.
 
-The second thing worth internalizing: **slicing copies, `islice` doesn't.** For a list of six that is irrelevant; for a 10 GB log file or an infinite generator it is the entire difference between a one-liner and an impossibility. When the source is a stream, the prefix pattern is the *only* one that still works, which is why `islice(f, n)` shows up everywhere in real Python.
+The other thing worth burning in: **slicing copies, `islice` doesn't.** On a list of six that makes no difference. On a 10 GB log file or an infinite generator it's the difference between a one-liner and something you simply can't do. When your source is a stream, prefix is the *only* slice pattern still available, which is why `islice(f, n)` turns up everywhere in real Python.

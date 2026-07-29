@@ -1,17 +1,17 @@
-`itertools.accumulate` is Python's answer to Clojure's `reductions`, and it is beautiful for the same reason: it returns **the entire history**, not just the final answer.
+`itertools.accumulate` is Python's version of Clojure's `reductions`, and it's lovely for the same reason: you get back **the whole history**, not just the final answer.
 
-Think of it as:
+An easy way to hold it:
 
 > **`functools.reduce` = Final state**
 > **`itertools.accumulate` = Every intermediate state**
 
-The signature to memorize:
+The signature worth memorising:
 
 ```python
 accumulate(iterable, func=operator.add, *, initial=None)
 ```
 
-Three things Python does differently from Clojure:
+A few places where Python parts ways with Clojure:
 
 | | Clojure `reductions` | Python `accumulate` |
 |---|---|---|
@@ -298,6 +298,6 @@ import statistics
 
 ### Key Insight
 
-**`reduce` and `accumulate` are the same fold; the only difference is whether you keep the tape.** Once you see that, a surprising number of problems stop needing a loop: "best so far", "running balance", "seen up to here", "where was I after each move" are all one `accumulate` with the right two-argument function.
+**`reduce` and `accumulate` are the same fold. The only question is whether you keep the tape.** Once that clicks, a surprising number of problems stop needing a loop at all. "Best so far", "running balance", "everything seen up to here", "where was I after each move" — all one `accumulate` with the right two-argument function.
 
-The Python-specific trap is **mutation**. The accumulator function must *return a new value*, not modify one in place — `lambda s, x: s | {x}` works, `lambda s, x: s.add(x)` silently accumulates `None`. Clojure's immutable defaults make this impossible to get wrong; in Python it is the first thing to check when an `accumulate` gives you a column of `None`s or N references to the same object.
+The trap in Python is **mutation**. Your accumulator function has to *return a new value* rather than change one in place. `lambda s, x: s | {x}` works; `lambda s, x: s.add(x)` quietly accumulates `None`. Clojure's immutable defaults make this impossible to get wrong. In Python it's the first thing to check when an `accumulate` gives you a column of `None`s, or N references to the same object.

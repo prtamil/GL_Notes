@@ -8,7 +8,7 @@ Part 2's lesson 29 said every generated matrix is a **function of its coordinate
 [[f(r, c) for c in range(cols)] for r in range(rows)]
 ```
 
-At rank `n` you cannot write that loop nest (lesson 6). So instead you **materialise the coordinates as tensors** and let the expression be vectorised:
+At rank `n` you can't write that loop nest at all (lesson 6). So instead you **materialise the coordinates as tensors** and let the expression vectorise:
 
 ```text
 i, j = coordinate grids of shape (3, 4)
@@ -16,7 +16,7 @@ i, j = coordinate grids of shape (3, 4)
 f = i + j          ->  the whole grid, no loop
 ```
 
-That is what `meshgrid`, `indices`, `mgrid` and `ogrid` all produce — one tensor per axis, each holding that axis's index.
+That's what `meshgrid`, `indices`, `mgrid` and `ogrid` all produce: one tensor per axis, each holding that axis's index.
 
 ```text
 np.indices((3,4))[0]        np.indices((3,4))[1]
@@ -27,16 +27,16 @@ np.indices((3,4))[0]        np.indices((3,4))[1]
      ↑ the row index             ↑ the column index
 ```
 
-But lesson 19 already did this with two vectors and broadcasting — `np.arange(3)[:, None]` and `np.arange(4)[None, :]` — for a fraction of the memory. So the real content of this lesson is **which form to use**:
+Lesson 19 already did this with two vectors and broadcasting — `np.arange(3)[:, None]` and `np.arange(4)[None, :]` — using a fraction of the memory. So what this lesson is really about is **which form to reach for**:
 
 |Form|Shapes|Memory|
 |---|---|---|
 |`meshgrid(..., sparse=True)`, `ogrid`|`(3,1)`, `(1,4)`|**small**|
 |`meshgrid`, `indices`, `mgrid`|`(3,4)`, `(3,4)`|full|
 
-The sparse form *is* the broadcasting form, with a name. Prefer it, and let broadcasting expand.
+The sparse form *is* the broadcasting form with a name on it. Prefer it and let broadcasting do the expanding.
 
-And the trap that costs everyone an afternoon once: **`meshgrid` defaults to `indexing='xy'`, which transposes.**
+And here's the trap that costs everyone an afternoon exactly once: **`meshgrid` defaults to `indexing='xy'`, which transposes.**
 
 ---
 
@@ -400,4 +400,4 @@ The division of labour between the two families is simple: **`np.indices` takes 
    ogrid     ->  ALL cells at once,   rank-agnostic
 ```
 
-> **Mental shift:** part 2 treated `(r, c)` as an address you looped over. Here the coordinates are *data* — tensors you do arithmetic on. Once the position is a value rather than a loop variable, a checkerboard, a distance field and a positional encoding are all just expressions, and the rank stops mattering.
+> **Mental shift:** part 2 treated `(r, c)` as an address you looped over. Here the coordinates are *data*: tensors you do arithmetic on. Once position is a value rather than a loop variable, a checkerboard, a distance field and a positional encoding are all just expressions, and the rank stops mattering.

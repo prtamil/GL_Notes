@@ -2,18 +2,18 @@
 
 ## Mental Model
 
-Lessons 9 and 10 each hard-coded one answer to "what is near me". A **radius neighborhood** makes the answer a parameter:
+Lessons 9 and 10 each baked in one fixed answer to "what's near me". A **radius neighborhood** turns that answer into a parameter:
 
 > every cell within distance **R** of `(r, c)`.
 
-Two knobs, not one:
+There are two knobs here, not one:
 
 - **R** — how far.
     
-- **The metric** — what "far" means.
+- **The metric** — what "far" even means.
     
 
-The metric decides the *shape*, and there are three worth knowing:
+The metric is what decides the *shape*, and three are worth knowing:
 
 ```text
 Chebyshev R=2        Manhattan R=2        Euclidean R=3
@@ -524,4 +524,4 @@ Von Neumann  ─┐
 Moore        ─┘
 ```
 
-> **Mental shift:** traversal answered *"in what order?"*; neighborhood answers *"who is near?"*. Fix the shape and slide it instead of centring it on a cell, and you have the next section — **windows**.
+> **Mental shift:** traversal answered *"in what order?"* and neighborhood answers *"who is near?"*. Pin the shape down and slide it around instead of centring it on a cell, and you've arrived at the next section: **windows**.

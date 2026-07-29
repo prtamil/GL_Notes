@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Combine **multiple sequences by alternating elements** from each sequence.
+Merge **several sequences by alternating between them**, one element at a time.
 
-Python has no `interleave` builtin — the idiom is **`chain.from_iterable(zip(...))`**: zip to group corresponding elements, then flatten to lay them out end to end.
+There's no `interleave` builtin in Python. The idiom is **`chain.from_iterable(zip(...))`**: zip groups the corresponding elements, then the flatten lays them out end to end.
 
 ---
 
@@ -16,7 +16,7 @@ Pair
 Interleave
 ```
 
-Interleave is a **Pair** pattern that combines sequences by taking **one element from each sequence in turn**.
+Interleave is a **Pair** pattern that builds one sequence by taking **one element from each input in turn**.
 
 ---
 
@@ -262,6 +262,6 @@ list(roundrobin(nums, chars))                   # => [1,'a',2,'b',3,'c'] (uneven
 
 ### Key Insight
 
-**Interleave is Zip plus a flatten.** Zip groups elements by position and *keeps* the grouping; interleave dissolves it into a flat stream. Every interleave question in Python is answered by choosing which of those two you want, then whether the flatten should stop at the shortest input.
+**Interleave is Zip with a flatten on top.** Zip groups elements by position and *keeps* the grouping. Interleave dissolves it into one flat stream. Answering any interleave question in Python comes down to picking which of those two you want, then deciding whether the flatten should stop at the shortest input.
 
-The distinction worth holding on to: **interleave alternates by position, merge orders by value.** They look identical on two sorted equal-length inputs and diverge completely on everything else — so "merge these two log files" almost always means `heapq.merge`, not this pattern.
+One distinction worth holding onto: **interleave alternates by position, merge orders by value.** Give them two sorted, equal-length inputs and they look identical. Give them anything else and they behave completely differently. So "merge these two log files" almost always means `heapq.merge`, not this pattern.

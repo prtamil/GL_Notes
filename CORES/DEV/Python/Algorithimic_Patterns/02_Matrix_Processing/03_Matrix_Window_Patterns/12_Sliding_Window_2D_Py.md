@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-A neighborhood is centred on a cell. A **window** is a fixed rectangle that **slides** — you stop at every position and reduce whatever is inside to an answer.
+A neighborhood sits centred on a cell. A **window** is a fixed rectangle that **slides**: you stop at every position and reduce whatever's inside it to an answer.
 
 ```text
   ┌───┐              ┌───┐
@@ -12,13 +12,13 @@ A neighborhood is centred on a cell. A **window** is a fixed rectangle that **sl
   position (0,0)  (0,1)          (2,2)
 ```
 
-Three numbers define it, and they are the whole pattern:
+Three numbers define it, and together they *are* the pattern:
 
 - **size** `k` (or `h × w`) — how big the window is.
     
 - **stride** — how far it jumps. Stride 1 here; stride `k` is the next lesson.
     
-- **the reduction** — sum, max, count, a test.
+- **the reduction** — a sum, a max, a count, a test.
     
 
 A `k×k` window at stride 1 has exactly `(rows-k+1) × (cols-k+1)` positions, and **consecutive positions overlap by `k-1` columns**. That overlap is both the cost (you re-read the same cells) and the opportunity (you can reuse the previous answer instead of recomputing it).
@@ -446,4 +446,4 @@ Neighborhood            Sliding Window
   output: same shape      output: smaller
 ```
 
-> **Mental shift:** a neighborhood asks *"what surrounds this cell?"* and gives you one answer per cell. A window asks *"what is the best placement?"* and gives you one answer per **position** — and there are fewer positions than cells, which is why the output shrinks.
+> **Mental shift:** a neighborhood asks *"what surrounds this cell?"* and gives you one answer per cell. A window asks *"what's the best placement?"* and gives you one answer per **position**. There are fewer positions than cells, which is why the output comes out smaller.

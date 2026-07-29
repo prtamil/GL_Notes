@@ -10,15 +10,15 @@ t.shape = (2, 3, 4)
 for sub in t          ->  2 sub-tensors of shape (3, 4)
 ```
 
-A plain `for` loop over a tensor always walks **axis 0**, and each step yields a sub-tensor of **rank one lower**. That is the entire built-in behaviour — there is no `for sub in t along axis 1`.
+A plain `for` loop over a tensor always walks **axis 0**, and each step hands you a sub-tensor of **rank one lower**. That's all the built-in behaviour there is. There's no `for sub in t along axis 1`.
 
-To walk a different axis, you bring it to the front:
+To walk a different axis, bring it to the front:
 
 ```python
 np.moveaxis(t, 1, 0)        # axis 1 becomes axis 0
 ```
 
-and iterate that. It costs nothing — `moveaxis` returns a **view**, just a permutation of strides (lesson 4).
+and iterate that instead. It costs nothing, because `moveaxis` returns a **view** — just a permutation of strides (lesson 4).
 
 ```text
 for sub in t                       ->  2 x (3, 4)
@@ -391,4 +391,4 @@ Two smaller things that bite:
    07   v v v v      cells         raw, in memory order
 ```
 
-> **Mental shift:** part 2 asked *in what order do I visit cells?* — and every answer was a loop. Part 3 asks *which axis?* first, and then usually answers "don't loop at all". The traversal patterns here exist for the cases where you genuinely must, and the next two lessons cover the two other granularities.
+> **Mental shift:** part 2 asked *in what order do I visit cells?*, and every answer was a loop. Part 3 asks *which axis?* first, and then usually answers "don't loop at all". The traversal patterns here are for the cases where you genuinely have to, and the next two lessons cover the other two granularities.

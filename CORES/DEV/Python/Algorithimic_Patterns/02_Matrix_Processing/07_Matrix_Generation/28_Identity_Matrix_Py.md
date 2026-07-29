@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every lesson so far started with a matrix that already existed. This section **creates one from nothing** — from dimensions plus a rule.
+Every lesson so far started with a matrix that already existed. This section **builds one from nothing**: dimensions plus a rule.
 
 The rule is always a function of the coordinates:
 
@@ -10,7 +10,7 @@ The rule is always a function of the coordinates:
 m[r][c] = f(r, c)
 ```
 
-and in Python that is one comprehension, for all three lessons in this section:
+and in Python that's one comprehension, covering all three lessons in this section:
 
 ```python
 [[f(r, c) for c in range(cols)] for r in range(rows)]
@@ -414,4 +414,4 @@ And the Python trap that makes this the right lesson to introduce grid construct
                  └── (r + c) % 2   ──►  30   a periodic pattern
 ```
 
-> **Mental shift:** traversal, neighborhood, windows, structure and search all consumed a matrix. Generation produces one — and the producer is always a function from coordinates to a value. Once you see that, "build an identity matrix", "build a distance field" and "build a checkerboard" stop being three problems and become one comprehension with three different `f`s.
+> **Mental shift:** traversal, neighborhood, windows, structure and search all consumed a matrix. Generation produces one, and the producer is always a function from coordinates to a value. Once that lands, "build an identity matrix", "build a distance field" and "build a checkerboard" stop being three problems and become one comprehension with three different `f`s.

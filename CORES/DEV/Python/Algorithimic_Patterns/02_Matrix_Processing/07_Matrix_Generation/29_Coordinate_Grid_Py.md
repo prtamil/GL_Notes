@@ -12,19 +12,19 @@ f(r, c) = (r, c)
  [(2,0), (2,1), (2,2), (2,3)]]
 ```
 
-That looks almost useless until you see what it is for. A coordinate grid is the **input** to every other generated matrix:
+That looks pointless until you see what it's for. A coordinate grid is the **input** to every other generated matrix:
 
 ```python
 [[f(r, c) for c in range(cols)] for r in range(rows)]
 ```
 
-Change `f` and you get a distance field, a gradient, a ring, a triangle, an identity matrix, a checkerboard. Lessons 28 and 30 are this template with `f = int(r == c)` and `f = (r + c) % 2`. **This is the pattern; they are instances.**
+Swap `f` and you get a distance field, a gradient, a ring, a triangle, an identity matrix, a checkerboard. Lessons 28 and 30 are this same template with `f = int(r == c)` and `f = (r + c) % 2`. **This is the pattern. Those are instances of it.**
 
-Two uses beyond generating pictures make it worth its own lesson:
+Two uses beyond drawing pictures earn it its own lesson:
 
-- **Separated axis grids** — a grid of row numbers and a grid of column numbers, which is what `meshgrid` produces in every array library. Vectorised code builds these instead of looping.
+- **Separated axis grids** — one grid of row numbers and one of column numbers, which is exactly what `meshgrid` produces in every array library. Vectorised code builds these instead of looping.
     
-- **A probe for transforms.** Run a coordinate grid through `rot90` and each cell tells you *where it came from*. It turns lessons 16–21 from something you reason about into something you can read off.
+- **A probe for transforms.** Push a coordinate grid through `rot90` and every cell tells you *where it came from*. It turns lessons 16–21 from something you reason about into something you can simply read off.
     
 
 ---
@@ -431,4 +431,4 @@ One numerical detail worth internalising: a gradient across `cols` cells divides
   generation:           f(r,c)  ──►  matrix
 ```
 
-> **Mental shift:** the rest of the course treats `(r, c)` as an address for looking something up. Generation treats it as an **input** — the matrix is a function sampled over a rectangle. Once that clicks, "write a matrix where `m[i][j] = ...`" stops being a puzzle and becomes transcription.
+> **Mental shift:** the rest of the course treats `(r, c)` as an address you look something up at. Generation treats it as an **input**, so the matrix is just a function sampled over a rectangle. Once that clicks, "write a matrix where `m[i][j] = ...`" stops being a puzzle and becomes transcription.

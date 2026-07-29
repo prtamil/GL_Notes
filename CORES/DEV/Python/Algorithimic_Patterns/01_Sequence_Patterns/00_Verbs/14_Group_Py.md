@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes the most natural way to understand a sequence is to **organize similar elements together**.
+Often the clearest way to make sense of a sequence is to **put similar things next to each other**.
 
-**Group** is the act of partitioning a sequence into collections based on a shared property or key.
+**Group** carves a sequence into collections based on some shared property or key.
 
-The mental question is:
+The question you're asking:
 
 > **"Which elements belong together?"**
 
-Unlike **Split**, which divides a sequence by position or boundaries, **Group** organizes elements by their characteristics.
+**Split** cuts by position or boundary. **Group** sorts elements by what they're *like*.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Split**, which divides a sequence by position or boundaries, **Group** 
 |---|---|---|
 |**Group**|Which elements belong together?|`collections.defaultdict(list)`, `collections.Counter`, `itertools.groupby(sorted(...))`, `dict.setdefault`|
 
-> **Note:** Python has no `group-by` function. The idiom is a three-line loop: `d = defaultdict(list)` then `d[f(x)].append(x)`. It is one pass, O(n), and works on unsortable data.
+> **Note:** There's no `group-by` function in Python. The idiom is a three-line loop: `d = defaultdict(list)`, then `d[f(x)].append(x)`. One pass, O(n), and it works even on data you can't sort.
 
 ---
 
@@ -41,14 +41,14 @@ Unlike **Split**, which divides a sequence by position or boundaries, **Group** 
 
 # The Python-specific catches
 
-**`itertools.groupby` is not SQL `GROUP BY`.** It starts a new group each time the key *changes*, so on unsorted input it produces duplicate keys — and building a dict from that silently keeps only the last one. Sort first, or use `defaultdict`.
+**`itertools.groupby` is not SQL's `GROUP BY`.** It opens a new group every time the key *changes*, so unsorted input gives you the same key several times over, and building a dict from that quietly keeps only the last one. Sort first, or reach for `defaultdict`.
 
-**Group keys must be hashable.** A list key raises `TypeError`; convert it to a tuple.
+**Group keys have to be hashable.** A list key raises `TypeError`. Convert it to a tuple.
 
-**If you only need counts, never build the lists.** `Counter(f(x) for x in xs)` holds one integer per key instead of one list.
+**If all you need is counts, don't build the lists at all.** `Counter(f(x) for x in xs)` keeps one integer per key instead of a whole list.
 
 ---
 
 # One Sentence to Remember
 
-> **Group organizes a sequence into collections whose elements share a common property or key — and the interesting part is never the grouping, it's the key function.**
+> **Group sorts a sequence into buckets of things that share a key. The grouping is never the interesting part; the key function is.**

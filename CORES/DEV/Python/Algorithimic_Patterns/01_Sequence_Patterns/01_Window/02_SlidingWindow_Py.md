@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Move a **fixed-size window** through a sequence **one element at a time**. Consecutive windows **share (overlap)** most of their elements.
+Slide a **fixed-size window** along a sequence **one element at a time**. Each window **overlaps** heavily with the one before it.
 
-In Python there is no single `partition` builtin — you pick between **slicing** (indexable, eager), **`itertools`** (lazy), and **`deque(maxlen=n)`** (streaming, O(1) per step).
+Python has no single `partition` builtin for this, so you choose: **slicing** (needs an indexable input, eager), **`itertools`** (lazy), or **`deque(maxlen=n)`** (streaming, O(1) per step).
 
 ---
 
@@ -16,7 +16,7 @@ Window
 Sliding Window
 ```
 
-Sliding Window is a **Window** pattern where the window advances by **one position** each step.
+Sliding Window is a **Window** pattern where the window moves forward **one position** at a time.
 
 ---
 
@@ -270,6 +270,6 @@ xs[::3]                                     # every 3rd element, no window at al
 
 ### Key Insight
 
-**A sliding window turns an O(n·k) problem into O(n)** — but only if you update the window's *summary* incrementally instead of recomputing it. `sum(window)` inside the loop throws that away.
+**A sliding window drops an O(n·k) problem to O(n)**, but only if you update the window's *summary* as you go instead of rebuilding it. Put `sum(window)` inside the loop and you've thrown the whole benefit away.
 
-The second insight: **the window doesn't have to be fixed.** Once the size is chosen by a condition rather than a constant, the same pattern becomes the two-pointer technique, which is what most "hard" sliding-window interview problems actually are.
+The other thing worth noticing: **the window doesn't have to be a fixed size.** Let a condition decide the size instead of a constant and you've got the two-pointer technique, which is what most of the "hard" sliding-window interview problems really are.

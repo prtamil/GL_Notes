@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes we don't need the entire sequence—we only need **a portion of it**.
+Often you don't want the whole sequence. You want **a stretch of it**.
 
-**Slice** is the act of extracting a contiguous part of a sequence based on position or a stopping condition.
+**Slice** pulls out a contiguous run, chosen by position or by where some condition stops holding.
 
-The mental question is:
+The question you're asking:
 
 > **"Which part of the sequence do I need?"**
 
-Unlike **Select**, which keeps elements based on a predicate regardless of position, **Slice** focuses on taking or removing **contiguous regions** of a sequence.
+**Select** picks elements by a test, wherever they happen to sit. **Slice** works on **contiguous regions** instead.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Select**, which keeps elements based on a predicate regardless of posit
 |---|---|---|
 |**Slice**|Which part of the sequence do I need?|`xs[a:b:step]`, `itertools.islice`, `takewhile`, `dropwhile`, `collections.deque(maxlen=n)`|
 
-> **Note:** Slicing is **the** Python idiom, and it never raises: out-of-range bounds are clamped silently. `islice` is the slicing you use on an iterator — but it cannot take negative indices, because a stream has no known end.
+> **Note:** Slicing is **the** Python idiom, and it never raises. Bounds past the end get clamped without a word. For iterators you use `islice` instead, and it won't take negative indices, because a stream doesn't know where it ends.
 
 ---
 
@@ -44,16 +44,16 @@ Unlike **Select**, which keeps elements based on a predicate regardless of posit
 
 # The Python-specific catches
 
-**Slices are half-open**: `xs[a:b]` includes `a`, excludes `b`, and has `b - a` elements. `xs[:n] + xs[n:] == xs` for any `n`, always.
+**Slices are half-open.** `xs[a:b]` takes `a`, stops before `b`, and gives you `b - a` elements. `xs[:n] + xs[n:] == xs` for every `n`, no exceptions.
 
-**Slicing never raises.** `[1,2,3][10:20]` is `[]`, not an error. Convenient, and the reason an off-by-one can pass silently.
+**Slicing never raises.** `[1,2,3][10:20]` is `[]`, not an error. Handy, and also why an off-by-one can slip through unnoticed.
 
-**`xs[:]` copies a list** (shallowly) — the classic idiom for "iterate over a snapshot while mutating the original".
+**`xs[:]` makes a shallow copy of a list.** It's the usual trick for looping over a snapshot while you mutate the original.
 
-**Slicing a list is O(k) and copies**; slicing a `range` returns another lazy `range`; `islice` copies nothing but must consume from the start.
+**Slicing a list is O(k) and copies.** Slicing a `range` hands back another lazy `range`. `islice` copies nothing, but it has to consume from the start to get anywhere.
 
 ---
 
 # One Sentence to Remember
 
-> **Slice extracts a contiguous portion of a sequence based on position or a boundary condition.**
+> **Slice pulls out a contiguous chunk of a sequence, picked by position or by where a condition stops holding.**

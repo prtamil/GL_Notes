@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The payoff of the last two lessons. Give two vectors **perpendicular** shapes and broadcasting produces **every combination**:
+This is the payoff for the last two lessons. Give two vectors **perpendicular** shapes and broadcasting hands you **every combination**:
 
 ```text
 a[:, None]      (3, 1)
@@ -11,7 +11,7 @@ b[None, :]         (1, 4)
                 (3, 4)      all 3 x 4 pairs
 ```
 
-Not just products — *any* elementwise operation:
+And not just products. *Any* elementwise operation:
 
 ```text
 a[:, None] * b[None, :]     outer product
@@ -20,15 +20,15 @@ a[:, None] > b[None, :]     comparison matrix
 a[:, None] - b[None, :]     pairwise differences
 ```
 
-This is the vectorised replacement for a nested loop. Part 2's lesson 29 built coordinate grids with `[[f(r, c) for c in ...] for r in ...]`; the same grids are now one broadcast, at any size, with no Python loop.
+This is the vectorised replacement for a nested loop. Part 2's lesson 29 built coordinate grids with `[[f(r, c) for c in ...] for r in ...]`. Those same grids are now a single broadcast, at any size, with no Python loop at all.
 
-The pattern generalises to "all pairs of *rows*" by inserting the axis one place further in:
+The pattern extends to "all pairs of *rows*" by pushing the new axis one place further in:
 
 ```text
 x[:, None, :] - x[None, :, :]       (n, n, d)   every pairwise difference
 ```
 
-which is how you write a distance matrix, an attention score matrix, or a similarity search — in one line.
+which is how you write a distance matrix, an attention score matrix, or a similarity search, all in one line.
 
 One caveat worth stating up front: the **inputs** stay small but the **result** is `n × m`. Two 1000-element vectors cost 16 KB and their outer product costs 8 MB. Broadcasting makes the intermediate free; it does not make the output free.
 
@@ -426,6 +426,6 @@ Three things to carry:
                                (n, m)     all pairs
 ```
 
-Three lessons, one mechanism: a size-1 axis is a *free* axis, and choosing where the free axes go is the entire vocabulary.
+Three lessons, one mechanism. A size-1 axis is a *free* axis, and deciding where the free axes go is the whole vocabulary.
 
-> **Mental shift:** parts 1 and 2 answered "combine every a with every b" with a nested loop, and the loop was the program. Part 3 answers it with two shapes. The loop has not disappeared — it moved into C, where it belongs — and what you write instead is the *alignment*. That is why the last two lessons were about placing `None`s: in tensor code, shape manipulation **is** the control flow.
+> **Mental shift:** parts 1 and 2 answered "combine every a with every b" with a nested loop, and the loop *was* the program. Part 3 answers it with two shapes. The loop hasn't vanished — it moved into C, where it belongs — and what you write instead is the *alignment*. That's why the last two lessons were about placing `None`s: in tensor code, shape manipulation **is** the control flow.

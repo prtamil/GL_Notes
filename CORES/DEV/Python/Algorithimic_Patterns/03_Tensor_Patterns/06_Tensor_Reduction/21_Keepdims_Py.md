@@ -9,21 +9,21 @@ t.sum(axis=1)                   (2, 3, 4) -> (2, 4)
 t.sum(axis=1, keepdims=True)    (2, 3, 4) -> (2, 1, 4)
 ```
 
-Same numbers, same element count. The only difference is a `1` where the `3` used to be.
+Same numbers, same element count. The only difference is a `1` sitting where the `3` used to be.
 
-That `1` exists for exactly one reason:
+That `1` is there for exactly one reason:
 
 > **So the result broadcasts back against the tensor it came from.**
 
-Because almost every reduction in real code is the first half of a two-step pattern:
+Because in real code, almost every reduction is the first half of a two-step pattern:
 
 ```text
 reduce  ──►  broadcast back
 ```
 
-Centre the data: subtract the mean. Normalise: divide by the sum. Softmax: subtract the max, then divide by the sum. In each case the reduced statistic must line up with the *original* axes — and lesson 18 showed that only the last axis aligns for free. `keepdims=True` guarantees the alignment for every other axis, without you having to count `None`s.
+Centre the data: subtract the mean. Normalise: divide by the sum. Softmax: subtract the max, then divide by the sum. Every one of those needs the reduced statistic to line up with the *original* axes, and lesson 18 showed that only the last axis aligns for free. `keepdims=True` guarantees the alignment for every other axis without you counting `None`s.
 
-It is not a formatting preference. Without it, the reduction either raises or — when the sizes happen to coincide — silently aligns against the wrong axis.
+This isn't a formatting preference. Without it the reduction either raises, or — when the sizes happen to coincide — quietly aligns against the wrong axis.
 
 ---
 
@@ -358,4 +358,4 @@ And when the reduction *is* the answer — a metric, a log line, a return value 
    (2, 3, 4)  --sum(axis=1, keepdims)---->  (2, 1, 4)  --broadcast-->  (2, 3, 4)
 ```
 
-> **Mental shift:** in part 1 a reduction ended the computation — `sum(xs)` was the result. In part 3 it usually starts one. The statistic is a means, not an end, and `keepdims=True` is the small piece of bookkeeping that keeps it usable. Making it your default costs nothing and removes an entire class of silent bugs.
+> **Mental shift:** in part 1 a reduction ended the computation. `sum(xs)` *was* the result. In part 3 it usually starts one. The statistic is a means rather than an end, and `keepdims=True` is the small piece of bookkeeping that keeps it usable. Making it your default costs nothing and deletes a whole class of silent bugs.

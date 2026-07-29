@@ -4,9 +4,9 @@
 
 Find the element **closest to a target value** according to some distance or similarity measure.
 
-Unlike **First Match**, which stops at the first valid element, or **Search All**, which returns every match, **Nearest Match** searches for the **best (closest)** one.
+**First Match** stops at the first valid element and **Search All** returns every match. **Nearest Match** goes looking for the **best** one.
 
-Python's spelling is **`min(xs, key=lambda x: abs(x - target))`** — the whole pattern is "min over a distance function". Everything else is a variation on what "distance" means.
+Python spells it **`min(xs, key=lambda x: abs(x - target))`**. The whole pattern is "min over a distance function", and everything else is just a different idea of what distance means.
 
 ---
 
@@ -18,7 +18,7 @@ Search
 Nearest Match
 ```
 
-Nearest Match is a **Search** pattern because it searches the sequence to find the element with the **minimum distance** from a target.
+Nearest Match is a **Search** pattern that scans the sequence for the element at **minimum distance** from a target.
 
 ---
 
@@ -333,8 +333,8 @@ nearest_sorted(xs, t)           # single best, O(log n)   → Nearest + bisect
 
 ### Key Insight
 
-**Nearest Match is `min` with a key — the pattern is entirely in the distance function.** Absolute difference for numbers, squared distance for points, `1 - ratio` for strings, seconds apart for timestamps. Once you can write the distance, the search is one line. And the direction matters more than it looks: **distance takes `min`, similarity takes `max`**, and swapping them produces the *worst* match with no error to warn you.
+**Nearest Match is `min` with a key, and all the substance lives in the distance function.** Absolute difference for numbers, squared distance for points, `1 - ratio` for strings, seconds apart for timestamps. Once you can write the distance, the search is one line. Direction matters more than it looks, too: **distance wants `min`, similarity wants `max`**, and swapping them hands you the *worst* match with nothing to warn you.
 
-**Nearest cannot short-circuit, and that is a real algorithmic constraint.** First Match stops at the first hit; Nearest must examine every element, because the next one could always be closer. So the only way to make it faster is to remove the need to look — which means **sorting once and using `bisect`**, taking the insertion point and comparing the two neighbours around it. That's O(log n) per query instead of O(n), and it pays for itself after the second lookup.
+**Nearest can't short-circuit, and that's a genuine algorithmic constraint.** First Match stops at the first hit. Nearest has to look at everything, because the next element could always be closer. The only way to speed it up is to remove the need to look at all: **sort once and use `bisect`**, take the insertion point, and compare the two neighbours around it. That's O(log n) per query instead of O(n), and it pays for itself by the second lookup.
 
-Finally, the honest limitation: **`min` always returns something.** Ask for the nearest station to a point in the wrong country and you get one, confidently. Nearest is only meaningful with a threshold — check `abs(best - target)` against a tolerance before acting on it. `difflib`'s `cutoff` parameter exists precisely because the library authors knew the answer alone is not enough.
+One honest limitation: **`min` always returns something.** Ask for the nearest station to a point in the wrong country and you'll get one, confidently. Nearest only means anything with a threshold, so check `abs(best - target)` against a tolerance before you act on it. `difflib` has a `cutoff` parameter for exactly this reason — the authors knew the answer on its own isn't enough.

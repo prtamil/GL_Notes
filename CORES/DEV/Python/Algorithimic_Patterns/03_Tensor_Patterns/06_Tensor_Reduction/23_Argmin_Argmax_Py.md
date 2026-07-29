@@ -9,23 +9,23 @@ m.max(axis=1)       ->  the largest VALUE in each row
 m.argmax(axis=1)    ->  its POSITION in each row
 ```
 
-The shape rule is identical — `argmax(axis=k)` deletes entry `k`, exactly like `max(axis=k)`. What changes is the *meaning* of the numbers: they are indices **into the reduced axis**, not values.
+The shape rule is identical: `argmax(axis=k)` deletes entry `k`, exactly like `max(axis=k)`. What changes is what the numbers *mean*. They're indices **into the reduced axis**, not values.
 
-That distinction causes the one bug this lesson exists to prevent:
+That distinction causes the one bug this lesson exists to head off:
 
 ```text
 idx = m.argmax(axis=1)          # indices into the COLUMNS
 m[idx]                          # ...but this indexes the ROWS
 ```
 
-`m[idx]` is fancy indexing on axis 0 (lesson 10). It either raises — if an index exceeds the row count — or, worse, silently returns a rearranged set of rows. To turn positions back into values you need to pair each index with its row:
+`m[idx]` is fancy indexing on axis 0 (lesson 10). Either it raises, when an index runs past the row count, or — worse — it quietly hands back a rearranged set of rows. To turn positions back into values, pair each index with its row:
 
 ```python
 m[np.arange(len(m)), idx]                       # explicit pairing
 np.take_along_axis(m, idx[:, None], axis=1)     # the general form
 ```
 
-Two further facts worth knowing before you rely on the result: **ties go to the first occurrence**, and `axis=None` (the default) returns a **flat** index that needs `np.unravel_index` to become coordinates.
+Two more facts worth knowing before you trust the result: **ties go to the first occurrence**, and `axis=None` (the default) gives you a **flat** index that needs `np.unravel_index` before it means coordinates.
 
 ---
 
@@ -456,6 +456,6 @@ And ties always go to the **first** occurrence, which makes the result determini
               --argmax(axis=1)---->   (2, 4)      WHERE
 ```
 
-All four share one shape rule. They differ in whether you get the value or the index, whether the slot survives, and how many axes go at once.
+All four share the same shape rule. They differ in whether you get the value or the index, whether the slot survives, and how many axes go at once.
 
-> **Mental shift:** parts 1 and 2 had `max(xs)` and `max(m, key=sum)` — and when you wanted the position you wrote `xs.index(max(xs))`, a second pass. In part 3 the position is a first-class reduction with the same axis semantics as the value, which means you can ask "which one won, per sample" as easily as "what was the best score" — and the only new skill is remembering that the answer lives in a different index space.
+> **Mental shift:** parts 1 and 2 gave you `max(xs)` and `max(m, key=sum)`, and when you wanted the position you wrote `xs.index(max(xs))` — a second pass. In part 3 the position is a first-class reduction with the same axis semantics as the value, so you can ask "which one won, per sample" as easily as "what was the best score". The only new skill is remembering that the answer lives in a different index space.

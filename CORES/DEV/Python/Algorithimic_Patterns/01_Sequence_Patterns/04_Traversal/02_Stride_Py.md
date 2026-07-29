@@ -4,9 +4,9 @@
 
 Traverse a sequence by **skipping a fixed number of elements** between visits.
 
-Instead of visiting every element, you visit **every Nth element**.
+Rather than visiting every element, you visit **every Nth element**.
 
-Python builds this into slice syntax: **`xs[start:stop:step]`**. The third number *is* the stride, and it is the reason Python needs no `take-nth`.
+Python bakes this into slice syntax: **`xs[start:stop:step]`**. That third number *is* the stride, and it's why Python never needed a `take-nth`.
 
 ---
 
@@ -18,7 +18,7 @@ Traversal
 Stride Traversal
 ```
 
-Stride Traversal is a **Traversal** pattern where the traversal advances by a fixed **stride** instead of one element at a time.
+Stride Traversal is a **Traversal** pattern that moves by a fixed **stride** rather than one element at a time.
 
 ---
 
@@ -288,6 +288,6 @@ list(islice(it, 0, None, 3))            # same, lazily        → Stride
 
 ### Key Insight
 
-**Stride is the third slice argument — that's the whole pattern.** `xs[::n]` needs no import, no helper, no loop, and reads as "every n-th". The only reason to write anything longer is when you need the *original index* (use `range(0, len(xs), n)`) or when the source is a stream (use `islice`).
+**Stride is the third slice argument, and that's the entire pattern.** `xs[::n]` needs no import, no helper and no loop, and it reads as "every n-th". You only write something longer when you need the *original index* (use `range(0, len(xs), n)`) or when the source is a stream (use `islice`).
 
-The thing to stay honest about: **striding throws data away by design.** Downsampling a signal with `xs[::4]` doesn't average four samples, it keeps one and discards three — so a spike that lands in a discarded slot vanishes silently. When the skipped values could matter, you don't want stride traversal at all; you want a chunk plus an aggregate.
+Stay honest about one thing: **striding throws data away on purpose.** Downsampling a signal with `xs[::4]` doesn't average four samples, it keeps one and bins three. A spike that lands in a binned slot just disappears. When the skipped values might matter, stride traversal isn't what you want at all — you want a chunk plus an aggregate.

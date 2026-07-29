@@ -2,31 +2,31 @@
 
 ## Mental Model
 
-The last way to index: not by *position* but by **condition**.
+The last way to index. Not by *position*, but by **condition**.
 
 ```text
 t > 15          a bool tensor, same shape as t
 t[t > 15]       the elements where it is True
 ```
 
-A comparison on a tensor is **elementwise** — it returns a whole tensor of `True`/`False`, not a single answer. That mask is then a valid index, and indexing with it selects exactly the cells that passed.
+A comparison on a tensor is **elementwise**, so it gives you back a whole tensor of `True`/`False` rather than one answer. That mask is itself a valid index, and indexing with it picks out exactly the cells that passed.
 
 Two consequences define the pattern:
 
-- **The result is rank 1.** A mask over a `(2,3,4)` tensor can select any subset of cells, and an arbitrary subset has no shape. So it flattens.
+- **The result is rank 1.** A mask over a `(2,3,4)` tensor can select any subset of cells, and an arbitrary subset has no shape, so it flattens.
 
 ```text
 t.shape          (2, 3, 4)
 t[t > 15].shape  (8,)          — always rank 1
 ```
 
-- **It is a copy.** Same reason as lesson 10: the selected cells are scattered, so no stride pattern can describe them.
+- **It's a copy.** Same reason as lesson 10: the selected cells are scattered, so no stride pattern can describe them.
 
-And one Python-level trap that catches everyone exactly once:
+And one Python-level trap that gets everybody exactly once:
 
-> **Use `&`, `|`, `~` — never `and`, `or`, `not`.**
+> **Use `&`, `|`, `~`. Never `and`, `or`, `not`.**
 
-Python's boolean keywords call `bool()` on their operands, and `bool()` of a multi-element array is undefined. `(t > 5) and (t < 10)` raises `ValueError: The truth value of an array with more than one element is ambiguous`. The bitwise operators work elementwise, which is what you want — and they bind tighter than comparison, so **every clause needs parentheses**.
+Python's boolean keywords call `bool()` on their operands, and `bool()` of a multi-element array isn't defined. `(t > 5) and (t < 10)` raises `ValueError: The truth value of an array with more than one element is ambiguous`. The bitwise operators work elementwise, which is what you actually want, and they bind tighter than comparison, so **every clause needs parentheses**.
 
 ---
 
@@ -400,6 +400,6 @@ Unlike lesson 10, **`t[mask] += 1` is safe** — a boolean mask cannot select th
                      └── advanced  ──►  copy    scattered elements
 ```
 
-The dividing line is a single question: **can the selection be described by a shape and a stride?** A slice can, so it is a window onto the same memory. A gather or a filter cannot, so it must allocate.
+One question draws the line: **can the selection be described by a shape and a stride?** A slice can, so it's a window onto the same memory. A gather or a filter can't, so it has to allocate.
 
-> **Mental shift:** part 2 filtered with comprehensions — `[x for row in m for x in row if x > 15]` — which flattened as a side effect of how the loops were written. NumPy flattens for a deeper reason: the result genuinely has no shape. Once you see masking as "filter, therefore flatten, therefore copy", the rank-1 result stops being surprising and `np.where` becomes the obvious alternative when you need the shape back.
+> **Mental shift:** part 2 filtered with comprehensions like `[x for row in m for x in row if x > 15]`, which flattened as a side effect of how the loops were written. NumPy flattens for a deeper reason: the result genuinely has no shape. Once you read masking as "filter, therefore flatten, therefore copy", the rank-1 result stops being a surprise, and `np.where` becomes the obvious move when you need the shape back.

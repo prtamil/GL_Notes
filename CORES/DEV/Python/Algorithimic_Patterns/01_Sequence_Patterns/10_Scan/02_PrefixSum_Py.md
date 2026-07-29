@@ -4,9 +4,9 @@
 
 Precompute cumulative sums so that **any range sum can be answered in O(1)** instead of summing repeatedly.
 
-Unlike **Running Sum**, whose goal is to observe cumulative progress, **Prefix Sum** is built as a **data structure for fast queries**.
+**Running Sum** exists so you can watch cumulative progress. **Prefix Sum** is built as a **data structure for fast queries**.
 
-The Python build is one line — `list(accumulate(xs, initial=0))` — and the leading zero is not decoration. It is what makes `P[j+1] - P[i]` work without a special case at index 0.
+Building it takes one line: `list(accumulate(xs, initial=0))`. That leading zero isn't decoration. It's what lets `P[j+1] - P[i]` work without a special case at index 0.
 
 ---
 
@@ -18,7 +18,7 @@ Scan
 Prefix Sum
 ```
 
-Prefix Sum is a **Scan** pattern because it scans the sequence once, storing cumulative information for future use.
+Prefix Sum is a **Scan** pattern: one pass over the sequence, storing cumulative information you'll use later.
 
 ---
 
@@ -350,8 +350,8 @@ sum(xs[i:j])                    # one-off, O(n), no memory → Slice + Reduce
 
 ### Key Insight
 
-**The leading zero is the whole design.** `accumulate(xs, initial=0)` makes `P[k]` mean "the sum of the first k elements", so `P[j] - P[i]` is `sum(xs[i:j])` under the exact same half-open convention Python slicing already uses. Without it you need a branch at `i == 0`, and that branch is where prefix-sum code goes wrong.
+**That leading zero is the whole design.** `accumulate(xs, initial=0)` makes `P[k]` mean "the sum of the first k elements", so `P[j] - P[i]` is `sum(xs[i:j])` under exactly the half-open convention Python slicing already uses. Without it you need a branch at `i == 0`, and that branch is where prefix-sum code goes wrong.
 
-**A prefix array trades memory for repetition, and it only works for invertible operations.** Addition, multiplication, and XOR all have an inverse, so a range answer is `combine(P[j], undo(P[i]))`. Max and min do not — you cannot "un-max" a value — which is precisely why range-maximum queries need a sparse table or segment tree instead. Recognizing that dividing line saves you from trying to force the wrong structure onto the problem.
+**A prefix array trades memory to avoid repeated work, and it only works for operations you can invert.** Addition, multiplication and XOR all have an inverse, so a range answer is `combine(P[j], undo(P[i]))`. Max and min don't — there's no way to "un-max" a value — which is exactly why range-maximum queries need a sparse table or a segment tree instead. Seeing that dividing line saves you from forcing the wrong structure onto a problem.
 
-The deeper move is **prefix sums plus a hash map**, which is what turns "Subarray Sum Equals K" from O(n²) into O(n). Once the range condition is rewritten as `P[j] - P[i] == k`, you're no longer looking for subarrays at all — you're looking for *pairs of prefix values*, and a `Counter` answers that in one pass. Nearly every hard subarray problem is that same rewrite: express the condition in terms of two prefix values, then let a dict find the pairs.
+The deeper move is **prefix sums plus a hash map**, which is what drops "Subarray Sum Equals K" from O(n²) to O(n). Rewrite the range condition as `P[j] - P[i] == k` and you're not hunting for subarrays any more. You're hunting for *pairs of prefix values*, and a `Counter` finds those in one pass. Nearly every hard subarray problem is that same rewrite: state the condition in terms of two prefix values, then let a dict find the pairs.

@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Traversal asks *"what order do I visit cells in?"*. Neighborhood asks a completely different question: **"given one cell, which cells touch it?"**
+Traversal asks *"what order do I visit cells in?"*. Neighborhood asks something else entirely: **"given one cell, which cells touch it?"**
 
-The 4-neighborhood — the **Von Neumann neighborhood** — is the strictest answer: the cells sharing an **edge** with `(r, c)`.
+The 4-neighborhood, also called the **Von Neumann neighborhood**, gives the strictest answer: the cells sharing an **edge** with `(r, c)`.
 
 ```text
       (r-1, c)
@@ -14,9 +14,9 @@ The 4-neighborhood — the **Von Neumann neighborhood** — is the strictest ans
       (r+1, c)
 ```
 
-Diagonals do **not** count. You cannot reach a diagonal neighbor without passing through one of these four, which is exactly why this neighborhood defines **Manhattan distance 1**.
+Diagonals do **not** count. There's no way to reach a diagonal neighbour without stepping through one of these four first, which is exactly why this neighborhood defines **Manhattan distance 1**.
 
-In Python the pattern is always the same three moves:
+In Python it's always the same three moves:
 
 1. A table of **offsets** — `(-1,0), (1,0), (0,-1), (0,1)`.
     
@@ -490,4 +490,4 @@ Von Neumann          Moore
    . S .             D S D
 ```
 
-> **Mental shift:** the two neighborhoods differ only in the offset table. Every function in this lesson works unchanged with the 8-direction table — which is exactly what lesson 10 does.
+> **Mental shift:** the only difference between the two neighborhoods is the offset table. Every function in this lesson runs unchanged on the 8-direction table, which is exactly what lesson 10 does with it.

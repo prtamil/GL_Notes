@@ -4,11 +4,11 @@
 
 ## Mental Model
 
-A matrix is often treated as a collection of rows. Row traversal means processing one complete row at a time before moving to the next.
+Most of the time you think of a matrix as a stack of rows. Row traversal means finishing one whole row before you move to the next.
 
-This is the most natural traversal order because most programming languages store 2D arrays in **row-major order**, making it cache-friendly and easy to reason about.
+It's the most natural order to work in, because most languages store 2D arrays in **row-major order**. That makes it cache-friendly and easy to hold in your head.
 
-In Python a matrix is usually a `list[list[int]]`, so **a row is just a list** — every 1D tool you already know (`sum`, `max`, comprehensions, `itertools`) applies directly to it.
+A matrix in Python is usually a `list[list[int]]`, so **a row is just a list**. Every 1D tool you already know — `sum`, `max`, comprehensions, `itertools` — works on it directly.
 
 ---
 
@@ -304,6 +304,6 @@ sum(map(sum, matrix))
 
 ### Key Insight
 
-**A row is the 2D equivalent of a sequence.** Most row-based algorithms simply apply familiar 1D sequence patterns (`sum`, `max`, `filter`, comprehensions, `itertools`) independently to each row before combining results if needed.
+**A row is just a sequence, in 2D clothing.** Most row-based algorithms take a familiar 1D pattern — `sum`, `max`, `filter`, a comprehension, something from `itertools` — apply it to each row on its own, then combine the results if they need to.
 
-In Python this is literal, not just an analogy: `m[i]` *is* a `list`, so nothing new has to be learned to process it — the only new decision is **whether you loop over rows or over flattened cells**.
+In Python that's literally true rather than an analogy. `m[i]` *is* a `list`, so there's nothing new to learn. The only fresh decision is **whether you loop over rows or over flattened cells**.

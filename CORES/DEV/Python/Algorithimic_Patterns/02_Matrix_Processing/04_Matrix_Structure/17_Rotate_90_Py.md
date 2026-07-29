@@ -18,7 +18,7 @@ The coordinate rule, for an `rows × cols` matrix:
 (r, c)  ->  (c, rows-1-r)
 ```
 
-Read it as *"the new row is the old column; the new column counts backwards from the old row."* The `rows-1-r` is the reversal — and that reversal is the only thing separating this from a plain transpose.
+Read it as *"the new row is the old column, and the new column counts backwards from the old row."* The `rows-1-r` is the reversal, and that reversal is the only thing separating this from a plain transpose.
 
 Which gives the idiom that matters:
 
@@ -382,4 +382,4 @@ Three things to keep straight:
    7 8 9          3 6 9           9 6 3
 ```
 
-> **Mental shift:** transpose is a **reflection** — hold the diagonal fixed and fold. Rotation is a **turn** — nothing is held fixed except the centre. They differ by exactly one flip, which is why the code differs by exactly one `[::-1]`.
+> **Mental shift:** transpose is a **reflection**: hold the diagonal fixed and fold. Rotation is a **turn**: nothing stays fixed except the centre. They differ by exactly one flip, which is why the code differs by exactly one `[::-1]`.

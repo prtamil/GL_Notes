@@ -4,13 +4,13 @@
 
 Boundary traversal visits **only the outer border** of a matrix, ignoring all interior cells.
 
-Unlike spiral traversal, which repeatedly peels inward, boundary traversal processes **exactly one ring**—the outermost perimeter.
+Spiral traversal keeps peeling inward. Boundary traversal handles **exactly one ring**: the outermost perimeter.
 
-Python gives you two completely different ways to say "the border", and picking the right one is most of the lesson:
+Python gives you two very different ways to say "the border", and choosing between them is most of this lesson:
 
-- **A walk** — four slices in order, when you need the perimeter as a *path*.
+- **A walk** — four slices in order, for when you need the perimeter as a *path*.
     
-- **A predicate** — `r in (0, rows-1) or c in (0, cols-1)`, when you only need the *cells*.
+- **A predicate** — `r in (0, rows-1) or c in (0, cols-1)`, for when you just need the *cells*.
     
 
 ---
@@ -406,7 +406,7 @@ Ring 3
 
 > **Mental shift:** Boundary traversal is a **single perimeter walk**, whereas spiral traversal is **repeated boundary traversal with shrinking boundaries**.
 
-In code the relationship is literal — spiral is boundary in a loop:
+In code the relationship is literal. Spiral is boundary in a loop:
 
 ```python
 def spiral(m):
@@ -417,6 +417,6 @@ def spiral(m):
     return out
 ```
 
-Same `boundary()` from this lesson, plus the interior slice. **Lesson 8 is lesson 5 with the loop removed.**
+That's the same `boundary()` from this lesson plus the interior slice. **Lesson 8 is lesson 5 with the loop taken out.**
 
 ---

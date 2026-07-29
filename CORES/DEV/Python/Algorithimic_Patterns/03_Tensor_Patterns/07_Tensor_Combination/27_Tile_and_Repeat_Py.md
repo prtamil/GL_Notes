@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Both replicate data. They differ in **what** they replicate, and the difference is the entire lesson:
+Both of these replicate data. What they differ on is **what** gets replicated, and that difference is the whole lesson:
 
 ```text
 r = [1, 2, 3]
@@ -16,13 +16,13 @@ tile:    A B C  A B C        blocks side by side
 repeat:  A A  B B  C C       each item duplicated in place
 ```
 
-`tile` is concatenating an array with itself. `repeat` is stretching it elementwise. On a 2-D image the two produce visibly different pictures — `tile` gives you a 2×2 mosaic of the original, `repeat` gives you the original at double resolution.
+`tile` concatenates an array with itself. `repeat` stretches it elementwise. On a 2-D image you can see the difference immediately: `tile` gives you a 2×2 mosaic of the original, `repeat` gives you the original at double resolution.
 
-And both are the *materialised* version of something you have already seen for free:
+Both are the *materialised* version of something you've already had for free:
 
-> `np.tile(r, (3, 1))` and `np.broadcast_to(r, (3, 3))` hold the same values — but tile **allocates** and broadcast_to is a **stride-0 view** (lesson 17).
+> `np.tile(r, (3, 1))` and `np.broadcast_to(r, (3, 3))` hold the same values, but tile **allocates** while broadcast_to is a **stride-0 view** (lesson 17).
 
-So the real decision is usually not "tile or repeat" but "do I need a real copy at all?" If the replicated array is only going to be read — added, multiplied, compared — broadcasting already did it, for free.
+So the real question is usually not "tile or repeat" but "do I need a genuine copy at all?" If the replicated array is only going to be read — added, multiplied, compared — broadcasting already handled it, for free.
 
 ---
 
@@ -373,6 +373,6 @@ That third point is the one that matters in real code: `a + np.tile(b, (n, 1))` 
                  └── each element   ──►  27 repeat
 ```
 
-The memory story is the section's real theme: **joining costs, dividing is free.** Concatenate, stack and tile must allocate, because separate buffers cannot be described by one stride pattern. Split is slicing, so it costs nothing. And `broadcast_to` sits outside the table entirely — replication with no memory at all, which is why lesson 17 comes before this one.
+The memory story is this section's real theme: **joining costs, dividing is free.** Concatenate, stack and tile have to allocate, because separate buffers can't be described by a single stride pattern. Split is slicing, so it costs nothing. And `broadcast_to` sits outside the table altogether — replication with no memory at all, which is why lesson 17 comes before this one.
 
-> **Mental shift:** parts 1 and 2 joined things with `+` and `extend`, and the only question was order. At rank 3+ every join needs an axis, every axis choice changes the meaning, and the same operation can be free or expensive depending on whether you actually need the bytes. "Which axis, and do I need a copy?" is the whole of tensor combination.
+> **Mental shift:** parts 1 and 2 joined things with `+` and `extend`, and order was the only question. At rank 3 and up, every join needs an axis, every axis choice changes the meaning, and the same operation is free or expensive depending on whether you actually need the bytes. "Which axis, and do I need a copy?" is the whole of tensor combination.

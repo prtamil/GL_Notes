@@ -11,13 +11,13 @@ Reshape re-cut the tape. Flatten **removes the cuts entirely**.
      2 x 3                    6
 ```
 
-It is the limiting case of lesson 22 — `reshape(m, 1, n)` without the wrapping list — and the simplest operation in the section. Its importance is out of all proportion to its difficulty, for one reason:
+It's the limiting case of lesson 22, `reshape(m, 1, n)` without the wrapping list, and the simplest operation in the section. It matters far more than its difficulty suggests, for one reason:
 
 > **Flattening is not a transformation you apply. It is the layout the matrix already had.**
 
-`[[1,2,3],[4,5,6]]` in memory *is* `1 2 3 4 5 6` with a row length attached. Row-major order is the reason `m[r][c]` works, the reason row traversal is cache-friendly (lesson 1), the reason a 180° rotation is just the reversed flat list (lesson 18), and the reason reshape is nearly free.
+In memory, `[[1,2,3],[4,5,6]]` *is* `1 2 3 4 5 6` with a row length attached. Row-major order is why `m[r][c]` works, why row traversal is cache-friendly (lesson 1), why a 180° rotation is just the reversed flat list (lesson 18), and why reshape is nearly free.
 
-So the real content here is the **index correspondence** between the two views:
+So what this lesson is really about is the **index correspondence** between the two views:
 
 ```text
    i  =  r * cols + c              2D -> 1D
@@ -396,11 +396,11 @@ Three Python specifics:
                   └── change GROUPING  ──►  22-23   (the same tape, re-cut)
 ```
 
-Two families, one dividing line — **does the flat order change?**
+Two families, one dividing line: **does the flat order change?**
 
 ```python
 flat(transpose(m)) == flat(m)       # False -> a symmetry
 flat(reshape(m, 3, 2)) == flat(m)   # True  -> a layout change
 ```
 
-> **Mental shift:** every operation in this section is a function from `(r, c)` to a new `(r, c)` — or, equivalently, a permutation of the flat index. Write down that function and the code writes itself; try to reason from the picture and you will get the direction backwards. The pictures are for checking, the coordinate rules are for building.
+> **Mental shift:** every operation in this section is a function from `(r, c)` to a new `(r, c)`, or equivalently a permutation of the flat index. Write that function down and the code writes itself. Try to reason from the picture and you'll get the direction backwards. Pictures are for checking; coordinate rules are for building.

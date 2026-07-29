@@ -2,19 +2,19 @@
 
 ## Introduction
 
-Every sequence has a beginning.
+Every sequence starts somewhere.
 
-Before we can search, transform, group, or summarize data, **there must first be a sequence to work with**.
+You can't search, transform, group or summarize anything until **you have a sequence in hand**.
 
-**Generate** is the act of creating a sequence. Sometimes the sequence comes from existing data (a file, database, API), but often we generate one ourselves from a rule, a seed value, or by repeating a pattern.
+**Generate** is how you get one. Sometimes it arrives from outside — a file, a database, an API. Often you build it yourself from a rule, a seed value, or a pattern you keep repeating.
 
-The mental question is simple:
+The question you're asking is simple:
 
 > **"Where does this sequence come from?"**
 
-Unlike most other verbs, **Generate** doesn't transform an existing sequence—it **creates one**.
+Most verbs take a sequence and change it. Generate is the odd one out: it **makes** the sequence.
 
-In Python, generation is usually **lazy**: `range` computes values on demand, `itertools` produces them one at a time, and a generator function yields them as they're asked for. This lets us describe infinite sequences without computing them all at once.
+Python generates **lazily** most of the time. `range` works out values when you ask for them, `itertools` hands them over one at a time, and a generator function yields on demand. That's what lets you describe an infinite sequence without ever computing all of it.
 
 ---
 
@@ -24,7 +24,7 @@ In Python, generation is usually **lazy**: `range` computes values on demand, `i
 |---|---|---|
 |**Generate**|Where does the sequence come from?|`range`, `itertools.repeat`, `itertools.count`, `itertools.cycle`, generator functions, `yield`|
 
-> **Note:** `range` is a lazy **sequence** — it has a length, supports indexing, and can be iterated repeatedly. Everything in `itertools` is a **one-shot iterator**. That difference decides whether you can use a result twice.
+> **Note:** `range` is a lazy **sequence**. It has a length, you can index it, and you can loop over it as many times as you like. Everything in `itertools` is a **one-shot iterator**. That one difference decides whether you can use a result twice.
 
 ---
 
@@ -44,10 +44,10 @@ In Python, generation is usually **lazy**: `range` computes values on demand, `i
 
 # The Python-specific catch
 
-Infinite generators (`count`, `cycle`, `repeat` without a count, `while True`) **must always be bounded** — with `islice`, with `takewhile`, or by zipping against something finite. There is no error for forgetting; the program simply never returns.
+Always put a bound on an infinite generator — `count`, `cycle`, `repeat` with no count, `while True`. Use `islice`, use `takewhile`, or zip it against something finite. Forget, and Python won't warn you. The program just never comes back.
 
 ---
 
 # One Sentence to Remember
 
-> **Generate creates a sequence from a rule, a seed, or a repeated pattern — usually lazily, so infinite sequences cost nothing until consumed.**
+> **Generate builds a sequence from a rule, a seed, or a repeating pattern. It's usually lazy, so an infinite sequence costs you nothing until you start pulling from it.**

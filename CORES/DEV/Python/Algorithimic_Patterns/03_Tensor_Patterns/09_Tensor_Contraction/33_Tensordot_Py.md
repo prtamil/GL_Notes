@@ -8,7 +8,7 @@
 np.tensordot(a, b, axes=([1], [1]))     # contract a's axis 1 with b's axis 1
 ```
 
-The rule for the output is simple and absolute:
+The rule for the output shape is simple and has no exceptions:
 
 > **The contracted axes vanish. Every remaining axis of `a`, followed by every remaining axis of `b`, becomes an output axis.**
 
@@ -21,13 +21,13 @@ axes=([1],[1])   contract 3 with 3   ->  (2, 4) + (4, 2)  ->  (2, 4, 4, 2)
 axes=0           contract nothing    ->  (2,3,4) + (4,3,2) -> (2,3,4,4,3,2)
 ```
 
-That last case is worth noticing: `axes=0` contracts nothing and gives the **outer product** — so tensordot spans the whole range from "no contraction" to "full contraction" in one parameter.
+That last case is worth noticing. `axes=0` contracts nothing and gives you the **outer product**, so tensordot covers the whole range from "no contraction" to "full contraction" through one parameter.
 
-And the limitation that decides when *not* to use it:
+And here's the limitation that tells you when *not* to reach for it:
 
 > **Tensordot has no concept of a batch.**
 
-Every non-contracted axis becomes an output axis, so a batch axis present in both operands appears **twice**. `(2,3,4)` and `(2,4,5)` give `(2,3,2,5)` — the same wrong answer `np.dot` gives, for the same reason. Batches need `@` (lesson 32) or `einsum` (lesson 34).
+Every non-contracted axis becomes an output axis, so a batch axis sitting in both operands turns up **twice**. `(2,3,4)` and `(2,4,5)` give you `(2,3,2,5)`, the same wrong answer `np.dot` produces, for the same reason. Batches need `@` (lesson 32) or `einsum` (lesson 34).
 
 ---
 
@@ -352,4 +352,4 @@ Two smaller cautions: the integer form `axes=k` pairs "last `k` of `a`" with "fi
    einsum     everything                   lesson 34
 ```
 
-> **Mental shift:** matmul fixed the axes and gained batches; tensordot freed the axes and lost them. Neither gives you both, which is exactly the gap `einsum` fills — and why the next lesson is where this section actually lands.
+> **Mental shift:** matmul fixed the axes and got batches in return. Tensordot freed the axes and gave up batches. Neither gives you both, which is precisely the gap `einsum` fills, and why the next lesson is where this section really lands.

@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Once a sequence exists and we have observed it, the next natural action is to **find something**.
+You have a sequence and you've had a look at it. Next you want to **find something in it**.
 
-**Search** is the act of locating one or more elements in a sequence that satisfy a condition.
+**Search** means locating the element or elements that match some condition.
 
-The mental question is:
+The question you're asking:
 
 > **"Where is what I'm looking for?"**
 
-Unlike **Observe**, which describes the sequence as a whole, **Search** focuses on finding specific elements or positions within the sequence.
+**Observe** tells you about the sequence as a whole. **Search** zooms in on particular elements or positions inside it.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Observe**, which describes the sequence as a whole, **Search** focuses 
 |---|---|---|
 |**Search**|Where is what I'm looking for?|`next((x for x in xs if p(x)), None)`, `list.index`, `enumerate`, `in`, `dict.get`, `str.find`, `re.search`, `bisect`|
 
-> **Note:** Python has no single generic "find" function. The right tool depends on whether you want the **element**, its **index**, a **boolean**, or a **lookup by key** — and on whether the data is sorted.
+> **Note:** There's no one generic "find" in Python. What you reach for depends on what you want back — the **element**, its **index**, a **yes/no**, or a **value for a key** — and on whether the data is already sorted.
 
 ---
 
@@ -42,14 +42,14 @@ Unlike **Observe**, which describes the sequence as a whole, **Search** focuses 
 
 # The Python-specific catches
 
-**`next()` without a default raises `StopIteration`** — and inside a generator function that becomes a confusing `RuntimeError`. Always pass the second argument.
+**`next()` with no default raises `StopIteration`**, and inside a generator function that turns into a baffling `RuntimeError`. Always pass the second argument.
 
-**`.index()` raises `ValueError`; `.find()` returns `-1`; `.get()` returns `None`.** Three different "not found" conventions in the same standard library.
+**`.index()` raises `ValueError`, `.find()` returns `-1`, `.get()` returns `None`.** Three different ways of saying "not found", all in the same standard library.
 
-**The nested-search trap:** one `next()` scan is O(n) and fine. The same scan inside a loop over n keys is O(n²) and never looks like a mistake. Build a `dict` index once instead.
+**Watch for the nested-search trap.** One `next()` scan is O(n) and perfectly fine. Put that same scan inside a loop over n keys and it's O(n²), and it never looks wrong on the page. Build a `dict` index once instead.
 
 ---
 
 # One Sentence to Remember
 
-> **Search locates specific elements or positions in a sequence that satisfy a condition — and if you're searching the same collection repeatedly, stop searching and build an index.**
+> **Search finds the elements or positions in a sequence that match a condition. If you're searching the same collection over and over, stop searching and build an index.**

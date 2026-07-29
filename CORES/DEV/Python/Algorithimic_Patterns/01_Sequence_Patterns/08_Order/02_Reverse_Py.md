@@ -4,9 +4,9 @@
 
 Traverse or view a sequence in the **opposite order**, making the last element first and the first element last.
 
-Unlike **Sort**, which orders by value, **Reverse** simply flips the existing order.
+**Sort** orders by value. **Reverse** just flips whatever order is already there.
 
-Python offers three spellings, and the difference between them is what you get back: **`xs[::-1]`** a new copy, **`reversed(xs)`** a lazy iterator, **`xs.reverse()`** an in-place mutation returning `None`.
+Python gives you three spellings, and what separates them is what you get back: **`xs[::-1]`** hands you a new copy, **`reversed(xs)`** a lazy iterator, and **`xs.reverse()`** mutates in place and returns `None`.
 
 ---
 
@@ -18,7 +18,7 @@ Order
 Reverse
 ```
 
-Reverse is an **Order** pattern because it changes the ordering of elements without changing the elements themselves.
+Reverse is an **Order** pattern because it rearranges elements without touching the elements themselves.
 
 ---
 
@@ -329,8 +329,8 @@ list(reversed(xs))              # flip order, lazily then    → Reverse
 
 ### Key Insight
 
-**The three reversals differ only in what they return, and that is the whole decision.** `xs[::-1]` copies, `reversed(xs)` doesn't, `xs.reverse()` returns `None`. Iterating once? Use `reversed` and allocate nothing. Keeping the result? Use the slice. Assigning `xs = xs.reverse()` is the same `None` bug as with `.sort()`, and it will bite you at least once.
+**The three reversals differ only in what they hand back, and that's the entire decision.** `xs[::-1]` copies, `reversed(xs)` doesn't, `xs.reverse()` returns `None`. Iterating once? Use `reversed` and allocate nothing. Keeping the result? Use the slice. Writing `xs = xs.reverse()` is the same `None` bug you get from `.sort()`, and it'll catch you at least once.
 
-**Reversal cannot be lazy in the way mapping and filtering can.** `reversed()` looks lazy but it needs random access to a known length — it's a backwards *cursor*, not a pipeline stage. That's why generators are refused outright: the last element of a stream isn't knowable until the stream ends. If you find yourself wanting to reverse a stream, what you usually want is `deque(maxlen=n)` to keep just the tail.
+**Reversal can't be lazy the way mapping and filtering are.** `reversed()` looks lazy, but it needs random access and a known length. It's a backwards *cursor*, not a pipeline stage. That's why it refuses generators outright: you can't know the last element of a stream until the stream ends. If you want to reverse a stream, what you usually want is `deque(maxlen=n)` to hold just the tail.
 
-Finally, watch for reversals that shouldn't be reversals: **`sorted(xs)[::-1]` should be `sorted(xs, reverse=True)`**, and a "reverse chronological" list is usually better built by appending to a stack than by flipping a list after the fact. Reverse is cheap, but reversing to undo an ordering you controlled is a sign the ordering was built backwards.
+Finally, watch for reversals that shouldn't be there at all. **`sorted(xs)[::-1]` should be `sorted(xs, reverse=True)`**, and a "reverse chronological" list is usually better built by appending to a stack than by flipping a list afterwards. Reverse is cheap, but reversing to undo an ordering you chose yourself means the ordering was built backwards.

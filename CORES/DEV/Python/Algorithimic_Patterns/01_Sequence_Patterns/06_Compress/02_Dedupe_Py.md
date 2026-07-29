@@ -4,9 +4,9 @@
 
 Remove **consecutive duplicate elements** while keeping duplicates that appear later.
 
-Unlike **Distinct**, which removes **all duplicates**, **Dedupe** only compresses **runs of repeated values**.
+**Distinct** removes **every duplicate**. **Dedupe** only squashes **runs of repeated values**.
 
-Python's tool for this is **`itertools.groupby`** — which, unlike SQL's `GROUP BY`, groups only **adjacent** equal elements. That "limitation" is exactly what makes it the run-detector.
+The tool for this is **`itertools.groupby`**. Unlike SQL's `GROUP BY`, it only groups **adjacent** equal elements, and that so-called limitation is exactly what turns it into a run detector.
 
 ---
 
@@ -18,7 +18,7 @@ Compress
 Dedupe
 ```
 
-Dedupe is a **Compress** pattern because it reduces repeated **adjacent** values into a single value.
+Dedupe is a **Compress** pattern because it folds repeated **adjacent** values down to one.
 
 ---
 
@@ -306,8 +306,8 @@ list(dict.fromkeys(xs))             # all dupes gone       → Distinct
 
 ### Key Insight
 
-**Dedupe is the streaming sibling of Distinct.** It only ever compares an element to its immediate predecessor, so it runs in **O(1) memory on an infinite stream** and works on unhashable elements — neither of which `set` or `dict.fromkeys` can do. When your data arrives as a feed rather than a list, this is usually the deduplication you can actually afford.
+**Dedupe is Distinct's streaming sibling.** It only ever compares an element to the one right before it, so it runs in **O(1) memory on an infinite stream** and handles unhashable elements. `set` and `dict.fromkeys` can do neither. When your data arrives as a feed instead of a list, this is usually the only deduplication you can afford.
 
-The `groupby` trap is worth burning in: **the group iterators are views onto one shared cursor.** `list(groupby(xs))` gives you groups that are already empty, because materializing the outer level advanced past all of them. Consume each group *inside* the loop, or the bug appears as a column of empty lists with no error to explain it.
+Burn this `groupby` trap in: **the group iterators are views onto a single shared cursor.** `list(groupby(xs))` hands you groups that are already empty, because materialising the outer level walked straight past all of them. Consume each group *inside* the loop, or you'll get a column of empty lists and no error explaining why.
 
-And the sentence that connects this whole family: **sorting turns Dedupe into Distinct.** Once equal values are adjacent, "remove adjacent duplicates" removes all of them — which is why `groupby(sorted(xs))` and `set(xs)` produce the same answer by completely different means, one trading time for memory and the other memory for time.
+And here's the sentence that ties this whole family together: **sorting turns Dedupe into Distinct.** Once equal values sit next to each other, removing adjacent duplicates removes all of them. That's why `groupby(sorted(xs))` and `set(xs)` land on the same answer by opposite routes, one trading time for memory and the other memory for time.

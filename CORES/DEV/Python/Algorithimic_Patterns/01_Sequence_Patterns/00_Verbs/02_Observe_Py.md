@@ -2,17 +2,17 @@
 
 ## Introduction
 
-Once a sequence exists, the first thing we naturally do is **look at it**.
+Once you have a sequence, the first thing you do is **look at it**.
 
-Before changing, filtering, sorting, or grouping data, we usually ask questions about it.
+Before you change, filter, sort or group anything, you ask a few questions about what you're holding.
 
-**Observe** is the act of extracting information from a sequence **without changing the sequence itself**.
+**Observe** is pulling information out of a sequence **without touching the sequence**.
 
-The mental question is:
+The question you're asking:
 
 > **"What is true about this sequence?"**
 
-Unlike most other verbs, **Observe** is a **read-only** operation. It does not create a new sequence or modify the existing one. It simply reveals information.
+Observe is the read-only verb. It doesn't build a new sequence and it doesn't modify the old one. It just tells you something.
 
 ---
 
@@ -22,7 +22,7 @@ Unlike most other verbs, **Observe** is a **read-only** operation. It does not c
 |---|---|---|
 |**Observe**|What is true about the sequence?|`len`, `xs[0]`, `xs[-1]`, `not xs`, `any`, `all`, `in`, `min`, `max`, `sum`, `collections.Counter`, `statistics`|
 
-> **Note:** Observation is where **laziness bites**. `len()`, indexing, and `xs[-1]` all require a real sequence — a generator has none of them, and `any`/`all`/`min`/`max` **consume** it, so a second question about the same generator gets an empty answer.
+> **Note:** This is where **laziness bites you**. `len()`, indexing and `xs[-1]` all need a real sequence, and a generator gives you none of them. Worse, `any`/`all`/`min`/`max` **consume** the generator, so if you ask a second question about it you get an answer based on nothing.
 
 ---
 
@@ -47,16 +47,16 @@ Unlike most other verbs, **Observe** is a **read-only** operation. It does not c
 
 # The Python-specific catches
 
-**`any`/`all` short-circuit; `min`/`max`/`sum` do not.** Existence questions stop early, aggregate questions must see everything.
+**`any`/`all` short-circuit. `min`/`max`/`sum` don't.** A question about existence can stop the moment it knows. A question about a total has to see everything.
 
-**`all([])` is `True`** — vacuously, since no element fails. `any([])` is `False`. Both surprise people exactly once.
+**`all([])` is `True`.** Nothing failed, so it passes. `any([])` is `False`. Everyone gets caught by this once.
 
-**`min`/`max` raise `ValueError` on empty input** unless you pass `default=`.
+**`min`/`max` raise `ValueError` on empty input** unless you give them `default=`.
 
-**`in` is O(1) on a `set` or `dict`, O(n) on a `list`.** Same syntax, completely different cost.
+**`in` is O(1) on a `set` or `dict` and O(n) on a `list`.** Same syntax, wildly different cost.
 
 ---
 
 # One Sentence to Remember
 
-> **Observe answers questions about a sequence without changing the sequence itself — but on a lazy iterator, asking is itself a consumption.**
+> **Observe answers questions about a sequence without changing it. Just remember that on a lazy iterator, asking the question is what consumes it.**

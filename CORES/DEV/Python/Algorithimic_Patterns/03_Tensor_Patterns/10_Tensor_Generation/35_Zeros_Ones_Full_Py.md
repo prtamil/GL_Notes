@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every lesson so far consumed a tensor. This section **produces** one — from a description rather than from data.
+Every lesson so far consumed a tensor. This section **produces** one, out of a description rather than out of data.
 
 The simplest description is a shape and a constant:
 
@@ -12,15 +12,15 @@ np.ones((2, 3, 4))          # every element 1
 np.full((2, 3, 4), 7)       # every element 7
 ```
 
-Three things make this more than trivia.
+Three things lift this above trivia.
 
-**The shape is a tuple.** `np.zeros(3)` works because a bare int is accepted for rank 1, but `np.zeros(3, 3)` does *not* mean a 3×3 — the second positional argument is `dtype`, so it raises a confusing error. Always write the tuple.
+**The shape is a tuple.** `np.zeros(3)` works because a bare int is accepted at rank 1, but `np.zeros(3, 3)` does *not* mean a 3×3. The second positional argument is `dtype`, so you get a baffling error. Always write the tuple.
 
-**The dtype is a decision.** `np.zeros` defaults to `float64`; `np.full` infers from the fill value. An integer array silently truncates anything you assign into it, and the dtype is 8× the memory of a boolean one.
+**The dtype is a decision.** `np.zeros` defaults to `float64` and `np.full` infers from the fill value. An integer array quietly truncates anything you assign into it, and that dtype costs 8× the memory of a boolean one.
 
-**`np.empty` does not initialise.** It hands you whatever bytes were already in that memory. It exists for the case where you are about to overwrite everything anyway — and it is a real bug source when you are not.
+**`np.empty` doesn't initialise.** It hands you whatever bytes happened to be in that memory. It exists for when you're about to overwrite everything anyway, and it's a genuine source of bugs when you aren't.
 
-This is also where part 2's lesson 28 warning finally disappears: there is no `[[0]*n]*n` aliasing trap here, because NumPy allocates a real block of memory rather than repeating a reference.
+This is also where part 2's lesson-28 warning finally goes away. There's no `[[0]*n]*n` aliasing trap here, because NumPy allocates a real block of memory instead of repeating a reference.
 
 ---
 
@@ -358,4 +358,4 @@ And a pleasant absence: part 2's lesson 28 was largely a warning about `[[0]*n]*
    structure  ──►  38
 ```
 
-> **Mental shift:** every other section in part 3 answered "what do I do with this tensor?". Generation answers "where does the tensor come from?" — and the answer is almost never a literal. It is a shape plus a rule, which is why the next three lessons are about supplying richer rules.
+> **Mental shift:** every other section in part 3 answered "what do I do with this tensor?". Generation answers "where did the tensor come from?", and the answer is almost never a literal. It's a shape plus a rule, which is why the next three lessons are about supplying richer rules.

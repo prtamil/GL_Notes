@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes looking at **one element at a time isn't enough**. The meaning comes from **neighboring elements**.
+Sometimes **one element at a time tells you nothing**. The meaning lives in **what's next to what**.
 
-**Window** is the act of viewing a sequence through small contiguous groups of elements.
+**Window** looks at a sequence through small runs of neighbouring elements.
 
-The mental question is:
+The question you're asking:
 
 > **"Which neighboring elements should I examine together?"**
 
-Unlike **Slice**, which extracts one portion of a sequence, **Window** repeatedly moves across the sequence, producing many local views.
+**Slice** takes one piece and stops. **Window** keeps moving along the sequence, handing you one local view after another.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Slice**, which extracts one portion of a sequence, **Window** repeatedl
 | ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | **Window**    | Which neighboring elements should I examine together? | `itertools.pairwise`, `itertools.batched`, `zip(xs, xs[1:])`, slicing + `range`, `deque(maxlen=n)`, `groupby` |
 
-> **Note:** Python has no single `partition(size, step, xs)`. Instead there are two specialized tools — `batched` for **size == step** (chunks) and `pairwise` for **size 2, step 1** — and a slicing comprehension for everything in between.
+> **Note:** Python doesn't give you one `partition(size, step, xs)`. You get two specialised tools — `batched` for **size == step** (chunks) and `pairwise` for **size 2, step 1** — plus a slicing comprehension for everything in between.
 
 ---
 
@@ -38,20 +38,20 @@ Unlike **Slice**, which extracts one portion of a sequence, **Window** repeatedl
 |Rolling window over a stream|`deque(maxlen=n)`|append each item; the deque *is* the window|
 |Window aggregate|comprehension|`[sum(w) for w in batched(xs, 3)]`|
 
-> **Note:** An **overlapping window** is simply any window where **step < window size**. A **sliding window** is the special case where **step = 1**, and **chunking** is the case where **step = window size**.
+> **Note:** An **overlapping window** is just any window where **step < window size**. A **sliding window** is the case where **step = 1**, and **chunking** is the case where **step = window size**.
 
 ---
 
 # The Python-specific catches
 
-**The sliding-window bound is `len(xs) - n + 1`.** Get it wrong and you either drop the last window or emit a short one. `zip(xs, xs[1:], xs[2:])` avoids the arithmetic entirely for small fixed widths.
+**The sliding-window bound is `len(xs) - n + 1`.** Get it wrong and you either lose the last window or emit a short one. For small fixed widths, `zip(xs, xs[1:], xs[2:])` skips the arithmetic altogether.
 
-**Slicing needs `len()`.** None of the slicing forms work on a generator — for a stream, use `deque(maxlen=n)` and read the window after each `append`, which is O(1) memory and works on infinite input.
+**Slicing needs `len()`.** None of the slicing forms work on a generator. For a stream, use `deque(maxlen=n)` and read the window after each `append`: O(1) memory, and it happily runs on infinite input.
 
-**A rolling sum should not re-sum.** Recomputing `sum(window)` each step is O(n·k); add the entering element and subtract the leaving one instead, for O(n).
+**Don't re-sum a rolling window.** Calling `sum(window)` at every step is O(n·k). Add the element coming in, subtract the one going out, and you're at O(n).
 
 ---
 
 # One Sentence to Remember
 
-> **Window repeatedly views neighboring elements together by moving across a sequence — window size and step are the only two parameters, and every windowing pattern is a choice of those two.**
+> **Window walks across a sequence looking at neighbouring elements together. There are only two knobs — window size and step — and every windowing pattern is just a setting of those two.**

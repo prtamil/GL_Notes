@@ -12,22 +12,22 @@ t.sum(axis=(0, 1))  ->  (4,)
 t.sum(axis=(0, 2))  ->  (3,)
 ```
 
-This is "collapse the spatial dimensions", "total over batch and time", "global average pooling" — one call, no intermediate.
+That's "collapse the spatial dimensions", "total over batch and time", "global average pooling" — one call, no intermediate array.
 
-Two properties make it worth preferring over reducing one axis at a time:
+Two properties make this better than reducing one axis at a time:
 
-- **Order does not matter.** `axis=(1,2)` and `axis=(2,1)` are identical, because the axes are all removed in one pass.
+- **Order doesn't matter.** `axis=(1,2)` and `axis=(2,1)` are the same thing, because all the axes go in one pass.
     
-- **The axis numbers stay meaningful.** This is the real reason. Reducing sequentially **renumbers** the remaining axes:
+- **The axis numbers keep meaning what they said.** This is the real reason. Reducing one at a time **renumbers** whatever's left:
 
 ```text
 t.sum(axis=0)            ->  (3, 4)      old axis 1 is now axis 0
 t.sum(axis=0).sum(axis=1)   ==   t.sum(axis=(0, 2))     NOT (0, 1)
 ```
 
-Read that twice. After collapsing axis 0, the second `.sum(axis=1)` refers to the *old axis 2*. Chained reductions silently shift under you, and the result is a valid array of the wrong statistic.
+Read that twice. Once axis 0 is gone, the second `.sum(axis=1)` is talking about the *old axis 2*. Chained reductions shift under your feet without warning, and what you get back is a perfectly valid array holding the wrong statistic.
 
-One deeper caution: **not every reduction composes.** Sums and maxima do — a sum of sums is a sum. Means only compose when the groups are equal-sized, and standard deviations never do.
+One deeper caution: **not every reduction composes.** Sums and maxima do — a sum of sums is a sum. Means only compose when the groups are the same size, and standard deviations never compose at all.
 
 ---
 
@@ -347,4 +347,4 @@ A mean of means over unequal groups over-weights the small ones — `3.5` versus
    chained:      axes renumber after every step
 ```
 
-> **Mental shift:** part 2's reductions were always "per row" or "per column" — one axis, unambiguous. Once there are four axes, "reduce the spatial dimensions" names *two* of them, and the tuple is how you say it. Getting comfortable writing `axis=(0, 2, 3)` is what lets you compute a dataset statistic in one line instead of a chain you have to re-derive every time you read it.
+> **Mental shift:** part 2's reductions were always "per row" or "per column": one axis, no ambiguity. Once you have four axes, "reduce the spatial dimensions" names *two* of them, and the tuple is how you say that. Getting comfortable writing `axis=(0, 2, 3)` is what lets you compute a dataset statistic in one line instead of a chain you have to re-derive every time you read it.

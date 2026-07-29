@@ -4,9 +4,9 @@
 
 Generate a sequence by **repeatedly applying the same function** to the previous value.
 
-Unlike **Range**, which advances by a fixed numeric step, **Iterate** advances by applying a transformation rule.
+**Range** moves forward by a fixed numeric step. **Iterate** moves forward by applying a rule.
 
-Python has no `iterate` — but a **generator function with a `while True` loop** is the direct equivalent, and `accumulate(repeat(seed), lambda acc, _: f(acc))` is the one-liner when you want it.
+There's no `iterate` in Python, but a **generator function with a `while True` loop** does the same job, and `accumulate(repeat(seed), lambda acc, _: f(acc))` is the one-liner if you want one.
 
 ---
 
@@ -18,7 +18,7 @@ Generate
 Iterate
 ```
 
-Iterate is a **Generate** pattern because each new element is generated from the previous one.
+Iterate is a **Generate** pattern: every new element comes out of the previous one.
 
 ---
 
@@ -354,8 +354,8 @@ repeat(x)                       # the same value forever  → Repeat
 
 ### Key Insight
 
-**Iterate is the functional shape of a `while` loop, and its defining property is that termination is not its job.** The generator produces values forever; the caller decides how many to take with `islice`, `takewhile`, or `next`. That separation is the entire benefit — the *rule* for advancing state is written once and stays independent of the *reason* for stopping, so you can reuse the same Collatz stepper for "first 12 values", "until it reaches 1", and "how many steps does 27 take".
+**Iterate is a `while` loop in functional clothing, and the defining thing about it is that stopping isn't its job.** The generator produces values forever and the caller decides how many to take, with `islice`, `takewhile` or `next`. That separation is the whole benefit: the *rule* for advancing state is written once and stays independent of the *reason* for stopping, so the same Collatz stepper serves "first 12 values", "until it reaches 1", and "how many steps does 27 take".
 
-**When one value isn't enough state, iterate over a tuple.** Fibonacci is the canonical demonstration: `a, b = b, a + b` carries two values through one function, and you project out what you want afterwards. Every recurrence that looks back more than one step, every simulation with position and velocity, every parser with a cursor and a stack — all of them are `iterate` over a compound state. If you're returning a dict, return a *new* one; mutating and re-yielding the same object gives you n references to one state and a sequence that appears to have been the final value all along.
+**When one value isn't enough state, iterate over a tuple.** Fibonacci is the classic demo: `a, b = b, a + b` carries two values through one function and you pull out what you want afterwards. Every recurrence that looks back more than one step, every simulation with position and velocity, every parser with a cursor and a stack — they're all `iterate` over a compound state. If you're returning a dict, return a *new* one. Mutating and re-yielding the same object leaves you with n references to a single state and a sequence that looks like it was the final value all along.
 
-The danger is symmetric with the benefit: **an unbounded generator with no exit condition is a hang, not an exception.** Newton's method on a bad seed, a state machine with an absorbing loop, a fixpoint that never reaches one — none of these raise anything. Bound the steps, or track a `seen` set. A finite state space guarantees repetition, so "it will converge" is a property to check, not to assume.
+The danger mirrors the benefit: **an unbounded generator with no exit condition hangs, it doesn't raise.** Newton's method on a bad seed, a state machine with an absorbing loop, a fixpoint that never arrives — none of these throw anything. Bound the steps, or keep a `seen` set. A finite state space guarantees repetition eventually, so "it will converge" is something to check rather than assume.

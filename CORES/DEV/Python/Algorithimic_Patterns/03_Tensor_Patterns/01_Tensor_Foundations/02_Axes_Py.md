@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-An **axis is a position in the shape tuple.** That is the whole definition, and everything else follows from it.
+An **axis is a position in the shape tuple.** That's the whole definition, and everything else falls out of it.
 
 ```text
 shape = (2, 3, 4)
@@ -10,9 +10,9 @@ shape = (2, 3, 4)
     axis 0  1  2
 ```
 
-Axis 0 is the **outermost** — the one `len()` sees, the one a plain `for` loop walks. Axis `ndim-1` is the **innermost** — the one whose elements sit next to each other in memory.
+Axis 0 is the **outermost**: the one `len()` reports, the one a plain `for` loop walks. Axis `ndim-1` is the **innermost**: the one whose elements sit side by side in memory.
 
-The phrase that does the real work is **"along an axis"**:
+The phrase doing the real work here is **"along an axis"**:
 
 > To operate *along axis k*, vary index `k` and hold every other index fixed.
 
@@ -24,7 +24,7 @@ along axis 1   ->  t[i][·][k]   3 values, for each fixed (i, k)
 along axis 2   ->  t[i][j][·]   4 values, for each fixed (i, j)
 ```
 
-And the consequence you use constantly: **a reduction along axis `k` deletes entry `k` from the shape.**
+And here's the consequence you'll lean on constantly: **a reduction along axis `k` deletes entry `k` from the shape.**
 
 ```text
 (2, 3, 4).sum(axis=0)  ->  (3, 4)      the 2 is gone
@@ -366,4 +366,4 @@ And the failure this section cannot protect you from: **shapes carry sizes, not 
                                    axis 1
 ```
 
-> **Mental shift:** in part 1 there was one direction and in part 2 there were two, so "rows" and "columns" were enough. Beyond rank 2 the names run out and the axis *number* becomes the vocabulary. Getting fluent at reading `axis=k` as "delete slot k from the shape" is what makes the rest of part 3 mechanical.
+> **Mental shift:** part 1 had one direction and part 2 had two, so "rows" and "columns" covered it. Past rank 2 the names run out and the axis *number* becomes your vocabulary. Getting fluent at reading `axis=k` as "delete slot k from the shape" is what turns the rest of part 3 into mechanics.

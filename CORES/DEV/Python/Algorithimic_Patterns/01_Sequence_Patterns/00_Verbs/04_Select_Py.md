@@ -2,15 +2,15 @@
 
 ## Introduction
 
-After searching, we often want to **keep** only the elements that matter.
+Once you've found things, you usually want to **keep** only the ones that matter.
 
-**Select** is the act of creating a new sequence by retaining elements that satisfy a rule or condition.
+**Select** builds a new sequence out of the elements that pass some rule.
 
-The mental question is:
+The question you're asking:
 
 > **"What should I keep?"**
 
-Unlike **Search**, which locates elements, **Select** produces a **new sequence** containing only the desired elements.
+**Search** points at elements. **Select** hands you a **new sequence** made of the ones you wanted.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Search**, which locates elements, **Select** produces a **new sequence*
 |---|---|---|
 |**Select**|What should I keep?|`[x for x in xs if p(x)]`, `filter`, `itertools.takewhile`, `islice`, slicing, `itertools.compress`|
 
-> **Note:** The comprehension is the default. `filter(p, xs)` is lazy and reads well when `p` is already a named function; `filter(None, xs)` is the special form that keeps every **truthy** element.
+> **Note:** Default to the comprehension. `filter(p, xs)` is lazy and reads nicely when `p` already has a name. `filter(None, xs)` is the special case that keeps every **truthy** element.
 
 ---
 
@@ -40,14 +40,14 @@ Unlike **Search**, which locates elements, **Select** produces a **new sequence*
 
 # The Python-specific catches
 
-**`filter` returns a one-shot iterator**, not a list — no `len`, no indexing, and empty after one pass.
+**`filter` gives you a one-shot iterator, not a list.** No `len`, no indexing, and it's empty after one pass.
 
-**`filter(None, xs)` drops `0`, `""`, `[]`, and `False`**, not just `None`. If you mean "not None", write `if x is not None`.
+**`filter(None, xs)` throws away `0`, `""`, `[]` and `False` too**, not just `None`. If you really mean "not None", write `if x is not None`.
 
-**`takewhile` stops at the first failure; `filter` checks every element.** `takewhile(p, [1, -1, 2])` gives `[1]`, `filter` gives `[1, 2]`.
+**`takewhile` quits at the first failure. `filter` checks everything.** `takewhile(p, [1, -1, 2])` gives you `[1]`; `filter` gives you `[1, 2]`.
 
 ---
 
 # One Sentence to Remember
 
-> **Select creates a new sequence by keeping only the elements that satisfy a rule.**
+> **Select builds a new sequence out of just the elements that pass your rule.**

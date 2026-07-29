@@ -12,11 +12,11 @@ stack([a, b], axis=0)  ->  (2, 2, 3)      a NEW leading axis of length 2
 stack([a, b], axis=2)  ->  (2, 3, 2)      a NEW trailing axis
 ```
 
-The rank goes up by one, and the new axis has length equal to the **number of arrays** you passed. Which forces a stricter requirement than concatenate:
+The rank goes up by one, and the new axis is as long as the **number of arrays** you handed over. That forces a stricter requirement than concatenate:
 
 > **All inputs must have *exactly* the same shape.**
 
-There is no "except the join axis" clause, because the join axis did not exist before.
+There's no "except the join axis" clause here, because the join axis didn't exist yet.
 
 This is the operation that turns **a list of samples into a batch**:
 
@@ -24,9 +24,9 @@ This is the operation that turns **a list of samples into a batch**:
 np.stack([img0, img1, img2])        # (3, H, W) from three (H, W) images
 ```
 
-and `axis=` decides where the new dimension goes — `axis=0` for a batch dimension, `axis=-1` for a channel dimension. Same call, different meaning.
+and `axis=` decides where the new dimension lands: `axis=0` for a batch dimension, `axis=-1` for a channel dimension. Same call, different meaning entirely.
 
-The relationship to lesson 24 is exact: stacking is concatenating after inserting a size-1 axis in every input.
+The relationship to lesson 24 is exact. Stacking is concatenating after inserting a size-1 axis into every input.
 
 ```python
 np.stack([a, b], axis=1)  ==  np.concatenate([a[:, None], b[:, None]], axis=1)
@@ -384,4 +384,4 @@ Prefer `np.stack` to `vstack`/`column_stack`: it behaves identically at every ra
                                      [b]      (2, 2, 3)
 ```
 
-> **Mental shift:** the question "do I have more *data* along an existing dimension, or a new *dimension* of grouping?" has an obvious answer once asked — and it is the only decision this pair requires. More samples for an existing dataset: concatenate. A collection of things that were previously separate: stack.
+> **Mental shift:** ask yourself "do I have more *data* along an existing dimension, or a new *dimension* of grouping?" The answer is obvious the moment you ask, and it's the only decision this pair needs. More samples for a dataset you already have: concatenate. A collection of things that used to be separate: stack.

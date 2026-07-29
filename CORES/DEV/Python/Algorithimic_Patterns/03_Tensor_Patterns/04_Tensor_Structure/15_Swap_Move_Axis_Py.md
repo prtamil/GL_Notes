@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-`transpose(perm)` can express every rearrangement — but it makes you spell out **all** the axes even when you only care about one or two.
+`transpose(perm)` can express every rearrangement there is, but it makes you spell out **all** the axes even when you only care about one or two.
 
 ```text
 rank 5, I just want axis 3 at the front:
@@ -11,9 +11,9 @@ rank 5, I just want axis 3 at the front:
   np.moveaxis(t, 3, 0)            say what you mean
 ```
 
-So there are two convenience operations, and the distinction between them is the content of this lesson:
+So there are two convenience operations, and telling them apart is what this lesson is about.
 
-**`swapaxes(i, j)` — exchange two axes, leave the rest alone.**
+**`swapaxes(i, j)` — trade two axes, leave everything else alone.**
 
 ```text
 (2, 3, 4)  swapaxes(0, 2)  ->  (4, 3, 2)
@@ -21,7 +21,7 @@ So there are two convenience operations, and the distinction between them is the
  └─────┘  those two trade places; axis 1 never moves
 ```
 
-**`moveaxis(src, dst)` — pull one axis out and reinsert it, sliding the others.**
+**`moveaxis(src, dst)` — pull one axis out and slot it back in, sliding the rest along.**
 
 ```text
 (2, 3, 4)  moveaxis(0, 2)  ->  (3, 4, 2)
@@ -343,4 +343,4 @@ Two idioms worth taking away whole:
    care about one          ──►  moveaxis
 ```
 
-> **Mental shift:** part 2 had one rearrangement and one name for it. Part 3 has `n!` of them, so the useful question stops being "which rearrangement?" and becomes "how much of the layout do I actually want to specify?" These three functions are the same operation at three levels of verbosity — pick the one that states your intent, and the reader (including you, later) will not have to decode a permutation tuple.
+> **Mental shift:** part 2 had one rearrangement and one name for it. Part 3 has `n!` of them, so the useful question stops being "which rearrangement?" and becomes "how much of the layout do I actually need to spell out?" These three functions are the same operation at three levels of verbosity. Pick the one that states your intent and the reader — you, in three months — won't have to decode a permutation tuple.

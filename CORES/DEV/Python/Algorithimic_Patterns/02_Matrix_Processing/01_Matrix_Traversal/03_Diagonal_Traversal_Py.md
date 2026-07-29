@@ -4,9 +4,9 @@
 
 Diagonal traversal visits cells where the **row and column indices change together**. The most common diagonal is the **main diagonal**, running from the top-left to the bottom-right.
 
-Unlike rows or columns, a diagonal represents a **relationship between coordinates**, not a contiguous row or column.
+Rows and columns are contiguous runs. A diagonal isn't. It's a **relationship between coordinates**.
 
-In Python that relationship maps directly onto `enumerate`: walk the rows, and let the **row number be the column index**.
+That relationship maps straight onto `enumerate` in Python: walk the rows and let the **row number double as the column index**.
 
 ---
 
@@ -297,8 +297,8 @@ for r, row in enumerate(m):
 ...
 ```
 
-Whenever the **row index and column index increase together**, you're traversing the main diagonal. This pattern appears frequently in linear algebra, board games, image processing, and dynamic programming.
+Any time the **row index and column index climb together**, you're on the main diagonal. It shows up constantly in linear algebra, board games, image processing and dynamic programming.
 
-The Python-specific version of that rule: **`enumerate` hands you the row index — use it twice.** And the moment you need *all* diagonals rather than one, stop indexing and start grouping: **every diagonal is one value of `c - r`**.
+The Python version of that rule: **`enumerate` gives you the row index, so use it twice.** And as soon as you want *all* the diagonals rather than one, stop indexing and start grouping — **each diagonal is a single value of `c - r`**.
 
 ---

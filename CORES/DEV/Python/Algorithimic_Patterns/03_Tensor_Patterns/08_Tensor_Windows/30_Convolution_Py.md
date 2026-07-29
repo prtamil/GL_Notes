@@ -2,20 +2,20 @@
 
 ## Mental Model
 
-Lesson 28 gave you every window, for free. Lesson 29 reduced non-overlapping windows with `max` or `mean`. Convolution reduces **overlapping** windows with **weights**:
+Lesson 28 handed you every window for free. Lesson 29 reduced non-overlapping windows with `max` or `mean`. Convolution reduces **overlapping** windows using **weights**:
 
 ```text
 windows  x  kernel  ──sum over the window axes──►  one value per position
 ```
 
-In NumPy that is two lines, and the second one is an `einsum`:
+In NumPy that's two lines, and the second is an `einsum`:
 
 ```python
 w = sliding_window_view(img, (3, 3))        # (H-2, W-2, 3, 3)   free
 out = np.einsum('ijkl,kl->ij', w, kernel)   # contract the window axes
 ```
 
-Part 2's lesson 15 wrote this as a nested loop over positions with a guarded accumulator. Here the *extraction* is a stride trick and the *arithmetic* is one contraction — and nothing is materialised in between.
+Part 2's lesson 15 wrote this as a nested loop over positions with a guarded accumulator. Here the *extraction* is a stride trick and the *arithmetic* is one contraction, with nothing materialised in between.
 
 Everything else in the lesson is a parameter:
 
@@ -26,7 +26,7 @@ Everything else in the lesson is a parameter:
 |**kernel flip**|`kernel[::-1, ::-1]` — see below|
 |**batch / channels**|more `einsum` subscripts|
 
-And the same warning as part 2, now demonstrable with a library function: **`np.convolve` flips the kernel; `np.correlate` does not.** What machine learning calls "convolution" is correlation.
+Same warning as part 2, except now you can demonstrate it with a library function: **`np.convolve` flips the kernel, `np.correlate` doesn't.** What machine learning calls "convolution" is correlation.
 
 ---
 
@@ -420,6 +420,6 @@ Two things to keep straight:
              └── reduce × weights ──►  30  (every position)
 ```
 
-Compare with part 2's window section, which was four lessons largely *about avoiding the cost of windowing* — integral images, separable passes, block sums. With strides, extraction is free and only the arithmetic remains.
+Compare that with part 2's window section: four lessons largely *about avoiding the cost of windowing*, between integral images, separable passes and block sums. With strides, extraction is free and only the arithmetic is left.
 
-> **Mental shift:** part 2 taught windows as a copying problem to be optimised around. Part 3 makes the copy vanish, and what is left is a contraction — which is why the next section is about contraction in general. Convolution turns out to be one `einsum` among many, and `einsum` is the vocabulary the rest of tensor computation is written in.
+> **Mental shift:** part 2 taught windows as a copying problem you had to optimise around. Part 3 makes the copy vanish, and what remains is a contraction. That's why the next section is about contraction in general. Convolution turns out to be one `einsum` among many, and `einsum` is the vocabulary the rest of tensor computation is written in.

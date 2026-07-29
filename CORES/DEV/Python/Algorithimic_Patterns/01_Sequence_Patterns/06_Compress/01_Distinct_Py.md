@@ -4,9 +4,9 @@
 
 Keep **only the first occurrence** of each unique element and discard all later duplicates.
 
-Unlike **Dedupe**, which removes only **consecutive duplicates**, **Distinct** removes duplicates **regardless of where they appear**.
+**Dedupe** only collapses **consecutive duplicates**. **Distinct** removes them **wherever they turn up**.
 
-Python's headline idiom is **`dict.fromkeys(xs)`** — because dicts have preserved insertion order since 3.7, that one call is "distinct, order-preserving" with no loop and no helper.
+The headline idiom is **`dict.fromkeys(xs)`**. Dicts have kept insertion order since 3.7, so that one call gives you "distinct, order preserved" with no loop and no helper function.
 
 ---
 
@@ -18,7 +18,7 @@ Compress
 Distinct
 ```
 
-Distinct is a **Compress** pattern because it reduces a sequence by eliminating repeated values.
+Distinct is a **Compress** pattern because it shrinks a sequence by throwing out repeated values.
 
 ---
 
@@ -296,6 +296,6 @@ Counter(xs)                     # keep the counts instead  → Summarize
 
 ### Key Insight
 
-**`dict.fromkeys` is Python's `distinct`.** It exists because the language already needed ordered hash maps, so order-preserving deduplication came free — no import, no helper function, one pass, O(n).
+**`dict.fromkeys` is Python's `distinct`.** It exists because the language needed ordered hash maps anyway, so order-preserving deduplication came along for free. No import, no helper, one pass, O(n).
 
-Two things it can't do, and both have the same cause: it needs **hashable** elements, and it needs a **finite** sequence. When either fails, fall back to the explicit `seen` set in a generator — which is also the version you want when deduplicating *by a key*, because that's where you have to choose whether the **first or the last** occurrence wins. `{k: v for ...}` silently keeps the last; a `seen` set keeps the first. That difference is invisible in test data where the duplicates are identical, and very visible in production where they aren't.
+There are two things it can't do, both for the same reason: it needs **hashable** elements and a **finite** sequence. When either of those breaks, fall back to an explicit `seen` set inside a generator. That's also the version you want when deduplicating *by a key*, because that's where you have to decide whether the **first or the last** occurrence wins. `{k: v for ...}` quietly keeps the last; a `seen` set keeps the first. In test data where the duplicates are identical you'll never notice the difference. In production, where they aren't, you will.

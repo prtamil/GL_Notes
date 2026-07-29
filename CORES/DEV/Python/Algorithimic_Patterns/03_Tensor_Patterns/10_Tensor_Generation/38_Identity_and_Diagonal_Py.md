@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The last generation pattern, and the one with the most structure: tensors defined by **where the indices agree**.
+The last generation pattern, and the one with the most structure to it: tensors defined by **where the indices agree**.
 
 ```text
 i == j        the diagonal        ->  np.eye, np.diag
@@ -10,19 +10,19 @@ i >= j        lower triangle      ->  np.tril
 i <  j        strictly upper      ->  np.triu(k=1)
 ```
 
-Part 2's lesson 28 built the identity matrix as `int(r == c)` — a predicate over coordinates. That is still exactly what these functions are, and lesson 37 just showed you how to write it at any rank:
+Part 2's lesson 28 built the identity matrix as `int(r == c)`, a predicate over coordinates. That's still exactly what these functions are, and lesson 37 just showed you how to write it at any rank:
 
 ```python
 np.arange(n)[:, None] == np.arange(n)[None, :]      # is np.eye(n)
 ```
 
-Two things make the library versions worth using instead.
+Two things still make the library versions worth using.
 
-**`np.diag` is two functions in one.** Give it a vector and it *builds* a diagonal matrix; give it a matrix and it *extracts* the diagonal. Convenient, and a genuine source of confusion — `np.diag(np.diag(M))` zeroes everything off the diagonal.
+**`np.diag` is two functions wearing one name.** Hand it a vector and it *builds* a diagonal matrix. Hand it a matrix and it *extracts* the diagonal. Convenient, and genuinely confusing: `np.diag(np.diag(M))` zeroes everything off the diagonal.
 
-**The diagonal generalises to a batch.** `np.diagonal(t, axis1=-2, axis2=-1)` takes the diagonal of every matrix in a stack — or, in lesson 34's notation, `einsum('...ii->...i')`, which is the same rule ("an index repeated within one operand") stated once.
+**The diagonal generalises to a batch.** `np.diagonal(t, axis1=-2, axis2=-1)` takes the diagonal of every matrix in a stack. In lesson 34's notation that's `einsum('...ii->...i')`, which is the same "index repeated within one operand" rule stated once.
 
-Triangular masks matter more than they look: the causal mask in a transformer is `np.tril(np.ones((T, T), dtype=bool))`.
+Triangular masks matter more than they look. The causal mask in a transformer is `np.tril(np.ones((T, T), dtype=bool))`.
 
 ---
 
@@ -466,4 +466,4 @@ Part 4   Tree Traversal Patterns
 Part 5   Graph Traversal Patterns
 ```
 
-> **Mental shift:** part 1 taught you to think in sequences and part 2 in grids, and both were about *writing the loop well*. Part 3 is about not writing it — describing the shape of the computation and letting the library find the loop. The skill that replaced it is shape prediction: if you can say what `t.shape` will be before you press enter, you have understood the operation.
+> **Mental shift:** part 1 taught you to think in sequences and part 2 in grids, and both were about *writing the loop well*. Part 3 is about not writing it at all: describe the shape of the computation and let the library find the loop. The skill that took its place is shape prediction. If you can say what `t.shape` will be before you hit enter, you've understood the operation.

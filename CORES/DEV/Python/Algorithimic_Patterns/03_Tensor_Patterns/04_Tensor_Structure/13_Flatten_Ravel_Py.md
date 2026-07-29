@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 7 flattened in order to **iterate**. This lesson flattens in order to **restructure** — and the useful framing is not "make it 1-D" but:
+Lesson 7 flattened so it could **iterate**. This lesson flattens to **restructure**, and the useful framing isn't "make it 1-D". It's this:
 
 > **Flattening is merging adjacent axes.**
 
@@ -12,20 +12,20 @@ Lesson 7 flattened in order to **iterate**. This lesson flattens in order to **r
 (2, 3, 4)  ->  merge 0 and 1  ->  (6, 4)
 ```
 
-Full flattening is just the case where you merge *every* axis. Partial flattening — keep the batch, collapse the rest — is the one you actually write, constantly:
+Full flattening is just the case where you merge *every* axis. Partial flattening — keep the batch, collapse everything else — is the one you'll actually write, over and over:
 
 ```python
 t.reshape(t.shape[0], -1)       # (N, everything else)
 t.reshape(-1, t.shape[-1])      # (everything else, C)
 ```
 
-Because merging is a reshape, the same two rules apply: the **flat order is preserved**, and the size is conserved.
+Merging is a reshape, so the same two rules hold: the **flat order is preserved** and the size is conserved.
 
-But there is a constraint that only appears once you have three or more axes:
+There's one constraint, though, that only shows up once you have three or more axes:
 
 > **Only adjacent axes can be merged.**
 
-`(2, 3, 4)` can become `(6, 4)` or `(2, 12)` — but you cannot merge axis 0 with axis 2 by reshaping, because they are not neighbours on the tape. You must **transpose first**, and that costs a copy.
+`(2, 3, 4)` can become `(6, 4)` or `(2, 12)`, but you can't merge axis 0 with axis 2 by reshaping, because they aren't neighbours on the tape. You have to **transpose first**, and that costs you a copy.
 
 And the three spellings differ in one way worth knowing cold: `ravel()` is a view when it can be, `flatten()` is always a copy, `reshape(-1)` is a view when it can be.
 
@@ -359,4 +359,4 @@ Flatten is a **special case** of reshape, not a different mechanism — which is
    flatten:  remove some cuts        (a strict subset)
 ```
 
-> **Mental shift:** at rank 2, "flatten" meant one thing — go to 1-D. From rank 3 up it is a dial: how many axes do you want to fold together? Most real tensor plumbing is that dial, turned to "collapse everything except the batch" or "collapse everything except the features".
+> **Mental shift:** at rank 2, "flatten" meant exactly one thing: go to 1-D. From rank 3 up it's a dial. How many axes do you want to fold together? Most real tensor plumbing is that dial set to "collapse everything except the batch" or "collapse everything except the features".

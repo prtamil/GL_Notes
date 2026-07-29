@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Three quarter turns clockwise — which is one quarter turn **counter-clockwise**. The **top row becomes the left column, reversed**.
+Three quarter turns clockwise, which is the same as one quarter turn **counter-clockwise**. The **top row becomes the left column, reversed**.
 
 ```text
 [[1, 2, 3],          [[3, 6, 9],
@@ -16,7 +16,7 @@ The coordinate rule:
 (r, c)  ->  (cols-1-c, r)
 ```
 
-Compare it with lesson 17 and the symmetry is obvious:
+Put it next to lesson 17 and the symmetry jumps out:
 
 ```text
 rotate  90° CW :  (r, c) -> (c, rows-1-r)     reverse the SECOND
@@ -372,4 +372,4 @@ Python gives you one small gift here: `-1 % 4 == 3`, so `k % 4` normalises left 
   going counter-clockwise is rot270
 ```
 
-> **Mental shift:** there are not four rotation algorithms to learn — there is `zip(*m)` and a decision about where the `[::-1]` goes. Inside on the rows gives you right; outside on the result gives you left; one on each axis and no transpose gives you the half turn.
+> **Mental shift:** you don't have four rotation algorithms to learn. You have `zip(*m)` and one decision about where the `[::-1]` goes. Inside, on the rows, turns right. Outside, on the result, turns left. One on each axis with no transpose gives you the half turn.

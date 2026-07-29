@@ -2,15 +2,15 @@
 
 ## Introduction
 
-After generating, transforming, grouping, and processing a sequence, we often want **one final insight**.
+You've generated, transformed, grouped and processed. Now you usually want **one thing out of it all**.
 
-**Summarize** is the act of extracting meaningful information from an entire sequence.
+**Summarize** pulls something meaningful out of the whole sequence.
 
-The mental question is:
+The question you're asking:
 
 > **"What does this sequence tell me?"**
 
-Unlike **Accumulate**, which describes the process of building a result, **Summarize** focuses on the final information or statistic produced from the sequence.
+**Accumulate** is about the process of building a result. **Summarize** is about the number or fact you end up with.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Accumulate**, which describes the process of building a result, **Summa
 |---|---|---|
 |**Summarize**|What does this sequence tell me?|`len`, `sum`, `min`, `max`, `any`, `all`, `math.prod`, `statistics`, `Counter.most_common`, `heapq.nlargest`|
 
-> **Note:** Many Python builtins are specialized summaries. While `reduce` can compute almost any summary, `len`, `sum`, `min`, `max`, and `Counter` express the common ones directly and much more clearly.
+> **Note:** A lot of Python's builtins are just specialised summaries. `reduce` could compute nearly all of them, but `len`, `sum`, `min`, `max` and `Counter` say the common ones directly and far more clearly.
 
 ---
 
@@ -46,16 +46,16 @@ Unlike **Accumulate**, which describes the process of building a result, **Summa
 
 # The Python-specific catches
 
-**Empty input is the recurring edge case.** `sum([])` is `0` and `len([])` is `0`, but `min([])` and `max([])` raise `ValueError`, `mean([])` raises `StatisticsError`, and `most_common(1)[0]` raises `IndexError`. Pass `default=` or guard the empty case.
+**Empty input is the edge case that keeps coming back.** `sum([])` is `0` and `len([])` is `0`, but `min([])` and `max([])` raise `ValueError`, `mean([])` raises `StatisticsError`, and `most_common(1)[0]` raises `IndexError`. Pass `default=` or guard for empty.
 
-**`all([])` is `True`** — vacuously. This is the correct definition and it still surprises people.
+**`all([])` is `True`.** Nothing failed, so it passes. That's the correct definition, and it still catches people out.
 
-**Summarize a generator, don't build a list.** `sum(1 for x in xs if p(x))` counts without allocating; `len([x for x in xs if p(x)])` builds a whole list just to measure it.
+**Summarize a generator instead of building a list.** `sum(1 for x in xs if p(x))` counts without allocating anything. `len([x for x in xs if p(x)])` builds a whole list just to measure it and throw it away.
 
-**Floats drift.** `sum([0.1]*10)` is `0.9999999999999999`; use `math.fsum` when the total matters, or integers/`Decimal` for money.
+**Floats drift.** `sum([0.1]*10)` comes out as `0.9999999999999999`. Use `math.fsum` when the total matters, or integers and `Decimal` when it's money.
 
 ---
 
 # One Sentence to Remember
 
-> **Summarize extracts the final insight or statistic from a sequence — reach for the named builtin, and decide up front what an empty sequence means.**
+> **Summarize pulls the final number or fact out of a sequence. Reach for the named builtin, and decide up front what an empty sequence should mean.**

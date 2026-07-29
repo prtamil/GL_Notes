@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Hold a mirror along the **vertical centre line** and look at the reflection. Left and right swap; top and bottom stay put.
+Hold a mirror along the **vertical centre line** and look at the reflection. Left and right swap. Top and bottom stay where they are.
 
 ```text
 [[1, 2, 3],          [[3, 2, 1],
@@ -18,7 +18,7 @@ The coordinate rule:
 (r, c)  ->  (r, cols-1-c)
 ```
 
-Only the column index changes. In Python that is exactly one slice, applied per row:
+Only the column index changes, so in Python it's one slice applied to each row:
 
 ```python
 [row[::-1] for row in m]
@@ -357,4 +357,4 @@ The mechanics are trivial by comparison — `[row[::-1] for row in m]`, shape pr
   vertical, horizontal, and the two diagonals
 ```
 
-> **Mental shift:** rotations move the matrix *through* itself and come back after four turns. Reflections fold it *onto* itself and come back after two. Compose two folds and you get a turn — which is why every rotation in this section can be written as a transpose plus a flip.
+> **Mental shift:** rotations move the matrix *through* itself and return after four turns. Reflections fold it *onto* itself and return after two. Put two folds together and you get a turn, which is why every rotation in this section can be written as a transpose plus a flip.

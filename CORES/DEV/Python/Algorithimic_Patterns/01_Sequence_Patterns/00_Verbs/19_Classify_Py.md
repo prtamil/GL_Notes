@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes we don't just want to group elements—we first want to **assign each element to a category**.
+Before you can group things, you often need to **decide what each one is**.
 
-**Classify** is the act of assigning every element in a sequence to a class, label, or category based on a rule.
+**Classify** puts a label or category on every element, according to some rule.
 
-The mental question is:
+The question you're asking:
 
 > **"Which category does this element belong to?"**
 
-Unlike **Group**, which collects elements into buckets, **Classify** focuses on determining the category for each individual element.
+**Group** gathers elements into buckets. **Classify** is the earlier step: working out which bucket each element belongs in.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Group**, which collects elements into buckets, **Classify** focuses on 
 |---|---|---|
 |**Classify**|Which category does this element belong to?|a labelling function + `map`, `if/elif`, `match` (3.10+), `bisect`, a dict lookup, `defaultdict(list)`|
 
-> **Note:** The classifier belongs in a **named function**, not inlined in the comprehension. That rename is not cosmetic: a named `size(n)` is testable, reusable, and the obvious place where the next category gets added.
+> **Note:** Put the classifier in a **named function** rather than inlining it in the comprehension. That's not just tidiness. A named `size(n)` can be tested, reused, and is the obvious place to add the next category when it turns up.
 
 ---
 
@@ -41,14 +41,14 @@ Unlike **Group**, which collects elements into buckets, **Classify** focuses on 
 
 # The Python-specific catches
 
-**A predicate gives two categories; anything more needs labels.** The moment you want "small/medium/large" you are no longer writing a predicate, you are writing a classifier — return strings or an `Enum`, not booleans.
+**A predicate buys you two categories. More than that needs labels.** As soon as you want "small/medium/large" you've stopped writing a predicate and started writing a classifier, so return strings or an `Enum` instead of booleans.
 
-**Chained `if/elif` is O(k) per element and hard-codes the cut points.** For numeric bands, `bisect(cuts, n)` into a labels list is O(log k) and keeps the boundaries editable as data.
+**A chain of `if/elif` costs O(k) per element and bakes the cut points into the code.** For numeric bands, `bisect(cuts, n)` into a labels list is O(log k) and leaves the boundaries sitting in data where you can edit them.
 
-**Classify and Group are one step apart.** Classify produces the label; Group is what you do with it. `Counter(classify(x) for x in xs)` counts the categories; `d[classify(x)].append(x)` collects them.
+**Classify and Group are one step apart.** Classify produces the label; Group decides what to do with it. `Counter(classify(x) for x in xs)` counts the categories, `d[classify(x)].append(x)` collects them.
 
 ---
 
 # One Sentence to Remember
 
-> **Classify assigns each element to a category based on a rule — and the rule deserves a name.**
+> **Classify puts each element in a category using a rule, and that rule deserves a name of its own.**

@@ -4,11 +4,11 @@
 
 ## Mental Model
 
-A tensor is an **n-dimensional array**. Two numbers describe it completely:
+A tensor is an **n-dimensional array**, and two numbers describe it completely:
 
-- **Rank** (`ndim`) — how many indices you need to reach an element.
+- **Rank** (`ndim`) — how many indices it takes to reach an element.
     
-- **Shape** — how far each index may go, as a tuple with one entry per axis.
+- **Shape** — how far each index can go, as a tuple with one entry per axis.
     
 
 ```text
@@ -18,7 +18,7 @@ rank 2   matrix   [[1,2],[3,4]]        shape (2, 2)
 rank 3   cube     [[[...]]]            shape (2, 3, 4)
 ```
 
-The shape tuple is the single most useful object in this entire part. **Rank is its length, size is its product**, and every operation in part 3 is described by what it does to it:
+The shape tuple is the most useful object in this whole part of the course. **Rank is its length, size is its product**, and every operation in part 3 is described by what it does to that tuple:
 
 ```text
 (2, 3, 4)   ndim = 3      size = 2*3*4 = 24
@@ -384,4 +384,4 @@ And the discipline that pays for itself: **a shape does not carry meaning.** `(3
   "how big"   "which"    "reach it"     "where in memory"
 ```
 
-> **Mental shift:** part 1 had one length and part 2 had two. Once there are `n`, the sizes stop being something you carry in your head and become an object you inspect — `t.shape`. Print it constantly; it is the fastest debugger in this part of the course.
+> **Mental shift:** part 1 had one length, part 2 had two. Once there are `n` of them, the sizes stop being something you hold in your head and become an object you inspect: `t.shape`. Print it constantly. It's the fastest debugger you have in this part of the course.

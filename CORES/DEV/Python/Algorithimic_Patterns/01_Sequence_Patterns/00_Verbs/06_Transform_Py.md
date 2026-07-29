@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Once we have the right elements, we often need to **change** them.
+Once you've got the right elements, you usually need to **change** them.
 
-**Transform** is the act of converting each element of a sequence into another value while preserving the overall structure of the sequence.
+**Transform** turns each element into some other value and leaves the shape of the sequence alone.
 
-The mental question is:
+The question you're asking:
 
 > **"How should each element change?"**
 
-Unlike **Select** and **Reject**, which decide _which_ elements remain, **Transform** changes _what_ each element becomes.
+**Select** and **Reject** decide _which_ elements survive. **Transform** decides _what each one turns into_.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Select** and **Reject**, which decide _which_ elements remain, **Transf
 |---|---|---|
 |**Transform**|How should each element change?|`[f(x) for x in xs]`, `map`, `enumerate`, `starmap`, dict/set comprehensions, `str.translate`|
 
-> **Note:** `map(f, xs)` and `[f(x) for x in xs]` do the same thing. The comprehension wins whenever the transform is an expression rather than an existing function; `map` wins for `map(str.strip, lines)` and friends.
+> **Note:** `map(f, xs)` and `[f(x) for x in xs]` do the same job. Go with the comprehension when the transform is an expression you're writing on the spot. Go with `map` when you already have the function, as in `map(str.strip, lines)`.
 
 ---
 
@@ -42,14 +42,14 @@ Unlike **Select** and **Reject**, which decide _which_ elements remain, **Transf
 
 # The Python-specific catches
 
-**`map` is lazy and one-shot.** `m = map(f, xs)` then `list(m)` twice gives you the values once and `[]` the second time.
+**`map` is lazy and one-shot.** Say `m = map(f, xs)` and call `list(m)` twice: you get the values the first time and `[]` the second.
 
-**`map` with multiple iterables stops at the shortest**, exactly like `zip`.
+**`map` over several iterables stops at the shortest one**, same as `zip`.
 
-**Transform preserves length; it never filters.** If your transform returns `None` for some inputs, you have a Select hiding inside a Transform — write the `if` explicitly.
+**Transform keeps the length. It never filters.** If your transform returns `None` for some inputs, there's a Select hiding inside it. Pull the `if` out and write it properly.
 
 ---
 
 # One Sentence to Remember
 
-> **Transform creates a new sequence by changing each element according to a rule while preserving the sequence structure.**
+> **Transform runs a rule over every element and gives you a new sequence of the same shape.**

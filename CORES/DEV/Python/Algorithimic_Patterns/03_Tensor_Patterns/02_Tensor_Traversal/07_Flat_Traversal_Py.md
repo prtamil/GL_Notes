@@ -2,24 +2,24 @@
 
 ## Mental Model
 
-The last granularity: forget the shape entirely and walk the tensor as **one long sequence**.
+The last granularity. Forget the shape completely and walk the tensor as **one long sequence**.
 
 ```text
 shape (2, 3, 4)   ->   0 1 2 3 4 5 6 7 8 ... 23
 ```
 
-Lesson 4 established that this is not a transformation at all — it is what the tensor already **is** in memory. Flat traversal just stops pretending there is nesting.
+Lesson 4 showed that this isn't a transformation at all. It's what the tensor already **is** in memory. Flat traversal just stops pretending there's any nesting.
 
 ```python
 t.ravel()       # a 1-D view — no copy when possible
 t.flat          # an iterator over the same
 ```
 
-Two things make this lesson more than "call `.ravel()`".
+Two things make this more than just "call `.ravel()`".
 
-**First, order.** Row-major (C) order means the *last* index varies fastest, and that is what `ravel()` gives you by default. `order='F'` reverses the priority. On a `(2,3,4)` those are genuinely different sequences.
+**First, order.** Row-major (C) order means the *last* index varies fastest, and that's what `ravel()` gives you by default. `order='F'` flips the priority. On a `(2,3,4)` those are genuinely different sequences.
 
-**Second — and this is the subtle one — "flat" is ambiguous once views exist.** A transposed array has a *logical* order (what its shape says) and a *memory* order (what the buffer holds). They are no longer the same:
+**Second, and this is the subtle one, "flat" becomes ambiguous once views exist.** A transposed array has a *logical* order, the one its shape claims, and a *memory* order, the one the buffer actually holds. They're no longer the same thing:
 
 ```text
 tr = t.transpose(2,1,0)
@@ -358,6 +358,6 @@ Three practical rules:
         peel the shape  ──►  07   v v v v v ...
 ```
 
-All three visit the same cells in the same order — verified. They differ only in **how much structure survives each step**.
+All three visit the same cells in the same order, verified. What differs is **how much structure survives each step**.
 
-> **Mental shift:** part 2's traversal section was eight lessons about *order*, because at rank 2 the interesting question was which path you took through the grid. At rank n the interesting question is which *granularity* you want — slices, cells-with-addresses, or raw values — and the answer is usually "none of them, use an axis argument". Traversal in part 3 is the escape hatch, not the default.
+> **Mental shift:** part 2's traversal section ran eight lessons about *order*, because at rank 2 the interesting question was which path you took through the grid. At rank n the interesting question is which *granularity* you want — slices, cells with addresses, or raw values — and the answer is usually "none of them, use an axis argument". In part 3, traversal is the escape hatch rather than the default.

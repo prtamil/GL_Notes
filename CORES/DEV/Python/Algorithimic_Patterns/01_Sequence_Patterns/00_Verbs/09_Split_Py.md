@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes a sequence is easier to work with after it has been **divided into meaningful pieces**.
+A sequence is often much easier to handle once you've **broken it into pieces that mean something**.
 
-**Split** is the act of dividing one sequence into two or more sequences based on a position, condition, delimiter, or grouping rule.
+**Split** cuts one sequence into two or more, using a position, a condition, a delimiter, or a grouping rule.
 
-The mental question is:
+The question you're asking:
 
 > **"How should I divide this sequence?"**
 
-Unlike **Slice**, which extracts one portion, **Split** separates the original sequence into multiple parts.
+**Slice** takes one piece out. **Split** breaks the whole thing into parts.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Slice**, which extracts one portion, **Split** separates the original s
 |---|---|---|
 |**Split**|How should I divide this sequence?|`xs[:n], xs[n:]`, `itertools.batched`, `itertools.groupby`, `str.split`, `str.partition`, `re.split`, a two-bucket loop|
 
-> **Note:** Python has no `split-with`. For "leading run, then the rest" use `takewhile` + `dropwhile` (two passes) or one explicit loop. For "everything true, everything false" — a **partition** — index a 2-tuple with `bool(pred(x))`.
+> **Note:** There's no `split-with` in Python. If you want "the leading run, then everything else", use `takewhile` plus `dropwhile` (two passes) or write one explicit loop. If you want "all the trues here, all the falses there" — a **partition** — index a 2-tuple with `bool(pred(x))`.
 
 ---
 
@@ -44,14 +44,14 @@ Unlike **Slice**, which extracts one portion, **Split** separates the original s
 
 # The Python-specific catches
 
-**`itertools.groupby` splits on *adjacent* key changes**, exactly like Clojure's `partition-by` — it is not SQL `GROUP BY`. And its group iterators share one cursor: consume each group **inside** the loop or they come back empty.
+**`itertools.groupby` splits wherever the key changes between *adjacent* items**, just like Clojure's `partition-by`. It is not SQL's `GROUP BY`. Also, all its group iterators share a single cursor, so consume each group **inside** the loop or you'll find them empty later.
 
-**`"a,,b".split(",")` keeps the empty field** (`['a', '', 'b']`), but `" a  b ".split()` with no argument collapses whitespace runs and strips the ends. Two different functions wearing one name.
+**`"a,,b".split(",")` keeps the empty field** and gives you `['a', '', 'b']`. But `" a  b ".split()` with no argument collapses runs of whitespace and trims the ends. Same name, two different functions underneath.
 
-**`batched` keeps the short tail; the `zip(*[iter(xs)]*n)` grouper drops it.** Choose deliberately — a silently dropped tail is the classic chunking bug.
+**`batched` keeps the short tail. The `zip(*[iter(xs)]*n)` grouper throws it away.** Pick on purpose, because a tail that vanishes silently is the classic chunking bug.
 
 ---
 
 # One Sentence to Remember
 
-> **Split divides one sequence into multiple meaningful sequences.**
+> **Split turns one sequence into several that each mean something on their own.**

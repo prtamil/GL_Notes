@@ -4,9 +4,9 @@
 
 Visit every element in a sequence **from beginning to end** or **from end to beginning**.
 
-Traversal determines **the order in which elements are processed**, not what is done to them.
+Traversal decides **the order you process elements in**, not what you do to them.
 
-In Python, forward traversal is `for x in xs` and reverse is `for x in reversed(xs)` — and the difference between `reversed(xs)` and `xs[::-1]` (a view vs a copy) is the one thing worth learning here.
+Forward traversal is `for x in xs`, reverse is `for x in reversed(xs)`. The one thing really worth learning here is the difference between `reversed(xs)` and `xs[::-1]`: a view versus a copy.
 
 ---
 
@@ -323,8 +323,8 @@ for i in range(len(xs)-1, -1, -1): ...  # reverse with ORIGINAL positions
 
 ### Key Insight
 
-**Direction is a separate decision from the operation.** `map`, `filter`, `reduce`, and comprehensions all traverse forward; you change direction by reversing the *source*, not by finding a different function. That's why Python needs no `rmap` or `rfilter` — `reversed()` composes with everything.
+**Direction is a separate decision from the operation.** `map`, `filter`, `reduce` and comprehensions all go forward. You change direction by reversing the *source*, not by hunting for a different function. That's why Python never needed an `rmap` or `rfilter`: `reversed()` composes with everything.
 
-Two facts to keep: **`reversed()` is free, `[::-1]` is a copy** — the first is what you want inside a loop. And **`reversed()` requires a sequence**, because a stream has no reachable end; a generator must be materialized before it can be walked backwards, which is exactly the cost you were trying to avoid by using a generator.
+Two facts to hang onto. **`reversed()` is free, `[::-1]` copies**, so the first is the one you want inside a loop. And **`reversed()` needs a real sequence**, because a stream has no reachable end. A generator has to be materialised before you can walk it backwards, which is precisely the cost you were avoiding by using a generator in the first place.
 
-The one place reverse traversal is not a stylistic choice but a correctness requirement: **deleting from a list while iterating it.** Go forward and the indices shift under you; go backward and every index you still need is untouched.
+There's one case where going backwards isn't a style choice but a correctness requirement: **deleting from a list while you iterate it.** Go forward and the indices shift under your feet. Go backward and every index you still care about stays put.

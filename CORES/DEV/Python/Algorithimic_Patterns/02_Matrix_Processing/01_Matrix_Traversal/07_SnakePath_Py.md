@@ -4,9 +4,9 @@
 
 Snake traversal visits the matrix in a **single continuous path** by traversing one row left→right, the next row right→left, and so on.
 
-Unlike the general Zigzag pattern, Snake traversal emphasizes **path continuity**—the traversal ends one row exactly where the next row begins, like a snake moving across the matrix.
+Where general Zigzag just alternates direction, Snake cares about **path continuity**: each row ends exactly where the next one starts, like a snake crossing the matrix.
 
-The Python code looks almost identical to zigzag. What changes is what you *ask of it*: with snake you care about the **path**, so the useful recipes are about coordinates, continuity, and index↔position math.
+The Python code looks almost the same as zigzag. What changes is what you *want from it*. With snake you care about the **path**, so the useful recipes are about coordinates, continuity, and converting between index and position.
 
 ---
 
@@ -349,8 +349,8 @@ Focus:
 Continuous Path
 ```
 
-Every row-based snake traversal is a **zigzag**, but not every zigzag traversal is a **snake** (for example, JPEG's diagonal zigzag is not a snake path).
+Every row-based snake traversal is a **zigzag**, but plenty of zigzags aren't **snakes**. JPEG's diagonal zigzag, for instance, isn't a snake path.
 
-That last claim is testable with the same one-liner — the diagonal zigzag from lesson 6 jumps between diagonals, so `is_continuous` returns `False` for it and `True` for the row snake. **The code is nearly identical; the property is not.**
+You can test that claim with the same one-liner. The diagonal zigzag from lesson 6 jumps between diagonals, so `is_continuous` returns `False` for it and `True` for the row snake. **The code is nearly identical. The property isn't.**
 
 ---

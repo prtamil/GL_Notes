@@ -4,9 +4,9 @@
 
 Search the entire sequence and **return every element that satisfies a condition**.
 
-Unlike **First Match**, which stops at the first result, **Search All** examines the entire sequence.
+**First Match** stops at the first result. **Search All** walks the entire sequence.
 
-Python's default spelling is the **comprehension with an `if`** — `[x for x in xs if p(x)]`. `filter()` does the same thing lazily; the comprehension wins on readability whenever a transform is involved.
+The default spelling is the **comprehension with an `if`**: `[x for x in xs if p(x)]`. `filter()` does the same job lazily, but the comprehension reads better the moment a transform is involved.
 
 ---
 
@@ -18,7 +18,7 @@ Search
 Search All
 ```
 
-Search All is a **Search** pattern because it finds **every matching element** in the sequence.
+Search All is a **Search** pattern that pulls out **every matching element** in the sequence.
 
 ---
 
@@ -355,8 +355,8 @@ partition(p, xs)                # BOTH halves            → Group By Predicate
 
 ### Key Insight
 
-**Search All is the comprehension, and the comprehension reads out of order.** `[f(x) for x in xs if p(x)]` executes as *for → if → f*, even though `f` is written first. Once you read it in that order, the "filter then map in one pass" shape stops looking like a trick — the transform is simply the last step, and it only ever sees survivors.
+**Search All is the comprehension, and the comprehension runs out of order.** `[f(x) for x in xs if p(x)]` executes as *for → if → f*, even though `f` is written first. Read it that way and the "filter and map in one pass" shape stops looking clever. The transform is simply the last step, and it only ever sees the survivors.
 
-**The difference from First Match is cost, not syntax.** Search All is always O(n); it cannot short-circuit, because it doesn't know it's done until the input ends. That makes it the wrong tool for existence checks (`any` short-circuits), for a single lookup (`next` short-circuits), and for infinite inputs (a comprehension over `count()` never returns). The list you build is also O(k) memory you may not need — if you're only going to count, sum a generator instead.
+**What separates this from First Match is cost, not syntax.** Search All is always O(n). It can't short-circuit, because it doesn't know it's finished until the input runs out. That makes it wrong for existence checks (`any` short-circuits), wrong for a single lookup (`next` short-circuits), and wrong for infinite input (a comprehension over `count()` never returns). The list you build is O(k) memory you may not need either — if you're only going to count, sum a generator instead.
 
-The recurring bug is subtler: **`filter()` returns a one-shot iterator that has no length and no indexing**, and an exhausted one returns an empty list rather than an error. A pipeline that "worked yesterday" and now returns nothing has usually grown a second consumer of the same iterator. Comprehensions don't have this failure mode, which is a large part of why they're the default.
+There's a subtler recurring bug too: **`filter()` gives you a one-shot iterator with no length and no indexing**, and once exhausted it returns an empty list rather than an error. A pipeline that "worked yesterday" and now returns nothing has usually grown a second consumer of the same iterator. Comprehensions don't have this failure mode, which is a big part of why they're the default.

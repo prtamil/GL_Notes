@@ -4,9 +4,9 @@
 
 Change the **shape** of data without changing the values.
 
-Unlike **Flatten**, which removes structure, **Reshape** reorganizes a linear sequence into a different structural layout.
+**Flatten** strips structure away. **Reshape** takes a flat sequence and gives it a different layout.
 
-Python's building block is **`itertools.batched(xs, n)`** (3.12+) or the slice comprehension `[xs[i:i+n] for i in range(0, len(xs), n)]`. There is no general N-dimensional reshape outside NumPy — and for anything numeric and rectangular, that's the right answer.
+The building block is **`itertools.batched(xs, n)`** (3.12+), or the slice comprehension `[xs[i:i+n] for i in range(0, len(xs), n)]`. There's no general N-dimensional reshape outside NumPy, and for anything numeric and rectangular NumPy is the right answer anyway.
 
 ---
 
@@ -18,7 +18,7 @@ Structure
 Reshape
 ```
 
-Reshape is a **Structure** pattern because it changes **how data is organized**, not the data itself.
+Reshape is a **Structure** pattern: it changes **how the data is arranged**, never the data itself.
 
 ---
 
@@ -364,8 +364,8 @@ divmod(i, cols)                 # flat index → (r, c)    → Reshape
 
 ### Key Insight
 
-**A 2-D structure is a 1-D structure plus an index convention, and `divmod` is the whole conversion.** `divmod(i, cols)` turns a flat position into `(row, col)`; `r * cols + c` turns it back. Reshaping a list into rows is just materializing that convention — which is why `batched` and slice-stepping produce the same thing, and why NumPy can reshape in O(1) by changing strides and never touching the data.
+**A 2-D structure is a 1-D structure plus an index convention, and `divmod` is the whole conversion.** `divmod(i, cols)` turns a flat position into `(row, col)`, and `r * cols + c` turns it back. Reshaping a list into rows just makes that convention concrete, which is why `batched` and slice-stepping give you the same thing, and why NumPy can reshape in O(1) by changing strides and never touching the data.
 
-**The remainder is the decision the API makes for you, so make it yourself.** `batched` keeps a short final row, the `zip(*[iter(xs)] * n)` grouper silently drops it, and `zip_longest` pads it. All three are correct for some problem and catastrophic for another — a dropped tail in a batch-upload loop means records that never got written, with no error anywhere. Check `divmod(len(xs), width)` and decide.
+**The remainder is a decision the API quietly makes for you, so make it yourself.** `batched` keeps a short final row, the `zip(*[iter(xs)] * n)` grouper drops it, and `zip_longest` pads it. Each of those is right for some problem and disastrous for another. A dropped tail in a batch-upload loop means records that were never written, with no error anywhere. Check `divmod(len(xs), width)` and decide on purpose.
 
-The second decision is **fill order**. Row-major and column-major produce the same values in the same shape and a completely different matrix. For pixel buffers, sensor frames, and anything coming off the wire, the fill order is part of the format specification — `[list(c) for c in zip(*batched(xs, rows))]` is the column-major form, and reaching for it only after the output "looks sheared" is how most people learn the distinction.
+The second decision is **fill order**. Row-major and column-major give you the same values in the same shape and a completely different matrix. For pixel buffers, sensor frames and anything arriving off the wire, fill order is part of the format spec. `[list(c) for c in zip(*batched(xs, rows))]` is the column-major form, and most people only go looking for it after the output "looks sheared".

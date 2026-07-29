@@ -4,9 +4,9 @@
 
 Shift a sequence **left or right**, wrapping the elements around instead of discarding them.
 
-Unlike **Reverse**, which flips the order, **Rotate** preserves the relative order and only changes the starting position.
+**Reverse** flips the order. **Rotate** keeps the relative order and just moves where you start.
 
-Python has no `rotate` for lists — you write `xs[n:] + xs[:n]`. But `collections.deque` **does** have `.rotate(n)`, in O(k) and in place, which is why deques are the real answer for ring buffers and round-robin.
+Lists have no `rotate` in Python, so you write `xs[n:] + xs[:n]`. `collections.deque` **does** have `.rotate(n)`, in place and in O(k), which is why a deque is the real answer for ring buffers and round-robin.
 
 ---
 
@@ -18,7 +18,7 @@ Order
 Rotate
 ```
 
-Rotate is an **Order** pattern because it rearranges the sequence by choosing a new starting point while keeping the circular order intact.
+Rotate is an **Order** pattern: it picks a new starting point and leaves the circular order intact.
 
 ---
 
@@ -332,8 +332,8 @@ deque(xs, maxlen=k)             # keep the last k           → Compress
 
 ### Key Insight
 
-**`n %= len(xs)` is not an optimization — it is the correctness fix.** Slicing clamps out-of-range indices instead of erroring, so `xs[7:] + xs[:7]` on a 5-element list quietly returns the input unrotated. Take the modulo first and two problems vanish at once: oversized `n` wraps, and negative `n` becomes a right-rotation for free, because Python's `%` returns a non-negative result.
+**`n %= len(xs)` isn't an optimization, it's the fix that makes this correct.** Slicing clamps out-of-range indices rather than raising, so `xs[7:] + xs[:7]` on a 5-element list quietly hands back the input unrotated. Take the modulo first and two problems disappear at once: an oversized `n` wraps, and a negative `n` becomes a right-rotation for free, because Python's `%` always returns a non-negative result.
 
-**Sign conventions disagree, so pick one and wrap it in a function.** `deque.rotate(2)` goes right; `xs[2:] + xs[:2]` goes left. Nothing will remind you of this at the call site, and the failure is a plausible-looking wrong answer rather than an exception. One `rotate(xs, n)` helper with a docstring is worth more than remembering.
+**The sign conventions disagree, so pick one and wrap it in a function.** `deque.rotate(2)` goes right; `xs[2:] + xs[:2]` goes left. Nothing at the call site will remind you, and when you get it wrong you get a plausible-looking wrong answer instead of an exception. One `rotate(xs, n)` helper with a docstring beats trying to remember.
 
-Most importantly: **ask whether you need the rotated sequence at all.** Round-robin turn order is `(i + 1) % n` — an integer, no list. A wrapped read is `xs[i % len(xs)]` — no copy. A ring buffer is `deque(maxlen=k)` — no rotation. Building a rotated list is O(n) of pure allocation, and the moment rotation happens repeatedly (a scheduler, a game loop, a circular buffer), a `deque` turns that O(n) per step into O(1).
+Above all: **ask whether you need the rotated sequence at all.** Round-robin turn order is `(i + 1) % n`, an integer, no list. A wrapped read is `xs[i % len(xs)]`, no copy. A ring buffer is `deque(maxlen=k)`, no rotation. Building a rotated list is O(n) of pure allocation, and once rotation happens repeatedly — a scheduler, a game loop, a circular buffer — a `deque` turns that O(n) per step into O(1).

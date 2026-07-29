@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Part 2's lesson 16 had **one** interesting rearrangement: transpose, `(r,c) → (c,r)`. At rank 2 that is the only non-trivial permutation there is.
+Part 2's lesson 16 had exactly **one** interesting rearrangement: transpose, `(r,c) → (c,r)`. At rank 2 that's the only non-trivial permutation available.
 
 At rank `n` there are `n!` of them.
 
@@ -12,13 +12,13 @@ rank 3:   6
 rank 4:  24
 ```
 
-So the operation stops being "transpose" and becomes "**state the new axis order**":
+So the operation stops being "transpose" and becomes "**write down the new axis order**":
 
 ```python
 t.transpose(2, 0, 1)
 ```
 
-Read that as: *the new axis 0 is the old axis 2; the new axis 1 is the old axis 0; the new axis 2 is the old axis 1.* Which gives the rule for predicting the shape without thinking:
+Read that as: *the new axis 0 is the old axis 2, the new axis 1 is the old axis 0, the new axis 2 is the old axis 1.* From which you get the rule for predicting the shape without thinking about it:
 
 ```text
 out.shape[i] == t.shape[perm[i]]
@@ -365,6 +365,6 @@ The rest is arithmetic you can do in your head: predict `out.shape` with `tuple(
    transpose  ->  new tape order
 ```
 
-They can produce **the same shape** from the same input and different data — `t.reshape(3,2,4)` and `t.transpose(1,0,2)` are both `(3,2,4)`. Neither raises. That is the one thing from this lesson worth being paranoid about.
+They can produce **the same shape** from the same input while holding different data. `t.reshape(3,2,4)` and `t.transpose(1,0,2)` are both `(3,2,4)`, and neither raises. That's the one thing in this lesson worth being paranoid about.
 
-> **Mental shift:** at rank 2 "transpose" was a word. At rank n it is a *permutation you have to write down*, and the useful skill is reading `(2,0,1)` as a relabelling rather than picturing the rotation. Predict the shape from the tuple, use `argsort` to invert, and never let `.T` near a rank-3 tensor.
+> **Mental shift:** at rank 2, "transpose" was a word. At rank n it's a *permutation you have to write down*, and the skill worth building is reading `(2,0,1)` as a relabelling rather than trying to picture a rotation. Predict the shape from the tuple, use `argsort` to invert it, and never let `.T` near a rank-3 tensor.

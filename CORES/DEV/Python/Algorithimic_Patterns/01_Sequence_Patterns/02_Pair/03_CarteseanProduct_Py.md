@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Generate **every possible combination** by pairing each element of one sequence with **every** element of another sequence.
+Build **every possible combination** by pairing each element of one sequence with **every** element of another.
 
-Python spells this two ways that mean the same thing: **`itertools.product`** (the noun) and a **nested comprehension** (the verb). Use `product` when the sources are data, the comprehension when you also want to filter or transform.
+Python writes this two ways that come out the same: **`itertools.product`** (the noun) and a **nested comprehension** (the verb). Reach for `product` when the sources are just data, and the comprehension when you also want to filter or transform along the way.
 
 ---
 
@@ -16,7 +16,7 @@ Pair
 Cartesian Product
 ```
 
-Cartesian Product is a **Pair** pattern that creates **all possible pairs**, not just corresponding or alternating ones.
+Cartesian Product is a **Pair** pattern that makes **every possible pair**, not just the ones that line up or alternate.
 
 ---
 
@@ -297,6 +297,6 @@ list(combinations([1,2,3], 2))           # => [(1,2),(1,3),(2,3)]          n cho
 
 ### Key Insight
 
-**Cartesian product is the only pattern here whose output grows multiplicatively.** Zip gives you `n` results, interleave gives you `n + m`, product gives you `n × m` — and with three or more sources that becomes the dominant cost of your program. Every "try all combinations" bug is this multiplication being underestimated.
+**This is the only pattern here whose output multiplies.** Zip gives you `n` results, interleave gives you `n + m`, product gives you `n × m`. Add a third source and that multiplication becomes the dominant cost of your whole program. Every "let's just try all the combinations" disaster is someone underestimating it.
 
-The practical follow-through: **before reaching for `product`, ask whether you actually want `combinations`.** "Compare every pair of items" almost always means unordered pairs without self-comparison — `n(n-1)/2` results, not `n²`. Choosing the right one both halves the work and removes the `if x != y` guard you would otherwise have to remember to write.
+So before you reach for `product`, **ask whether you really wanted `combinations`.** "Compare every pair of items" nearly always means unordered pairs with no self-comparison, which is `n(n-1)/2` results rather than `n²`. Picking the right one halves the work and drops the `if x != y` guard you'd otherwise have to remember.

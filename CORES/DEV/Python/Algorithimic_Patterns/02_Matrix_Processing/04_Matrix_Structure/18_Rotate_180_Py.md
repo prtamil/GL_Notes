@@ -16,7 +16,7 @@ The coordinate rule:
 (r, c)  ->  (rows-1-r, cols-1-c)
 ```
 
-**Both** indices reverse. That symmetry is what makes this the easiest operation in the section — and the one with the most alternative spellings:
+**Both** indices reverse. That symmetry makes this the easiest operation in the section, and the one with the most ways to write it:
 
 ```text
 rotate 180  =  reverse the rows, and reverse each row
@@ -345,4 +345,4 @@ The trap, shared with the in-place transpose of lesson 16: when swapping opposit
                    the only shape-preserving
 ```
 
-> **Mental shift:** 90° and 270° are *turns* — they tip the matrix onto its side and the dimensions trade places. 180° is a *point reflection* — nothing tips, every cell just walks through the centre to the far side. That is why it behaves more like the flips of lessons 20 and 21 than like its fellow rotations.
+> **Mental shift:** 90° and 270° are *turns*. They tip the matrix onto its side and the dimensions swap. 180° is a *point reflection*. Nothing tips; every cell just walks through the centre and out the other side. That's why it behaves more like the flips in lessons 20 and 21 than like the other rotations.

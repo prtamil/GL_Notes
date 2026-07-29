@@ -4,9 +4,9 @@
 
 Compress a sequence by replacing each **run of consecutive identical elements** with **(value, count)**.
 
-Instead of storing repeated values, store **what the value is** and **how many times it repeats**.
+Rather than storing the repeated values, you store **what the value is** and **how many times it repeats**.
 
-In Python the encoder and the decoder are each one line, and they are exact mirrors of each other: **`groupby`** to encode, **`repeat` + `chain`** to decode.
+The encoder and decoder are each one line in Python, and they mirror each other exactly: **`groupby`** to encode, **`repeat` + `chain`** to decode.
 
 ---
 
@@ -18,7 +18,7 @@ Compress
 Run-Length Encoding
 ```
 
-Run-Length Encoding is a **Compress** pattern that summarizes **runs** into compact `(value, count)` pairs.
+Run-Length Encoding is a **Compress** pattern that boils **runs** down to compact `(value, count)` pairs.
 
 ---
 
@@ -304,6 +304,6 @@ Counter(xs)                         # TOTAL counts, not runs → Summarize
 
 ### Key Insight
 
-**RLE is the only pattern in the Compress family that is reversible.** Distinct and Dedupe throw information away; RLE moves it into the count, so `decode(encode(xs)) == xs` holds exactly. That round-trip property is the definition of the pattern and the test you should write first.
+**RLE is the only pattern in the Compress family you can reverse.** Distinct and Dedupe throw information away. RLE just moves it into the count, so `decode(encode(xs)) == xs` holds exactly. That round trip *is* the pattern, and it's the first test you should write.
 
-The honest caveat: **RLE can double your data.** Input with no adjacent repeats turns every single element into a `(value, 1)` pair. It is a compression scheme that only compresses one specific shape of input — long flat runs — which is why it thrives on scanned images, sensor states, and fax pages, and is useless on text or already-compressed bytes. Every real RLE format therefore adds an escape for literal runs; if you're implementing one for anything but an exercise, that flag is the part that matters.
+Here's the honest caveat: **RLE can double your data.** Feed it input with no adjacent repeats and every single element becomes a `(value, 1)` pair. It only compresses one shape of input, long flat runs, which is why it shines on scanned images, sensor states and fax pages and does nothing for text or already-compressed bytes. That's why every real RLE format adds an escape for literal runs. If you're implementing one for anything beyond an exercise, that flag is the part that matters.

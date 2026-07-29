@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Every pattern so far answered a question by **reading the cells it needed**. This one answers by reading four numbers, no matter how big the question is.
+Every pattern so far answered a question by **reading the cells it needed**. This one answers by reading four numbers, however big the question is.
 
 The trick is to precompute, once, the sum of every **top-left rectangle**:
 
@@ -21,14 +21,14 @@ Then any rectangle's sum is inclusion–exclusion on four corners:
                 D = the whole top-left block ending at the far corner
 ```
 
-Two properties follow, and they are the entire reason the pattern exists:
+Two properties follow from that, and between them they're the entire reason this pattern exists:
 
-- **Build once, query forever.** O(rows × cols) to build, then **O(1) per query** — for a rectangle of *any* size, at *any* position.
+- **Build once, query forever.** O(rows × cols) to build, then **O(1) per query**, for a rectangle of *any* size at *any* position.
     
-- **It only works for operations with an inverse.** Sum has one (subtraction). Count and XOR have one. **Max and min do not**, which is why lesson 12 needed a deque for sliding-window maxima and could use this for sums.
+- **It only works for operations you can invert.** Sum can be inverted with subtraction. So can count and XOR. **Max and min can't**, which is why lesson 12 needed a deque for sliding-window maxima but could use this for sums.
     
 
-In computer vision the same table is called an **integral image**, and it is what made real-time face detection possible in 2001: Haar features are just sums of rectangles, and this makes each one cost four array lookups.
+Computer vision calls the same table an **integral image**, and it's what made real-time face detection possible back in 2001. Haar features are just sums of rectangles, and this drops each one to four array lookups.
 
 ---
 
@@ -584,4 +584,4 @@ What actually matters when applying it:
   the catch: only for operations you can subtract back out
 ```
 
-> **Mental shift:** every earlier pattern scaled with the *size of the region*. This one does not — a 3×3 query and a 300×300 query cost exactly the same four array reads. That is why prefix sum is less a pattern in its own right than the **accelerator** that makes the sliding-window and convolution patterns of lessons 12–15 practical at scale.
+> **Mental shift:** every earlier pattern scaled with the *size of the region*. This one doesn't. A 3×3 query and a 300×300 query both cost the same four array reads. That's why prefix sum is less a pattern in its own right and more the **accelerator** that makes the sliding-window and convolution patterns from lessons 12–15 practical at scale.

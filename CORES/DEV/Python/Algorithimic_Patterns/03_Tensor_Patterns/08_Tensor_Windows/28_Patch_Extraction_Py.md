@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Part 2's lesson 14 extracted patches by copying them. Every `k×k` window became a new little array, and `im2col` duplicated each cell up to `k²` times — a real memory cost, paid for the convenience.
+Part 2's lesson 14 extracted patches by copying them. Every `k×k` window became a new little array, and `im2col` duplicated each cell up to `k²` times. That's a real memory cost, paid for convenience.
 
-NumPy does not have to pay it.
+NumPy doesn't have to pay it.
 
 ```python
 from numpy.lib.stride_tricks import sliding_window_view as swv
@@ -12,7 +12,7 @@ from numpy.lib.stride_tricks import sliding_window_view as swv
 swv(x, 3)       # every length-3 window of x — as a VIEW
 ```
 
-Because a sliding window is **regularly spaced**, it can be described by strides. And lesson 4 established that anything describable by strides is free.
+A sliding window is **regularly spaced**, so strides can describe it. And lesson 4 established that anything strides can describe is free.
 
 ```text
 x        = [0 1 2 3 4 5 6 7]        strides (8,)
@@ -23,9 +23,9 @@ swv(x,3) = [[0 1 2],                strides (8, 8)
             ...]                       step within the window
 ```
 
-Both strides are 8 bytes. Moving one window forward and moving one element forward are *the same step* — which is exactly what "overlapping by `k-1`" means, expressed as arithmetic.
+Both strides are 8 bytes. Moving one window forward and moving one element forward are *the same step*, which is exactly what "overlapping by `k-1`" means once you write it as arithmetic.
 
-The result is a tensor of shape `(n_windows..., window_shape...)` that costs **nothing**:
+What you get back is a tensor of shape `(n_windows..., window_shape...)`, and it costs **nothing**:
 
 ```text
 m           (4, 5)
@@ -404,4 +404,4 @@ There is no `step=` parameter because none is needed — slicing the position ax
    the operation is identical; only the cost changed
 ```
 
-> **Mental shift:** part 2's window section was organised around *avoiding* the cost of windows — integral images, separable passes, all to dodge the O(k²) copy. At rank 3 with strides, the extraction itself is free and the only remaining cost is the arithmetic you actually wanted. That reframes the whole family: stop optimising the windowing, and spend the effort on the reduction.
+> **Mental shift:** part 2's window section was built around *dodging* the cost of windows — integral images, separable passes, all of it to avoid the O(k²) copy. At rank 3 with strides, the extraction is free and the only cost left is the arithmetic you actually wanted. That reframes the whole family: stop optimising the windowing and put the effort into the reduction.

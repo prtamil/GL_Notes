@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Lesson 28's windows **overlap**. Pooling uses windows that **do not** — the tensor is partitioned into blocks, and each block collapses to one value.
+Lesson 28's windows **overlap**. Pooling uses windows that **don't**. The tensor gets partitioned into blocks and each block collapses to a single value.
 
 ```text
 4x4, pooled 2x2:
@@ -14,7 +14,7 @@ Lesson 28's windows **overlap**. Pooling uses windows that **do not** — the te
  12 13 |14 15
 ```
 
-That is part 2's lesson 13 — tiling — with a reduction on the end. And at rank 3+ there is a much better way to express it than nested loops:
+That's part 2's lesson 13, tiling, with a reduction stuck on the end. And at rank 3 and up there's a much better way to say it than nested loops:
 
 > **Reshape the axis into `(n_blocks, block_size)`, then reduce the block axes.**
 
@@ -22,11 +22,11 @@ That is part 2's lesson 13 — tiling — with a reduction on the end. And at ra
 (H, W)  ->  (H//k, k, W//k, k)  --reduce axes 1 and 3-->  (H//k, W//k)
 ```
 
-Every spatial axis splits into "which block" and "where inside the block", and pooling is just reducing the second of each pair. The whole operation is one `reshape` (free — lesson 12) and one multi-axis reduction (lesson 22).
+Every spatial axis splits into "which block" and "where inside the block", and pooling is just reducing the second of each pair. The whole operation is one `reshape` — free, per lesson 12 — plus one multi-axis reduction (lesson 22).
 
-The pattern extends unchanged to batches: `(N, C, H, W)` becomes `(N, C, H//k, k, W//k, k)` and you reduce axes `(3, 5)`. Nothing about it is 2-D-specific.
+It extends to batches without changing: `(N, C, H, W)` becomes `(N, C, H//k, k, W//k, k)` and you reduce axes `(3, 5)`. Nothing here is specific to 2-D.
 
-Two things to watch: the axis must **divide evenly** (reshape refuses otherwise), and `(1,3)` versus `(2,3)` is an easy slip that produces a valid array of the wrong statistic.
+Two things to watch. The axis has to **divide evenly**, or reshape refuses. And `(1,3)` versus `(2,3)` is an easy slip that hands you a valid array holding the wrong statistic.
 
 ---
 
@@ -405,4 +405,4 @@ And global pooling needs none of this: it is lesson 22's `a.mean(axis=(-2, -1))`
                [2 3] ...          every position
 ```
 
-> **Mental shift:** part 2's lesson 13 tiled a matrix and reduced each tile, and the tiling was the interesting part. Here the tiling *is a reshape* — free, and expressible in one line at any rank. What is left to think about is only which axes you reduce, which makes pooling a special case of lesson 22 rather than a technique of its own.
+> **Mental shift:** part 2's lesson 13 tiled a matrix and reduced each tile, and the tiling was the interesting bit. Here the tiling *is a reshape*: free, and one line at any rank. All that's left to think about is which axes you reduce, which makes pooling a special case of lesson 22 rather than a technique in its own right.

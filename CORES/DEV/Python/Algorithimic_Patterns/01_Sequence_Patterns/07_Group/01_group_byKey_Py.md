@@ -4,9 +4,9 @@
 
 Partition a sequence into **groups based on a key or property**.
 
-All elements with the same key are collected into the same group.
+Everything with the same key ends up in the same group.
 
-Python has no single `group_by` function. The idiom is **`defaultdict(list)` plus a one-line loop** — and the reason it stays a loop rather than a function is that Python's `itertools.groupby` groups only **adjacent** elements, which is a different pattern (see 06_Compress/Dedupe).
+There's no single `group_by` function in Python. The idiom is **`defaultdict(list)` plus a one-line loop**, and it stays a loop for a reason: `itertools.groupby` only groups **adjacent** elements, which is a different pattern entirely (see 06_Compress/Dedupe).
 
 ---
 
@@ -18,7 +18,7 @@ Group
 Group By Key
 ```
 
-Group By Key is the fundamental **Group** pattern. Instead of grouping by position, it groups by a **computed key**.
+Group By Key is the core **Group** pattern. It groups by a **computed key** rather than by position.
 
 ---
 
@@ -316,8 +316,8 @@ Counter(f(x) for x in xs)             # counts only             → Histogram
 
 ### Key Insight
 
-**In Python, grouping is a loop, not a function** — and that is not a weakness. `d[f(x)].append(x)` is one line, one pass, O(n), and works on an unsortable, unorderable, streaming input. Every "elegant" alternative is worse: `groupby` needs a sort, and a dict comprehension can't accumulate.
+**In Python, grouping is a loop rather than a function, and that's fine.** `d[f(x)].append(x)` is one line, one pass, O(n), and it handles input that can't be sorted, can't be ordered, and arrives as a stream. Every "elegant" alternative is worse: `groupby` needs a sort first, and a dict comprehension can't accumulate.
 
-The one thing worth memorizing is the **failure mode of `itertools.groupby`**, because it fails *silently*. Given `a b a` it emits three groups, and building a dict from that keeps only the last one — so you get an answer that is the right shape, the right type, and quietly missing rows. It is a **run detector wearing a grouping name**. If the input isn't sorted by your key, it is the wrong tool.
+The thing genuinely worth memorising is **how `itertools.groupby` fails**, because it fails *quietly*. Give it `a b a` and it emits three groups. Build a dict from that and you keep only the last one, so your answer has the right shape, the right type, and silently missing rows. It's a **run detector with a grouping name**. If your input isn't sorted by the key, it's the wrong tool.
 
-Finally: **the interesting part of grouping is never the grouping — it's the key function.** Group anagrams is `sorted(word)`. Group files is the extension. Group by hour is a truncated timestamp. Once you can name the key, the pattern is already three lines of boilerplate.
+One last thing: **the interesting part of grouping is never the grouping, it's the key function.** Grouping anagrams is `sorted(word)`. Grouping files is the extension. Grouping by hour is a truncated timestamp. Once you can name the key, everything left is three lines of boilerplate.

@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-Two small pieces of index syntax that exist for the same reason: **so your code does not hard-code the rank.**
+Two small bits of index syntax that exist for the same reason: **so your code doesn't hard-code the rank.**
 
 **Ellipsis (`...`)** stands for "as many `:` as needed":
 
@@ -11,9 +11,9 @@ rank 3:   t[..., 0]   ==  t[:, :, 0]
 rank 4:   q[..., 0]   ==  q[:, :, :, 0]
 ```
 
-One expression, any rank. Write `t[:, :, 0]` and it breaks the day someone prepends a batch dimension; write `t[..., 0]` and it keeps meaning "index the last axis".
+One expression, any rank. Write `t[:, :, 0]` and it breaks the day someone adds a batch dimension at the front. Write `t[..., 0]` and it keeps meaning "index the last axis".
 
-**newaxis (`None`)** does the opposite — it **inserts** an axis of size 1:
+**newaxis (`None`)** does the opposite: it **inserts** an axis of size 1.
 
 ```text
 t[None]        (2,3,4)  ->  (1,2,3,4)     new axis at the front
@@ -21,9 +21,9 @@ t[:, None]     (2,3,4)  ->  (2,1,3,4)     new axis in the middle
 t[..., None]   (2,3,4)  ->  (2,3,4,1)     new axis at the end
 ```
 
-A size-1 axis holds no data — it is a **placeholder**, and its whole purpose is alignment. Broadcasting (lesson 17) matches shapes from the right and stretches every `1`, so inserting axes is how you tell NumPy *which* dimensions of two tensors should line up. Almost every broadcasting bug is a missing `None`.
+A size-1 axis holds no data. It's a **placeholder**, and alignment is its entire purpose. Broadcasting (lesson 17) matches shapes from the right and stretches every `1`, so inserting axes is how you tell NumPy *which* dimensions of two tensors should line up. Nearly every broadcasting bug is a missing `None`.
 
-Both are **basic indexing**, so both return views. Nothing is copied by either.
+Both are **basic indexing**, so both return views. Neither copies anything.
 
 ---
 
@@ -391,4 +391,4 @@ Both are basic indexing, so both are **free views**. Adding and removing axes co
    t[:, None]     "make room here so shapes line up"
 ```
 
-> **Mental shift:** at rank 2 you always knew where you were — rows and columns, and both were named. From rank 3 up, the rank itself becomes a variable your code should not depend on. `...` lets you index without counting axes; `None` lets you create the axes that make two shapes agree. Together they are how tensor code stays short and stays correct when the rank changes.
+> **Mental shift:** at rank 2 you always knew where you were. Rows and columns, both named. From rank 3 up, rank itself becomes a variable your code shouldn't depend on. `...` lets you index without counting axes, and `None` lets you create the axes that make two shapes agree. Between them, that's how tensor code stays short and stays correct when the rank changes underneath it.

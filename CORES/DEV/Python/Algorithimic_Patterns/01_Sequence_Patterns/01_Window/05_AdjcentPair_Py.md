@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Process **neighboring elements** together to compare, transform, or detect transitions.
+Take **neighbouring elements** together so you can compare them, transform them, or spot where something changed.
 
-Python gives this one its own builtin: **`itertools.pairwise`** (3.10+). It is the single most reusable line in this entire pattern family.
+Python gives this one its own builtin: **`itertools.pairwise`** (3.10+). It's the most reusable single line in this whole family of patterns.
 
 ---
 
@@ -16,7 +16,7 @@ Window
 Adjacent Pair
 ```
 
-Adjacent Pair is a specialized **Sliding Window** where the **window size is always 2**.
+Adjacent Pair is just a **Sliding Window** with the **window size pinned at 2**.
 
 ---
 
@@ -272,6 +272,6 @@ list(zip(xs[::2], xs[1::2]))        # size 2, step 2  ← disjoint pairs (Chunk)
 
 ### Key Insight
 
-**`pairwise` converts a sequence of *values* into a sequence of *changes*.** That is the whole pattern: `[10, 20, 30]` (three states) becomes `[10, 10]` (two transitions). Most questions phrased about a sequence — sorted? monotonic? where did it jump? how fast? — are really questions about its deltas, and become one-liners once you make that conversion.
+**`pairwise` turns a sequence of *values* into a sequence of *changes*.** That's the whole pattern. `[10, 20, 30]` is three states; it becomes `[10, 10]`, two transitions. Most questions you ask about a sequence — is it sorted? is it monotonic? where did it jump? how fast? — are really questions about the deltas, and they collapse into one-liners once you make that switch.
 
-The two things to watch: the result is **one element shorter**, and **the endpoints have no neighbour**. Every off-by-one in this pattern is one of those two facts going unhandled.
+Two things to watch out for. The result is **one element shorter**, and **the endpoints have no neighbour**. Every off-by-one in this pattern traces back to one of those two.

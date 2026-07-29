@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes we don't just want the final answer—we want to see **how the answer evolves at every step**.
+Sometimes the final answer isn't enough. You want to watch **how it got there, step by step**.
 
-**Scan** is the act of producing every intermediate result while traversing a sequence.
+**Scan** hands you every intermediate result as it walks the sequence.
 
-The mental question is:
+The question you're asking:
 
 > **"What do I know after each step?"**
 
-Unlike **Accumulate**, which returns only the final result, **Scan** returns the entire history of intermediate states.
+**Accumulate** gives you the final result and nothing else. **Scan** gives you the whole history.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Accumulate**, which returns only the final result, **Scan** returns the
 |---|---|---|
 |**Scan**|What do I know after each step?|`itertools.accumulate`|
 
-> **Note:** Python's function is *named* `accumulate` but it implements the **Scan** verb — it returns every intermediate value. The **Accumulate** verb is `functools.reduce`, which returns only the last one. The library named them after mechanics; the verbs name them after intent.
+> **Note:** Python's function is *called* `accumulate`, but it does the **Scan** verb: it returns every intermediate value. The **Accumulate** verb is `functools.reduce`, which returns only the last one. The library named them after how they work; the verbs name them after what you meant.
 
 ---
 
@@ -41,14 +41,14 @@ Unlike **Accumulate**, which returns only the final result, **Scan** returns the
 
 # The Python-specific catches
 
-**The function signature is `f(accumulated, next)` — accumulator first.** For non-commutative operations (subtract, divide, string concat) that order is the entire answer.
+**The signature is `f(accumulated, next)`, accumulator first.** For anything non-commutative — subtraction, division, string concatenation — that order decides the whole answer.
 
-**`initial=` makes the output one element longer.** That extra leading value is exactly what makes prefix-sum range queries (`P[j] - P[i]`) work without a special case at index 0.
+**`initial=` makes the output one element longer.** That extra value at the front is exactly what lets prefix-sum range queries (`P[j] - P[i]`) work without a special case at index 0.
 
-**Scan and adjacent differences are inverses.** `accumulate` turns per-step values into totals; `[b - a for a, b in pairwise(xs)]` turns totals back into per-step values. Real data arrives in both forms.
+**Scan and adjacent differences undo each other.** `accumulate` turns per-step values into totals, and `[b - a for a, b in pairwise(xs)]` turns totals back into per-step values. Real data shows up in both shapes.
 
 ---
 
 # One Sentence to Remember
 
-> **Scan produces every intermediate result while processing a sequence — it is `reduce` that shows its work.**
+> **Scan gives you every intermediate result as it goes. It's `reduce` showing its work.**

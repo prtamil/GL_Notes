@@ -4,9 +4,9 @@
 
 Split a sequence into groups based on whether elements **satisfy one or more conditions**.
 
-Unlike **Group By Key**, where the key can be any computed value, **Group By Predicate** groups according to **boolean conditions**.
+**Group By Key** lets the key be any computed value. **Group By Predicate** groups on **true or false**.
 
-In Python the two-bucket case has a name of its own: **partition**. It is not in the standard library, but `itertools.tee` + `filter`/`filterfalse` is the documented recipe, and a single loop is usually clearer.
+The two-bucket case has its own name: **partition**. It's not in the standard library, but `itertools.tee` with `filter`/`filterfalse` is the documented recipe, and honestly a single loop usually reads better.
 
 ---
 
@@ -323,8 +323,8 @@ Counter(p(x) for x in xs)         # counts only              → Histogram
 
 ### Key Insight
 
-**`bool` is an integer, and that is the entire partition idiom.** `out[bool(pred(x))]` puts falses at index 0 and trues at index 1 with no branch, no dict, and one pass over the data. The same fact makes `sum(p(x) for x in xs)` a counter of passing elements.
+**`bool` is an integer, and that fact is the whole partition idiom.** `out[bool(pred(x))]` drops falses at index 0 and trues at index 1, with no branch, no dict, and one pass over the data. The same trick turns `sum(p(x) for x in xs)` into a count of passing elements.
 
-The real decision here is **two buckets or many**. A predicate answers yes/no, so it can only ever produce two groups — the moment you need "small/medium/large" you are no longer writing a predicate, you are writing a **classifier**, and it belongs in a named function rather than inlined in the loop. That rename is not cosmetic: a named `size(n)` is testable, reusable, and the place where the next category gets added.
+The real question is **two buckets or many**. A predicate answers yes or no, so two groups is all it can ever give you. The moment you want "small/medium/large" you've stopped writing a predicate and started writing a **classifier**, and that belongs in a named function instead of inlined in the loop. It's not just tidiness: a named `size(n)` can be tested, reused, and extended when the next category shows up.
 
-And keep the failure mode in view: **two comprehensions read beautifully and silently break on generators.** The second pass sees an exhausted iterator and returns an empty list — no error, just a missing half. If the input isn't a list, partition with the loop.
+Keep the failure mode in mind too. **Two comprehensions look lovely and quietly break on generators.** The second pass finds an exhausted iterator and hands back an empty list — no error, just half your data gone. If the input isn't a list, partition with the loop.

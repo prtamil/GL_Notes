@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The last generated matrix, and the one with the most hidden depth. The rule is **parity of the coordinate sum**:
+The last generated matrix, and the one hiding the most depth. The rule is **the parity of the coordinate sum**:
 
 ```text
 f(r, c) = (r + c) % 2
@@ -13,15 +13,15 @@ f(r, c) = (r + c) % 2
  [1, 0, 1, 0]]          # . # .
 ```
 
-Adding `r` and `c` and taking the remainder produces alternation in **both** directions at once — moving one step right or one step down always flips the value, because you changed the sum by exactly 1.
+Add `r` and `c`, take the remainder, and you get alternation in **both** directions at once. Step one to the right or one down and the value always flips, because you changed the sum by exactly 1.
 
-That last sentence is not a description of a pattern; it is a **theorem about grids**, and it is why this lesson matters more than "how do I draw a chess board":
+That last sentence isn't describing a pattern. It's a **theorem about grids**, and it's why this lesson matters more than "how do I draw a chess board":
 
 > Under 4-connectivity, **every neighbour of a cell has the opposite parity.**
 
-So the checkerboard is a **2-colouring** of the grid graph from lesson 9, which proves that graph is *bipartite*. That single fact settles a family of problems that look like they need search — domino tilings, the mutilated chessboard, knight's-move colour arguments, alternating-turn games — with counting instead.
+So a checkerboard is a **2-colouring** of the grid graph from lesson 9, which proves that graph is *bipartite*. That one fact settles a whole family of problems that look like they need search — domino tilings, the mutilated chessboard, knight's-move colour arguments, alternating-turn games — using counting instead.
 
-And the same expression generalises in three directions: `r % 2` and `c % 2` give stripes, `(r//k + c//k) % 2` gives blocks of size `k` (lesson 13's tiling), and `(r + c) % n` gives `n` colours.
+The same expression generalises three ways too: `r % 2` and `c % 2` give stripes, `(r//k + c//k) % 2` gives blocks of size `k` (lesson 13's tiling), and `(r + c) % n` gives you `n` colours.
 
 ---
 
@@ -447,11 +447,11 @@ And the threads that ran through all of it:
 
 - **`zip(*m)`** — transpose, columns, matrix multiply, and every rotation.
     
-- **The neighborhood function** — turns a grid into a graph, and BFS solves the rest (9, 25, 26).
+- **The neighborhood function**, which turns a grid into a graph so BFS can handle the rest (9, 25, 26).
     
-- **`(r, c)` as the unit of thought** — an order in 1–8, a shape in 9–15, a destination in 16–23, and finally an *input* in 28–30.
+- **`(r, c)` as the unit of thought**: an order in 1–8, a shape in 9–15, a destination in 16–23, and finally an *input* in 28–30.
     
-- **Two slices** — `m[r:r+h]` and `row[c:c+w]` — which are, verbatim, all of lessons 12–15.
+- **Two slices**, `m[r:r+h]` and `row[c:c+w]`, which are word for word all of lessons 12–15.
     
 
-> **Mental shift:** the course began by asking how to *read* a matrix and ends by asking how to *write* one. The checkerboard is the right place to stop, because it shows that a generated pattern can be a mathematical object: two lines of Python that also happen to prove something about every grid you will ever traverse.
+> **Mental shift:** this course opened by asking how to *read* a matrix and closes by asking how to *write* one. The checkerboard is the right place to stop, because it shows a generated pattern can be a mathematical object: two lines of Python that also happen to prove something about every grid you'll ever traverse.

@@ -2,7 +2,7 @@
 
 ## Mental Model
 
-The paint bucket. Click a cell; every cell of the **same colour** reachable from it becomes the new colour. Everything else is untouched.
+The paint bucket. Click a cell and every cell of the **same colour** that's reachable from it takes on the new colour. Nothing else changes.
 
 ```text
 seed = (1, 1), new = 2
@@ -16,13 +16,13 @@ seed = (1, 1), new = 2
                       crossing a 0
 ```
 
-Where lesson 25 partitions the *whole grid*, this expands **one region from one seed**. That difference — global sweep versus local expansion — is the entire distinction between the two lessons, and it is why lesson 25 is literally this function in a loop.
+Lesson 25 partitions the *whole grid*. This expands **one region from one seed**. Global sweep versus local expansion is the whole difference between the two lessons, and it's why lesson 25 is literally this function inside a loop.
 
-The mechanics are the same graph search as lesson 25, with two additions that only matter here:
+The mechanics are the same graph search as lesson 25, plus two things that only matter here:
 
-- **A colour you are replacing.** The frontier is defined by "still equal to the *old* colour", which is a moving target because you are overwriting it as you go.
+- **A colour you're replacing.** The frontier is "cells still equal to the *old* colour", and that's a moving target, because you're overwriting it as you go.
     
-- **The `old == new` guard.** If the new colour equals the old one, the marking step stops marking anything, cells are re-enqueued forever, and the loop never terminates. It is the classic bug in this pattern, and it costs one line to prevent.
+- **The `old == new` guard.** If the new colour matches the old one, the marking step marks nothing, cells get re-enqueued forever, and the loop never ends. It's the classic bug in this pattern and it takes one line to prevent.
     
 
 ---
@@ -480,4 +480,4 @@ And the relationship that closes the section: **lesson 25 is this function in a 
                               └── 25  = 26 at every cell      (the sweep)
 ```
 
-> **Mental shift:** lesson 24 treats the matrix as a container and asks *where*. Lessons 25 and 26 treat it as a graph and ask *what reaches what* — which is why they both reduce to BFS the moment you have `neighbors4` from lesson 9. Search, in a grid, is nearly always graph search wearing a coordinate system.
+> **Mental shift:** lesson 24 treats the matrix as a container and asks *where*. Lessons 25 and 26 treat it as a graph and ask *what reaches what*, which is why both collapse into BFS the moment you have `neighbors4` from lesson 9. Search in a grid is nearly always graph search wearing a coordinate system.

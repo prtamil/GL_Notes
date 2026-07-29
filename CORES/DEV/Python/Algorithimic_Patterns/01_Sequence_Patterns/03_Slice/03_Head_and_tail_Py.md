@@ -2,9 +2,9 @@
 
 ## Mental Model
 
-Split a sequence into its **first element (Head)** and **everything else (Tail)**. This is the fundamental decomposition pattern in functional programming.
+Split a sequence into its **first element (Head)** and **everything else (Tail)**. This is the basic decomposition move in functional programming.
 
-Python writes it with **starred unpacking**: `head, *tail = xs`. That single line is `first` and `rest` at once — and it is the closest Python gets to Clojure's `[head & tail]` destructuring.
+Python writes it with **starred unpacking**: `head, *tail = xs`. One line gives you `first` and `rest` together, and it's as close as Python gets to Clojure's `[head & tail]` destructuring.
 
 ---
 
@@ -16,7 +16,7 @@ Slice
 Head & Tail
 ```
 
-Head & Tail is the most basic **Slice** pattern. Many recursive algorithms begin by separating a sequence into its head and tail.
+Head & Tail is the most basic **Slice** pattern. Plenty of recursive algorithms open by splitting a sequence exactly this way.
 
 ---
 
@@ -309,8 +309,8 @@ next(it)                        # head, tail is `it`   → streaming head & tail
 
 ### Key Insight
 
-**In Clojure, head & tail is how you traverse; in Python, it is how you *think* about traversing.** `head, *tail = xs` copies the tail every time, and there is no tail-call optimization to save the recursion — so the literal translation of a Clojure recursion is both O(n²) and depth-limited to about a thousand elements.
+**In Clojure, head & tail is how you traverse. In Python it's how you *think* about traversing.** `head, *tail = xs` copies the tail every single time, and there's no tail-call optimization to rescue the recursion, so a literal translation of a Clojure recursion comes out O(n²) *and* capped at about a thousand elements deep.
 
-What survives the translation is the *decomposition*: "handle one element, then the same problem on a smaller input." Python spells that as a `for` loop, an iterator you keep calling `next` on, or a `while stack:` with an explicit stack. All three are head & tail — the peeling is just done by the language instead of by you.
+What does survive the translation is the *decomposition*: handle one element, then face the same problem on a smaller input. In Python that's a `for` loop, or an iterator you keep calling `next` on, or a `while stack:` with an explicit stack. All three are head & tail. The language does the peeling instead of you.
 
-The one place the literal form earns its keep is **`match`/`case`**, where `case [head, *tail]` sits alongside `case []` and `case [x]`. There, the pattern isn't a performance choice; it's the clearest way to say what the shapes of your input are.
+The literal form does earn its place in one spot: **`match`/`case`**, where `case [head, *tail]` sits next to `case []` and `case [x]`. There it isn't about performance at all. It's the clearest way to spell out the shapes your input can take.

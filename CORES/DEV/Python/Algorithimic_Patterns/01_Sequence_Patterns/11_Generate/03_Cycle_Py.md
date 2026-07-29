@@ -4,9 +4,9 @@
 
 Generate an **infinite repeating sequence** by looping over the same collection again and again.
 
-Unlike **Repeat**, which duplicates a single value, **Cycle** repeats an **entire sequence**.
+**Repeat** duplicates a single value. **Cycle** repeats an **entire sequence**.
 
-Python's `itertools.cycle` does exactly this — with one property worth knowing up front: it **caches every element it sees**, so cycling a large or infinite iterable buys you an unbounded memory copy.
+`itertools.cycle` does exactly this, with one property worth knowing before you start: it **caches every element it sees**, so cycling a large or infinite iterable buys you an unbounded copy in memory.
 
 ---
 
@@ -18,7 +18,7 @@ Generate
 Cycle
 ```
 
-Cycle is a **Generate** pattern because it continuously generates values by restarting the sequence after reaching the end.
+Cycle is a **Generate** pattern that keeps producing values by starting the sequence over each time it runs out.
 
 ---
 
@@ -320,8 +320,8 @@ islice(cycle(xs), k, k + len(xs))       # a rotation           → Rotate
 
 ### Key Insight
 
-**`zip(items, cycle(pattern))` is the reason this pattern earns its place.** Assigning colors to bars, CSS classes to rows, workers to tasks, players to cards — all of them are "give each item the next thing from a short repeating list", and zip's stop-at-the-shortest rule means the finite side bounds the infinite side automatically. No length arithmetic, no modulo, no off-by-one.
+**`zip(items, cycle(pattern))` is why this pattern earns its keep.** Colours for bars, CSS classes for rows, workers for tasks, players for cards — every one of them is "give each item the next thing from a short repeating list". Zip stops at the shortest input, so the finite side bounds the infinite side for you. No length arithmetic, no modulo, no off-by-one.
 
-**Cycle caches, and that is the constraint to remember.** To replay a sequence it must remember it, so `cycle` over a file handle or an infinite counter grows without bound until the process dies. Over an existing list it costs essentially nothing. The corollary catches people too: once the source has been consumed, `cycle` replays its own private copy, so appending to the original list changes nothing.
+**Cycle caches, and that's the constraint to remember.** To replay a sequence it has to remember it, so `cycle` over a file handle or an infinite counter grows without limit until the process dies. Over an existing list it costs essentially nothing. There's a corollary that catches people too: once the source has been consumed, `cycle` is replaying its own private copy, so appending to the original list changes nothing.
 
-Finally, know when *not* to reach for it. **If you want a single wrapped lookup, use `xs[i % len(xs)]`** — O(1), no iterator, no state. **If you want exactly k copies, use `xs * k`.** `cycle` is for the case where the consumer decides when to stop, which is precisely the streaming case: turn order, animation frames, spinners, schedulers. Keeping the `cycle` object alive between calls is what makes it a scheduler rather than a list-builder.
+Finally, know when *not* to use it. **For a single wrapped lookup, use `xs[i % len(xs)]`** — O(1), no iterator, no state. **For exactly k copies, use `xs * k`.** `cycle` is for when the consumer decides when to stop, which is the streaming case: turn order, animation frames, spinners, schedulers. Keeping the `cycle` object alive between calls is what makes it a scheduler instead of a list-builder.

@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Sometimes two or more sequences are related **element by element**.
+Sometimes two sequences line up **element by element**.
 
-**Pair** is the act of aligning corresponding elements from multiple sequences so they can be processed together.
+**Pair** matches up those corresponding elements so you can work with them together.
 
-The mental question is:
+The question you're asking:
 
 > **"Which elements correspond to each other?"**
 
-Unlike **Join**, which combines collections end-to-end, **Pair** aligns elements by their position or relationship.
+**Join** sticks collections end to end. **Pair** lines them up side by side, by position or by relationship.
 
 ---
 
@@ -20,7 +20,7 @@ Unlike **Join**, which combines collections end-to-end, **Pair** aligns elements
 |---|---|---|
 |**Pair**|Which elements correspond to each other?|`zip`, `zip_longest`, `dict(zip(k, v))`, `enumerate`, `itertools.pairwise`, `itertools.product`, `str.join`|
 
-> **Note:** `zip` is the whole verb. `zip(*pairs)` unzips them again, `dict(zip(keys, values))` builds a mapping, `pairwise(xs)` pairs each element with its **neighbour**, and `product(a, b)` pairs **every** element with every other.
+> **Note:** `zip` basically *is* this verb. `zip(*pairs)` unzips them again. `dict(zip(keys, values))` builds a mapping. `pairwise(xs)` pairs each element with its **neighbour**. `product(a, b)` pairs **everything** with everything.
 
 ---
 
@@ -42,14 +42,14 @@ Unlike **Join**, which combines collections end-to-end, **Pair** aligns elements
 
 # The Python-specific catches
 
-**`zip` stops at the shortest input, silently.** Zipping a 100-row list with a 99-row one gives 99 rows and no warning. Use `zip(..., strict=True)` (3.10+) to raise on a length mismatch, or `zip_longest` to keep everything.
+**`zip` stops at the shortest input and says nothing.** Zip a 100-row list against a 99-row one and you get 99 rows, no warning. Pass `strict=True` (3.10+) if you want it to raise on a length mismatch, or use `zip_longest` to keep everything.
 
-**`zip` returns a one-shot iterator.** `z = zip(a, b)`, then `list(z)` twice → values, then `[]`.
+**`zip` hands back a one-shot iterator.** Do `z = zip(a, b)` and call `list(z)` twice: values first, then `[]`.
 
-**`zip(*rows)` transposes** — pairing and transposing are the same operation seen from opposite sides.
+**`zip(*rows)` transposes.** Pairing and transposing turn out to be the same move viewed from two sides.
 
 ---
 
 # One Sentence to Remember
 
-> **Pair aligns corresponding elements from multiple sequences so they can be processed together.**
+> **Pair lines up matching elements from several sequences so you can work on them together.**
