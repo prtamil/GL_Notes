@@ -6,7 +6,7 @@ Every sequence has a beginning.
 
 Before we can search, transform, group, or summarize data, **there must first be a sequence to work with**.
 
-**Generate** is the act of creating a sequence. Sometimes the sequence comes from existing data (a file, database, API), but often we generate one ourselves from a rule, a seed value, or by repeating a pattern.
+**Generate** means to create a sequence. The data can come from a file, database, or application programming interface (API). It can also come from a rule, seed, or pattern.
 
 The mental question is simple:
 
@@ -37,3 +37,17 @@ In Clojure, sequences are often generated lazily, meaning values are produced on
 |Repeat a pattern forever|`cycle`|`(take 7 (cycle [:R :G :B]))` → `(:R :G :B :R :G :B :R)`|
 
 ---
+
+# The Clojure-specific catches
+
+**`repeat` takes a value. `repeatedly` takes a function.** `(repeat 3 (rand-int 1000))` evaluates `rand-int` once. It returns the same number three times. `(repeatedly 3 #(rand-int 1000))` calls the function three times.
+
+**Bound every infinite source.** `range`, `cycle`, `repeat`, and `iterate` can produce infinite sequences. Apply `take` or `take-while` before realization.
+
+**Lazy sequences can realize in chunks of 32.** `(take 1 (map f (range 40)))` can call `f` 32 times. Keep lazy functions free of side effects.
+
+---
+
+# One Sentence to Remember
+
+> **Generate creates a sequence from a rule, seed, or repeating pattern. Lazy generation calculates values only when a consumer requests them.**

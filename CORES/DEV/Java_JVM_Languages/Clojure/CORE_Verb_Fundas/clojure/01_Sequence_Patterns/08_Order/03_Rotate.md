@@ -132,7 +132,7 @@ Think:
           (take n xs)))
 
 ;; =>
-(3 4 5 1 2)
+;; (3 4 5 1 2)
 
 
 ;;--------------------------------------------------------
@@ -144,7 +144,7 @@ Think:
           (drop-last n xs)))
 
 ;; =>
-(4 5 1 2 3)
+;; (4 5 1 2 3)
 
 
 ;;--------------------------------------------------------
@@ -156,7 +156,7 @@ Think:
             (cycle xs)))
 
 ;; =>
-(3 4 5 1 2)
+;; (3 4 5 1 2)
 
 
 ;;--------------------------------------------------------
@@ -168,7 +168,7 @@ Think:
           (take n xs)))
 
 ;; =>
-(3 4 5 1 2)
+;; (3 4 5 1 2)
 
 
 ;;--------------------------------------------------------
@@ -182,11 +182,11 @@ Think:
   (range (count xs)))
 
 ;; =>
-((1 2 3 4 5)
- (2 3 4 5 1)
- (3 4 5 1 2)
- (4 5 1 2 3)
- (5 1 2 3 4))
+;; ((1 2 3 4 5)
+ ;; (2 3 4 5 1)
+ ;; (3 4 5 1 2)
+ ;; (4 5 1 2 3)
+ ;; (5 1 2 3 4))
 
 
 ;;--------------------------------------------------------
@@ -199,7 +199,7 @@ Think:
        (subs s 0 n)))
 
 ;; =>
-"cdeab"
+;; "cdeab"
 
 
 ;;--------------------------------------------------------
@@ -211,7 +211,7 @@ Think:
      (range 3 8))
 
 ;; =>
-(4 5 1 2 3)
+;; (4 5 1 2 3)
 
 
 ;;--------------------------------------------------------
@@ -225,7 +225,7 @@ Think:
      reverse)
 
 ;; =>
-(2 1 5 4 3)
+;; (2 1 5 4 3)
 
 
 ;;--------------------------------------------------------
@@ -237,7 +237,7 @@ Think:
   (drop-last 1 xs))
 
 ;; =>
-(5 1 2 3 4)
+;; (5 1 2 3 4)
 
 
 ;;--------------------------------------------------------
@@ -249,5 +249,77 @@ Think:
   [(first xs)])
 
 ;; =>
-(2 3 4 5 1)
+;; (2 3 4 5 1)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn rotate-left [distance collection]
+  (let [values (vec collection)
+        size (count values)]
+    (if (zero? size)
+      []
+      (let [cut (mod distance size)]
+        (into (subvec values cut)
+              (subvec values 0 cut))))))
+
+(defn rotate-right [distance values]
+  (rotate-left (- distance) values))
+
+(defn all-rotations [values]
+  (map (fn [distance] (rotate-left distance values))
+       (range (count values))))
+
+(defn rotationally-equal? [left-values right-values]
+  (and (= (count left-values) (count right-values))
+       (boolean
+         (some (fn [rotation]
+                 (= (vec right-values) rotation))
+               (all-rotations left-values)))))
+
+(defn round-robin-pairs [values]
+  (map vector values (rotate-left 1 values)))
+
+(defn rotation-point [sorted-rotated]
+  (let [values (vec sorted-rotated)]
+    (when (seq values)
+      (or (some (fn [[index [left right]]]
+                  (when (> left right) (inc index)))
+                (map-indexed vector (partition 2 1 values)))
+          0))))
+
+(rotate-left 2 [1 2 3 4 5])
+;; => [3 4 5 1 2]
+
+(rotate-right 2 [1 2 3 4 5])
+;; => [4 5 1 2 3]
+
+(rotate-left -1 [1 2 3 4 5])
+;; => [5 1 2 3 4]
+
+(rotationally-equal? [1 2 3] [3 1 2])
+;; => true
+
+(rotation-point [4 5 6 1 2 3])
+;; => 3
+```
+
+This course defines a positive distance as a left rotation. Negative distances rotate right. Normalize with `mod` once so oversized and negative distances cannot create separate bugs.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|visible finite rotation|split a vector, then join|
+|wrap any signed distance|`mod`|
+|rotate right|rotate left by the negative distance|
+|all rotations|rotate by every valid offset|
+|circular access only|use modular indexing instead|
+|matrix rotation|transpose plus reversal—covered in Part 2|
+
+### Key Insight
+
+Rotation preserves relative cyclic order and changes only the chosen starting point. Put the sign convention in one named function and derive every other rotation operation from it.

@@ -2,255 +2,155 @@
 
 ## Mental Model
 
-Spiral traversal visits a matrix by **walking around its boundary, then shrinking inward layer by layer** until every cell has been visited.
-
-Instead of thinking in terms of rows or columns, think in terms of **nested rectangles (layers or rings)**.
-
----
+Walk the outer ring clockwise. Move each boundary inward, then repeat.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Peel
-   ↓
-Spiral Traversal
+Peel -> top -> right -> bottom -> left -> shrink
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Peel layers
-    
-- Walk around the boundary
-    
-- Traverse in a spiral
-    
-- Visit concentric rings
-    
-- Shrink inward
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Clockwise spiral|outer → inner|`loop/recur`|
-|Counter-clockwise|reverse direction|`loop/recur`|
-|Layer traversal|process one ring|nested `doseq`|
-|Spiral generation|fill matrix|mutable/transient structures|
-|Boundary shrinking|move edges inward|`top`, `bottom`, `left`, `right`|
-
-> Unlike row or diagonal traversal, spiral traversal is **stateful**, so `loop/recur` is usually the clearest approach.
-
----
+|Need|Use|
+|---|---|
+|Track four boundaries|`loop` and `recur`|
+|Build a vector|`into`|
+|Read the path only|generate coordinate pairs|
+|Fill in spiral order|`reduce-kv` with `assoc-in`|
 
 ## Common Uses
 
-- Matrix printing
-    
-- UI animations
-    
-- Robot navigation
-    
-- Image scanning
-    
-- Game map exploration
-    
-- CNC/Laser tool paths
-    
-- Puzzle generation
-    
-- Memory-efficient visualization
-    
-
----
+- Print a matrix in spiral order.
+- Fill a board by rings.
+- Animate an inward scan.
+- Process concentric layers.
 
 ## Hidden Interview Problems
 
-- Print matrix in spiral order
-    
-- Fill matrix in spiral order
-    
-- Spiral Matrix I / II
-    
-- Traverse concentric layers
-    
-- Rotate matrix layer-by-layer
-    
-- Count spiral rings
-    
-- Spiral search
-    
-
----
+- Handle one remaining row or column.
+- Return each ring separately.
+- Fill a matrix in spiral order.
+- Walk an irregular board with direction vectors.
 
 ## Recognition Clues
 
-If you hear...
-
-- "spiral..."
-    
-- "clockwise..."
-    
-- "outer layer..."
-    
-- "ring..."
-    
-- "move inward..."
-    
-- "peel the matrix..."
-    
-
-...think **Spiral Traversal**.
-
----
+Look for `spiral`, `rings`, `outer layer`, `clockwise`, or `shrink the bounds`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Layer (Ring)|
-|Direction|Usually Clockwise|
-|Coordinate Rule|Shrinking boundaries|
-|Time Complexity|O(rows × cols)|
-|Space Complexity|O(1) extra (excluding output)|
-|Common Domains|Graphics, robotics, interview problems|
+The state has four bounds. Guard the bottom and left edges to prevent duplicate cells.
 
----
+## Shape and Edge Behavior
+
+- Traversal expects a finite rectangular matrix.
+- An empty matrix returns an empty traversal.
+- Generation rejects negative dimensions.
+- Traversal rejects ragged rows with `ExceptionInfo`.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix) (apply = (map count matrix))))
 
-(def m
-  [[1 2 3 4]
-   [5 6 7 8]
+(defn ring-coordinates [top bottom left right]
+  (cond
+    (or (> top bottom) (> left right)) []
+    (= top bottom)
+    (mapv (fn [column] [top column])
+          (range left (inc right)))
+    (= left right)
+    (mapv (fn [row] [row left])
+          (range top (inc bottom)))
+    :else
+    (vec
+      (concat
+        (for [column (range left (inc right))]
+          [top column])
+        (for [row (range (inc top) (inc bottom))]
+          [row right])
+        (for [column (range (dec right) (dec left) -1)]
+          [bottom column])
+        (for [row (range (dec bottom) top -1)]
+          [row left])))))
+
+(defn spiral-rings [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular" {})))
+  (let [rows (count matrix)
+        columns (if-let [row (first matrix)] (count row) 0)]
+    (loop [top 0
+           bottom (dec rows)
+           left 0
+           right (dec columns)
+           result []]
+      (if (or (> top bottom) (> left right))
+        result
+        (recur (inc top)
+               (dec bottom)
+               (inc left)
+               (dec right)
+               (conj result
+                     (ring-coordinates top bottom left right)))))))
+
+(defn spiral-coordinates [matrix]
+  (into [] cat (spiral-rings matrix)))
+
+(defn spiral-order [matrix]
+  (mapv #(get-in matrix %) (spiral-coordinates matrix)))
+
+(defn transpose [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  (if (empty? matrix) [] (apply mapv vector matrix)))
+
+(defn counter-clockwise-spiral [matrix]
+  (spiral-order (transpose matrix)))
+
+(defn spiral-fill [rows columns]
+  (when (or (neg? rows) (neg? columns))
+    (throw (ex-info "Matrix dimensions must not be negative"
+                    {:rows rows :columns columns})))
+  (let [blank (vec (repeat rows (vec (repeat columns nil))))
+        path (spiral-coordinates blank)]
+    (reduce-kv (fn [matrix index coordinate]
+                 (assoc-in matrix coordinate (inc index)))
+               blank
+               path)))
+
+(def matrix
+  [[1  2  3  4]
+   [5  6  7  8]
    [9 10 11 12]
    [13 14 15 16]])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Four boundaries
+(spiral-order matrix)
+;; => [1 2 3 4 8 12 16 15 14 13 9 5 6 7 11 10]
 
-(def top 0)
-(def bottom (dec (count m)))
-(def left 0)
-(def right (dec (count (first m))))
+(spiral-fill 3 3)
+;; => [[1 2 3] [8 9 4] [7 6 5]]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Top edge
+;; Executable checks
 
-(for [c (range left (inc right))]
-  (get-in m [top c]))
-
-;; => (1 2 3 4)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Right edge
-
-(for [r (range (inc top) (inc bottom))]
-  (get-in m [r right]))
-
-;; => (8 12 16)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Bottom edge (reverse)
-
-(for [c (reverse (range left right))]
-  (get-in m [bottom c]))
-
-;; => (15 14 13)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Left edge (reverse)
-
-(for [r (reverse (range (inc top) bottom))]
-  (get-in m [r left]))
-
-;; => (9 5)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Complete first ring
-
-(concat
- (for [c (range left (inc right))]
-   (get-in m [top c]))
-
- (for [r (range (inc top) (inc bottom))]
-   (get-in m [r right]))
-
- (for [c (reverse (range left right))]
-   (get-in m [bottom c]))
-
- (for [r (reverse (range (inc top) bottom))]
-   (get-in m [r left]))
-
-)
-
-;; => (1 2 3 4 8 12 16 15 14 13 9 5)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Shrink boundaries
-
-(top    +1)
-(bottom -1)
-(left   +1)
-(right  -1)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Typical implementation
-
-(loop [top 0
-       bottom (dec rows)
-       left 0
-       right (dec cols)
-       result []]
-
-  ;; visit four edges
-
-  ;; shrink boundaries
-
-  ;; recur until
-  ;; top > bottom
-  ;; or
-  ;; left > right
-)
+(assert (= [1 2 3 4 8 12 16 15 14 13 9 5 6 7 11 10]
+           (spiral-order matrix)))
+(assert (= [[1 2 3] [8 9 4] [7 6 5]]
+           (spiral-fill 3 3)))
 ```
 
----
+The traversal returns `[]` for an empty matrix. It rejects ragged rows.
 
-## Key Insight
+Use direction vectors when the path has holes or blocked cells. Fixed bounds suit a full rectangle.
 
-Unlike previous traversal patterns, spiral traversal is **not defined by a simple coordinate formula**.
+### Memory Hooks
 
-Instead, it maintains **four moving boundaries**:
+- Walk four edges.
+- Guard thin final rings.
+- Shrink all four bounds.
+- Coordinates make traversal and filling reusable.
 
-```text
-top
-bottom
-left
-right
-```
+### Key Insight
 
-Each iteration performs the same cycle:
-
-```text
-Top Edge
-    ↓
-Right Edge
-    ↓
-Bottom Edge
-    ↓
-Left Edge
-    ↓
-Shrink Boundaries
-    ↓
-Repeat
-```
-
-You can think of spiral traversal as **peeling an onion**: process the outermost ring, remove it conceptually, then repeat on the smaller inner matrix.
-
-> **Mental shift:** The fundamental unit is no longer a row, column, or diagonal—it is a **layer (ring)**.
+Generate the path separately from the values. The same coordinate path can read, write, or animate the matrix.

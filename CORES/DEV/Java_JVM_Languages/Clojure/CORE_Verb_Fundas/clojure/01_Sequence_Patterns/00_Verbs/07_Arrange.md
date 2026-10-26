@@ -20,7 +20,7 @@ Unlike **Transform**, which changes the values, **Arrange** changes only their p
 |---|---|---|
 |**Arrange**|How should these elements be arranged?|`sort`, `sort-by`, `reverse`, `shuffle`, `rseq`|
 
-> **Note:** `sort` orders values naturally, `sort-by` orders using a key function, `reverse` flips the order, `shuffle` randomizes the order, and `rseq` efficiently traverses reversible collections in reverse.
+> **Note:** `sort` uses natural order. `sort-by` uses a key. `reverse` flips the order. `shuffle` randomizes it. `rseq` traverses reversible collections backward.
 
 ---
 
@@ -33,6 +33,20 @@ Unlike **Transform**, which changes the values, **Arrange** changes only their p
 |Reverse order|`reverse`|`(reverse [1 2 3])` → `(3 2 1)`|
 |Randomize order|`shuffle`|`(shuffle [1 2 3 4])` → e.g. `(3 1 4 2)`|
 |Reverse traversal (vector)|`rseq`|`(rseq [1 2 3])` → `(3 2 1)`|
+
+---
+
+# The Clojure-specific catches
+
+**`sort` and `sort-by` are eager.** They realize the complete collection. Do not use them with an infinite sequence.
+
+**`sort-by` calls the key function during every comparison**, not once per element, so an expensive key is computed O(n log n) times. Precompute it — `(map second (sort-by first (map (juxt keyfn identity) xs)))` — when the key costs real work.
+
+**Sorting mixed types throws.** `(sort [1 "a"])` causes a `ClassCastException`. The default comparator does not order different types.
+
+**Both are stable**, so equal elements keep their original relative order and you can sort by successive keys to get a compound ordering.
+
+**`reverse` is eager and O(n). `rseq` is O(1).** Use `rseq` only with vectors and sorted collections.
 
 ---
 

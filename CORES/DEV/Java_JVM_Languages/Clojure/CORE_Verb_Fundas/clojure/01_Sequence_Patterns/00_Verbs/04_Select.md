@@ -35,6 +35,20 @@ Unlike **Search**, which locates elements, **Select** produces a **new sequence*
 
 ---
 
+# The Clojure-specific catches
+
+**Lazy sequences are cached.** If you realize the same lazy sequence twice, its function runs once. You can traverse the cached sequence again.
+
+**`(filter identity xs)` drops only `nil` and `false`.** In Clojure, `0` and `""` are true values. Python also removes `0`, `""`, and `[]`.
+
+**Use `remove`, not `(filter (complement pred))`.** The name states the intent directly.
+
+**`keep` is filter and map in one step**, dropping `nil` results. If you find yourself filtering and then mapping the same predicate's work, `keep` is the function you wanted.
+
+**`take-while` stops at the first false result. `filter` checks every value.** The two functions can return different results.
+
+---
+
 # One Sentence to Remember
 
 > **Select creates a new sequence by keeping only the elements that satisfy a rule.**

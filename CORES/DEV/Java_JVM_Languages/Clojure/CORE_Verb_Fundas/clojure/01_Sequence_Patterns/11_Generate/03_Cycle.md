@@ -122,7 +122,7 @@ Think:
       (cycle [1 2 3]))
 
 ;; =>
-(1 2 3 1 2 3 1 2 3 1)
+;; (1 2 3 1 2 3 1 2 3 1)
 
 
 ;;--------------------------------------------------------
@@ -133,7 +133,7 @@ Think:
       (cycle [:on :off]))
 
 ;; =>
-(:on :off :on :off :on :off :on :off)
+;; (:on :off :on :off :on :off :on :off)
 
 
 ;;--------------------------------------------------------
@@ -144,7 +144,7 @@ Think:
       (cycle "ABC"))
 
 ;; =>
-(\A \B \C \A \B \C \A \B \C \A \B \C)
+;; (\A \B \C \A \B \C \A \B \C \A \B \C)
 
 
 ;;--------------------------------------------------------
@@ -155,10 +155,10 @@ Think:
       (cycle ["Alice" "Bob" "Carol"]))
 
 ;; =>
-("Alice" "Bob" "Carol"
- "Alice" "Bob" "Carol"
- "Alice" "Bob" "Carol"
- "Alice")
+;; ("Alice" "Bob" "Carol"
+ ;; "Alice" "Bob" "Carol"
+ ;; "Alice" "Bob" "Carol"
+ ;; "Alice")
 
 
 ;;--------------------------------------------------------
@@ -170,7 +170,7 @@ Think:
             (cycle [1 2 3 4])))
 
 ;; =>
-(3 4 1 2 3 4 1 2)
+;; (3 4 1 2 3 4 1 2)
 
 
 ;;--------------------------------------------------------
@@ -182,14 +182,14 @@ Think:
      (cycle [:A :B]))
 
 ;; =>
-([0 :A]
- [1 :B]
- [2 :A]
- [3 :B]
- [4 :A]
- [5 :B]
- [6 :A]
- [7 :B])
+;; ([0 :A]
+ ;; [1 :B]
+ ;; [2 :A]
+ ;; [3 :B]
+ ;; [4 :A]
+ ;; [5 :B]
+ ;; [6 :A]
+ ;; [7 :B])
 
 
 ;;--------------------------------------------------------
@@ -200,10 +200,10 @@ Think:
       (cycle [:red :green :blue]))
 
 ;; =>
-(:red :green :blue
- :red :green :blue
- :red :green :blue
- :red)
+;; (:red :green :blue
+ ;; :red :green :blue
+ ;; :red :green :blue
+ ;; :red)
 
 
 ;;--------------------------------------------------------
@@ -214,13 +214,13 @@ Think:
       (repeat :x))
 
 ;; =>
-(:x :x :x :x :x :x)
+;; (:x :x :x :x :x :x)
 
 (take 6
       (cycle [:x :y]))
 
 ;; =>
-(:x :y :x :y :x :y)
+;; (:x :y :x :y :x :y)
 
 
 ;;--------------------------------------------------------
@@ -232,7 +232,7 @@ Think:
             (cycle [1 2 3 4 5])))
 
 ;; =>
-(3 4 5 1 2)
+;; (3 4 5 1 2)
 
 
 ;;--------------------------------------------------------
@@ -244,6 +244,71 @@ Think:
         [:Mon :Tue :Wed :Thu :Fri]))
 
 ;; =>
-(:Mon :Tue :Wed :Thu :Fri
- :Mon :Tue :Wed :Thu :Fri)
+;; (:Mon :Tue :Wed :Thu :Fri
+ ;; :Mon :Tue :Wed :Thu :Fri)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn offset-cycle [offset values]
+  (drop (max 0 offset) (cycle values)))
+
+(defn cycle-exactly [repetitions values]
+  (take (* (max 0 repetitions) (count values))
+        (cycle values)))
+
+(defn label-periodically [labels values]
+  (map vector (cycle labels) values))
+
+(defn deal-round-robin [bucket-count values]
+  (when-not (pos? bucket-count)
+    (throw (ex-info "Bucket count must be positive"
+                    {:bucket-count bucket-count})))
+  (reduce (fn [buckets [index value]]
+            (update buckets
+                    (mod index bucket-count)
+                    conj
+                    value))
+          (vec (repeat bucket-count []))
+          (map-indexed vector values)))
+
+(defn periodic-value [pattern index]
+  (let [values (vec pattern)]
+    (when (seq values)
+      (nth values (mod index (count values))))))
+
+(take 7 (offset-cycle 1 [:a :b :c]))
+;; => (:b :c :a :b :c :a :b)
+
+(cycle-exactly 3 [1 2])
+;; => (1 2 1 2 1 2)
+
+(label-periodically [:odd :even] (range 6))
+;; => ([:odd 0] [:even 1] [:odd 2] [:even 3] [:odd 4] [:even 5])
+
+(deal-round-robin 3 (range 8))
+;; => [[0 3 6] [1 4 7] [2 5]]
+
+(periodic-value [:Mon :Tue :Wed :Thu :Fri] 8)
+;; => :Thu
+```
+
+`cycle` retains its finite input so it can replay it. Do not apply it to an unbounded source, and do not create it from mutable objects whose later changes are expected to appear automatically.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|repeat one value|`repeat`|
+|repeat a finite pattern|`cycle`|
+|start partway through|`drop` over `cycle`|
+|pair finite data with repeating labels|multi-collection `map`|
+|deal into buckets|index modulo bucket count|
+|direct periodic lookup|`nth` with `mod`|
+
+### Key Insight
+
+A cycle is infinite behavior built from finite state. Let the finite side of a multi-collection `map`, or an explicit `take`, provide the bound. For direct lookup, modular indexing is clearer and cheaper than generating all preceding values.

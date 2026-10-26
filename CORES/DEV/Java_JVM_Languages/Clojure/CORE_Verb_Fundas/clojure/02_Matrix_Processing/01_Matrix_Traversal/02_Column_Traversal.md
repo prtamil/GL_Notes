@@ -2,225 +2,141 @@
 
 ## Mental Model
 
-Column traversal processes one complete column at a time before moving to the next column.
-
-Unlike row traversal, columns are **not stored contiguously** in a typical row-major matrix, so accessing a column usually means visiting the same column index across all rows.
-
----
+A column contains the value at one column index from every row. A transpose turns columns into rows.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Visit
-   ↓
-Column Traversal
+Visit -> one column -> each row at that column
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Visit each column
-    
-- Scan vertically
-    
-- Process column-by-column
-    
-- Aggregate columns
-    
-- Analyze vertical slices
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Iterate columns|process each column|`range`, `map`, `nth`|
-|Transform columns|modify every column|`apply map`, `mapv`|
-|Reduce columns|summarize columns|`reduce`|
-|Index columns|need column number|`range`, `map-indexed`|
-|Extract column|get one column|`map #(nth % c)`|
-|Transpose first|convert columns to rows|`apply map vector`|
-
----
+|Need|Use|
+|---|---|
+|Read one column|`mapv` with `nth`|
+|Read all columns|transpose with `apply mapv vector`|
+|Keep column indexes|`map-indexed`|
+|Summarize columns|transpose, then `mapv`|
 
 ## Common Uses
 
-- Spreadsheet column totals
-    
-- Database field analysis
-    
-- Image vertical scans
-    
-- Sudoku column validation
-    
-- Feature extraction in machine learning
-    
-- Histogram computation
-    
-- Sensor readings over time
-    
-- Vertical projections
-    
-
----
+- Calculate spreadsheet field totals.
+- Validate Sudoku columns.
+- Read vertical image lines.
+- Compare feature columns.
 
 ## Hidden Interview Problems
 
-- Sum every column
-    
-- Maximum per column
-    
-- Find empty columns
-    
-- Validate Sudoku columns
-    
-- Detect identical columns
-    
-- Normalize each column
-    
-- Count values per column
-    
-- Compute column averages
-    
-
----
+- Find the column with the largest sum.
+- Detect equal columns.
+- Normalize each column.
+- Handle ragged input safely.
 
 ## Recognition Clues
 
-If you hear...
-
-- "for every column..."
-    
-- "scan vertically..."
-    
-- "column totals..."
-    
-- "analyze each field..."
-    
-- "process top to bottom..."
-    
-
-...think **Column Traversal**.
-
----
+Look for `each column`, `vertical`, `same position in every row`, or `transpose first`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Column|
-|Order|Top → Bottom, Left → Right|
-|Cache Friendly|Usually No (row-major layouts)|
-|Time Complexity|O(rows × cols)|
-|Space Complexity|O(1) extra (streaming)|
-|Common Domains|Tables, images, spreadsheets|
+Column traversal fixes the column index and changes the row index.
 
----
+## Shape and Edge Behavior
+
+- The functions expect a finite rectangular matrix.
+- An empty matrix returns empty column results.
+- The functions reject ragged rows with `ExceptionInfo`.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
-  [[1 2 3]
-   [4 5 6]
-   [7 8 9]])
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Visit every column
+(defn transpose [matrix]
+  (require-rectangular matrix)
+  (if (empty? matrix)
+    []
+    (apply mapv vector matrix)))
 
-(doseq [c (range (count (first m)))]
-  (println (map #(nth % c) m)))
+(defn process-single-column [process-value matrix column-index]
+  (require-rectangular matrix)
+  (mapv (fn [row]
+          (process-value (nth row column-index)))
+        matrix))
 
-;; =>
-;; (1 4 7)
-;; (2 5 8)
-;; (3 6 9)
+(defn process-each-column [process-column matrix]
+  (mapv process-column (transpose matrix)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Extract a single column
+(defn column-total [column]
+  (reduce + 0 column))
 
-(map #(nth % 1) m)
+(defn column-sums [matrix]
+  (process-each-column column-total matrix))
 
-;; => (2 5 8)
+(defn column-maximum [column]
+  (when (seq column) (apply max column)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Sum every column
+(defn column-maximums [matrix]
+  (process-each-column column-maximum matrix))
 
-(for [c (range (count (first m)))]
-  (reduce + (map #(nth % c) m)))
+(defn indexed-columns [matrix]
+  (mapv (fn [column-index column]
+          {:column column-index
+           :values column})
+        (range)
+        (transpose matrix)))
 
-;; => (12 15 18)
+(defn column-with-largest-sum [matrix]
+  (let [columns (transpose matrix)]
+    (when (seq columns)
+      (apply max-key column-total columns))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Maximum in each column
+(defn unique-columns? [matrix]
+  (every? #(= (count %) (count (set %)))
+          (transpose matrix)))
 
-(for [c (range (count (first m)))]
-  (apply max (map #(nth % c) m)))
+(defn normalize-columns [matrix]
+  (let [columns (transpose matrix)
+        normalized
+        (mapv (fn [column]
+                (let [total (reduce + 0 column)]
+                  (if (zero? total)
+                    (mapv (constantly 0) column)
+                    (mapv #(/ % total) column))))
+              columns)]
+    (transpose normalized)))
 
-;; => (7 8 9)
+(def matrix [[1 2 3] [4 5 6] [7 8 9]])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Average of each column
+(transpose matrix)
+;; => [[1 4 7] [2 5 8] [3 6 9]]
 
-(for [c (range (count (first m)))]
-  (let [col (map #(nth % c) m)]
-    (/ (reduce + col)
-       (count col))))
+(column-sums matrix)
+;; => [12 15 18]
 
-;; => (4 5 6)
+;; Executable checks
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Access column index
-
-(map
- (fn [c]
-   {:column c
-    :values (map #(nth % c) m)})
- (range (count (first m))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Transpose (columns become rows)
-
-(apply map vector m)
-
-;; =>
-;; ((1 4 7)
-;;  (2 5 8)
-;;  (3 6 9))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; After transpose, process columns like rows
-
-(map #(reduce + %) (apply map vector m))
-
-;; => (12 15 18)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
-
-;; Row traversal
-(map f matrix)
-
-;; Column traversal
-(for [c (range cols)]
-  (map #(nth % c) matrix))
-
-;; Treat columns as rows
-(apply map vector matrix)
+(assert (= [[1 4 7] [2 5 8] [3 6 9]]
+           (transpose matrix)))
+(assert (= [12 15 18] (column-sums matrix)))
 ```
 
----
+`transpose` returns `[]` for an empty matrix. It rejects ragged rows because silent truncation loses data.
 
-## Key Insight
+### Memory Hooks
 
-**A column is simply a vertical sequence.** Since Clojure matrices are typically represented as sequences of rows, column traversal is often implemented by **extracting the same index from every row**. If you need to perform many column-based operations, **transposing the matrix first** (`apply map vector`) lets you reuse all the familiar row-processing patterns from the previous lesson.
+- A column is one index across all rows.
+- Transpose once when many column operations follow.
+- Validate the row lengths before transposition.
 
----
+### Key Insight
 
-
-
+Transpose changes the view, not the values. After transposition, every row recipe becomes a column recipe.

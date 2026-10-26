@@ -128,8 +128,8 @@ Think:
 (group-by even? xs)
 
 ;; =>
-{true  [-2 0 2 4]
- false [-3 -1 1 3]}
+;; {true  [-2 0 2 4]
+ ;; false [-3 -1 1 3]}
 
 
 ;;--------------------------------------------------------
@@ -139,8 +139,8 @@ Think:
 (group-by pos? xs)
 
 ;; =>
-{true  [1 2 3 4]
- false [-3 -2 -1 0]}
+;; {true  [1 2 3 4]
+ ;; false [-3 -2 -1 0]}
 
 
 ;;--------------------------------------------------------
@@ -151,8 +151,8 @@ Think:
           [1 nil 2 nil 3])
 
 ;; =>
-{false [1 2 3]
- true  [nil nil]}
+;; {false [1 2 3]
+ ;; true  [nil nil]}
 
 
 ;;--------------------------------------------------------
@@ -165,8 +165,8 @@ Think:
           ["hello" "" " " "world"])
 
 ;; =>
-{false ["hello" "world"]
- true  ["" " "]}
+;; {false ["hello" "world"]
+ ;; true  ["" " "]}
 
 
 ;;--------------------------------------------------------
@@ -178,8 +178,8 @@ Think:
 (group-by #(>= % 50) scores)
 
 ;; =>
-{true  [85 90 61 78]
- false [42 35]}
+;; {true  [85 90 61 78]
+ ;; false [42 35]}
 
 
 ;;--------------------------------------------------------
@@ -194,9 +194,9 @@ Think:
   [3 8 12 17 21 30])
 
 ;; =>
-{:small  [3 8]
- :medium [12 17]
- :large  [21 30]}
+;; {:small  [3 8]
+ ;; :medium [12 17]
+ ;; :large  [21 30]}
 
 
 ;;--------------------------------------------------------
@@ -212,12 +212,11 @@ Think:
           users)
 
 ;; =>
-{true
- [{:id 1 :email "a@test.com"}
-  {:id 3 :email "b@test.com"}]
-
- false
- [{:id 2 :email nil}]}
+;; {true
+;;  [{:id 1 :email "a@test.com"}
+;;   {:id 3 :email "b@test.com"}]
+;;  false
+;;  [{:id 2 :email nil}]}
 
 
 ;;--------------------------------------------------------
@@ -232,9 +231,78 @@ Think:
   xs)
 
 ;; =>
-{:negative [-3 -2 -1]
- :zero [0]
- :positive [1 2 3 4]}
+;; {:negative [-3 -2 -1]
+ ;; :zero [0]
+ ;; :positive [1 2 3 4]}
 ```
 
-> **Note:** In Clojure, `group-by` is the same function for both **Group By Key** and **Group By Predicate**. The difference is conceptual: **Group By Key** groups by a computed value (department, first letter, type), while **Group By Predicate** groups by rules or conditions (even?, valid?, pass?, positive?).
+> **Note:** Clojure uses `group-by` for both patterns. **Group By Key** uses a computed value. **Group By Predicate** uses a rule or condition.
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn partition-by-predicate [predicate values]
+  (reduce (fn [result value]
+            (update result
+                    (if (predicate value) :matches :non-matches)
+                    conj
+                    value))
+          {:matches [] :non-matches []}
+          values))
+
+(defn classify-sign [number]
+  (cond
+    (neg? number) :negative
+    (zero? number) :zero
+    :else :positive))
+
+(defn classify-score [score]
+  (cond
+    (>= score 90) :excellent
+    (>= score 60) :pass
+    :else :fail))
+
+(defn count-by [classifier values]
+  (->> values
+       (map classifier)
+       frequencies))
+
+(defn classify-many [rules value]
+  (keep (fn [[label predicate]]
+          (when (predicate value) label))
+        rules))
+
+(partition-by-predicate even? (range 7))
+;; => {:matches [0 2 4 6], :non-matches [1 3 5]}
+
+(group-by classify-sign [-2 -1 0 1 2])
+;; => {:negative [-2 -1], :zero [0], :positive [1 2]}
+
+(count-by classify-score [95 72 40 88 51])
+;; => {:excellent 1, :pass 2, :fail 2}
+
+(classify-many [[:positive pos?]
+                [:even even?]
+                [:large #(> % 10)]]
+               12)
+;; => (:positive :even :large)
+```
+
+A true partition assigns every input to exactly one bucket. Independent predicates can overlap, so call that classification rather than partitioning.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|two realized buckets|a single `reduce`|
+|true/false map keys|`group-by pred`|
+|named categories|a classifier returning keywords|
+|category counts only|classify, then `frequencies`|
+|overlapping labels|test every rule with `keep`|
+|lazy matching side|`filter` or `remove`|
+
+### Key Insight
+
+A predicate produces two possible keys, while a classifier can produce any number. Give meaningful names to the buckets instead of leaking `true` and `false` into downstream code.

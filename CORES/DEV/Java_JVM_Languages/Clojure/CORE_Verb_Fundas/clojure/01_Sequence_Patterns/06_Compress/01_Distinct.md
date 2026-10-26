@@ -128,7 +128,7 @@ Think:
 (distinct xs)
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 
 
 ;;--------------------------------------------------------
@@ -149,7 +149,7 @@ Think:
       ["Apple" "APPLE" "Banana" "banana"]))
 
 ;; =>
-("apple" "banana")
+;; ("apple" "banana")
 
 
 ;;--------------------------------------------------------
@@ -160,7 +160,7 @@ Think:
        (distinct "banana"))
 
 ;; =>
-"ban"
+;; "ban"
 
 
 ;;--------------------------------------------------------
@@ -178,8 +178,8 @@ Think:
        users))
 
 ;; =>
-({:id 1 :name "Alice Updated"}
- {:id 2 :name "Bob"})
+;; ({:id 1 :name "Alice Updated"}
+ ;; {:id 2 :name "Bob"})
 
 ;; (Keeps last occurrence. To keep the first occurrence,
 ;; use a custom reduce.)
@@ -198,8 +198,8 @@ Think:
  users)
 
 ;; =>
-{1 {:id 1 :name "Alice"}
- 2 {:id 2 :name "Bob"}}
+;; {1 {:id 1 :name "Alice"}
+ ;; 2 {:id 2 :name "Bob"}}
 
 
 ;;--------------------------------------------------------
@@ -209,12 +209,12 @@ Think:
 (distinct [3 1 2 3 2 1])
 
 ;; =>
-(3 1 2)
+;; (3 1 2)
 
 (set [3 1 2 3 2 1])
 
 ;; =>
-#{1 2 3}
+;; #{1 2 3}
 
 
 ;;--------------------------------------------------------
@@ -225,5 +225,75 @@ Think:
  ["the" "cat" "the" "sat" "cat"])
 
 ;; =>
-("the" "cat" "sat")
+;; ("the" "cat" "sat")
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn distinct-by [key-fn values]
+  (letfn [(step [seen remaining]
+            (lazy-seq
+              (when-let [[value & more] (seq remaining)]
+                (let [key (key-fn value)]
+                  (if (contains? seen key)
+                    (step seen more)
+                    (cons value (step (conj seen key) more)))))))]
+    (step #{} values)))
+
+(defn distinct-by-last [key-fn values]
+  (->> values
+       reverse
+       (distinct-by key-fn)
+       reverse
+       vec))
+
+(defn duplicate-values [values]
+  (->> values
+       frequencies
+       (keep (fn [[value count]]
+               (when (> count 1) value)))
+       set))
+
+(defn contains-duplicates? [values]
+  (loop [seen #{}
+         remaining (seq values)]
+    (if-not remaining
+      false
+      (let [value (first remaining)]
+        (if (contains? seen value)
+          true
+          (recur (conj seen value) (next remaining)))))))
+
+(distinct-by :id [{:id 1 :name "first"}
+                  {:id 1 :name "later"}
+                  {:id 2 :name "other"}])
+;; => ({:id 1, :name "first"} {:id 2, :name "other"})
+
+(distinct-by-last :id [{:id 1 :name "first"}
+                       {:id 1 :name "later"}
+                       {:id 2 :name "other"}])
+;; => [{:id 1, :name "later"} {:id 2, :name "other"}]
+
+(duplicate-values [1 2 1 3 2 4])
+;; => #{1 2}
+```
+
+Persistent Clojure values—including vectors, maps, and sets—have value equality and can normally be used as set members or map keys. That removes Python's separate “unhashable nested list” case.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|unique values, first occurrence order|`distinct`|
+|unique values, order irrelevant|`set`|
+|unique by a property|`distinct-by`|
+|the last value for each property|reverse, distinct, reverse|
+|values repeated anywhere|`frequencies`|
+|early duplicate detection|a loop with a `seen` set|
+
+### Key Insight
+
+Distinctness is global: once a key has appeared, later occurrences are removed even when separated by other values. Preserving the first or last occurrence is a product decision, so encode it in the function name.

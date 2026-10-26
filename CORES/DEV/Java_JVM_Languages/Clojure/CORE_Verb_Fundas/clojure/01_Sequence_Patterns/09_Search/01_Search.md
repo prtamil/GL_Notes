@@ -171,7 +171,7 @@ Think:
 (some #(when (= 2 (:id %)) %) users)
 
 ;; =>
-{:id 2 :name "Bob"}
+;; {:id 2 :name "Bob"}
 
 
 ;;--------------------------------------------------------
@@ -205,12 +205,12 @@ Think:
 (filter even? xs)
 
 ;; =>
-(10 12 20)
+;; (10 12 20)
 
 (some #(when (even? %) %) xs)
 
 ;; =>
-10
+;; 10
 
 
 ;;--------------------------------------------------------
@@ -221,7 +221,7 @@ Think:
       ["" "" "hello" "world"])
 
 ;; =>
-"hello"
+;; "hello"
 
 
 ;;--------------------------------------------------------
@@ -232,5 +232,86 @@ Think:
       [:info :debug :warn :error :fatal])
 
 ;; =>
-:error
+;; :error
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn find-first [predicate values]
+  (reduce (fn [result value]
+            (if (predicate value)
+              (reduced {:found? true :value value})
+              result))
+          {:found? false :value nil}
+          values))
+
+(defn first-matching-index [predicate values]
+  (first
+    (keep-indexed (fn [index value]
+                    (when (predicate value) index))
+                  values)))
+
+(defn first-computed [compute values]
+  (some compute values))
+
+(defn first-duplicate [values]
+  (loop [seen #{}
+         remaining (seq values)]
+    (when remaining
+      (let [value (first remaining)]
+        (if (contains? seen value)
+          value
+          (recur (conj seen value) (next remaining)))))))
+
+(defn first-n-matches [amount predicate values]
+  (take (max 0 amount) (filter predicate values)))
+
+(defn binary-search-index [values target]
+  (let [values (vec values)]
+    (loop [low 0
+           high (dec (count values))]
+      (when (<= low high)
+        (let [middle (quot (+ low high) 2)
+              value (nth values middle)
+              comparison (compare value target)]
+          (cond
+            (zero? comparison) middle
+            (neg? comparison) (recur (inc middle) high)
+            :else (recur low (dec middle))))))))
+
+(find-first nil? [1 false nil 3])
+;; => {:found? true, :value nil}
+
+(first-matching-index #(> % 10) [3 8 13 21])
+;; => 2
+
+(first-duplicate [:a :b :c :b :d])
+;; => :b
+
+(drop-while #(not= :start %) [:skip :skip :start :work])
+;; => (:start :work)
+
+(binary-search-index [2 4 6 8 10] 8)
+;; => 3
+```
+
+`some` is concise when matches are guaranteed to be truthy. Use a result map such as `{:found? true :value nil}` when `nil` or `false` can itself be the matching value.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|first truthy match|`some`|
+|first item satisfying a predicate|`some` with `when`|
+|a match that may be `nil` or `false`|an explicit `:found?` result|
+|first matching index|`keep-indexed`, then `first`|
+|first `n` matches|`take` over `filter`|
+|tail beginning at the match|`drop-while`|
+|sorted input|binary search, not a scan|
+
+### Key Insight
+
+A first-match search stops after it finds a result. `some` uses truth values. Use a separate found flag when `nil` or `false` can match.

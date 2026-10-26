@@ -39,6 +39,18 @@ Unlike **Slice**, which extracts one portion of a sequence, **Window** repeatedl
 
 ---
 
+# The Clojure-specific catches
+
+**`partition` drops a short final window. `partition-all` keeps it.** Select this behavior explicitly.
+
+**The step defaults to the size.** `(partition n coll)` is `(partition n n coll)` — chunks, not a sliding window. Sliding is `(partition n 1 coll)`. One argument separates the entire family.
+
+**The pad collection is used only at the end.** It fills a short final window. A finite pad can still be too short.
+
+**`partition-all` has a transducer arity. `partition` does not.** Use `partition-all` when the window operation is part of a transducer pipeline.
+
+---
+
 # One Sentence to Remember
 
 > **Window repeatedly views neighboring elements together by moving across a sequence.**

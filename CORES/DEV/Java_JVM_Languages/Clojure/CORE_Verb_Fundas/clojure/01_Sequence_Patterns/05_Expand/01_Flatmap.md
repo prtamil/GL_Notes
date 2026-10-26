@@ -127,9 +127,9 @@ Think:
 (map #(vector % (* % 10)) xs)
 
 ;; =>
-([1 10]
- [2 20]
- [3 30])
+;; ([1 10]
+ ;; [2 20]
+ ;; [3 30])
 
 
 ;;--------------------------------------------------------
@@ -139,7 +139,7 @@ Think:
 (mapcat #(vector % (* % 10)) xs)
 
 ;; =>
-(1 10 2 20 3 30)
+;; (1 10 2 20 3 30)
 
 
 ;;--------------------------------------------------------
@@ -149,7 +149,7 @@ Think:
 (mapcat #(repeat 2 %) xs)
 
 ;; =>
-(1 1 2 2 3 3)
+;; (1 1 2 2 3 3)
 
 
 ;;--------------------------------------------------------
@@ -159,9 +159,9 @@ Think:
 (mapcat range [1 3 5])
 
 ;; =>
-(0
- 0 1 2
- 0 1 2 3 4)
+;; (0
+ ;; 0 1 2
+ ;; 0 1 2 3 4)
 
 
 ;;--------------------------------------------------------
@@ -171,7 +171,7 @@ Think:
 (mapcat seq ["ab" "cd" "ef"])
 
 ;; =>
-(\a \b \c \d \e \f)
+;; (\a \b \c \d \e \f)
 
 
 ;;--------------------------------------------------------
@@ -184,7 +184,7 @@ Think:
         xs)
 
 ;; =>
-(2 20)
+;; (2 20)
 
 
 ;;--------------------------------------------------------
@@ -196,10 +196,10 @@ Think:
   [x y])
 
 ;; =>
-([1 :a]
- [1 :b]
- [2 :a]
- [2 :b])
+;; ([1 :a]
+ ;; [1 :b]
+ ;; [2 :a]
+ ;; [2 :b])
 
 
 ;;--------------------------------------------------------
@@ -209,17 +209,17 @@ Think:
 (map #(range %) [1 3 5])
 
 ;; =>
-((0)
- (0 1 2)
- (0 1 2 3 4))
+;; ((0)
+ ;; (0 1 2)
+ ;; (0 1 2 3 4))
 
 
 (mapcat #(range %) [1 3 5])
 
 ;; =>
-(0
- 0 1 2
- 0 1 2 3 4)
+;; (0
+ ;; 0 1 2
+ ;; 0 1 2 3 4)
 
 
 ;;--------------------------------------------------------
@@ -229,5 +229,73 @@ Think:
 (mapcat identity [[1 2] [3 4] [5]])
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(require '[clojure.string :as str])
+
+(defn flat-map [transform values]
+  (mapcat transform values))
+
+(defn duplicate-each [values]
+  (flat-map (fn [value] (repeat 2 value)) values))
+
+(defn expand-ranges [limits]
+  (flat-map range limits))
+
+(defn tokenize-lines [lines]
+  (flat-map (fn [line] (str/split line #"\s+")) lines))
+
+(defn keep-and-expand [predicate expand-fn values]
+  (flat-map (fn [value]
+              (if (predicate value)
+                (expand-fn value)
+                []))
+            values))
+
+(defn cartesian-product [left-values right-values]
+  (for [left left-values
+        right right-values]
+    [left right]))
+
+(defn next-bfs-layer [neighbors visited frontier]
+  (->> frontier
+       (mapcat neighbors)
+       (remove visited)
+       distinct
+       vec))
+
+(duplicate-each [:a :b :c])
+;; => (:a :a :b :b :c :c)
+
+(expand-ranges [1 3 5])
+;; => (0 0 1 2 0 1 2 3 4)
+
+(tokenize-lines ["functional data" "simple functions"])
+;; => ("functional" "data" "simple" "functions")
+
+(keep-and-expand odd? #(repeat % %) [1 2 3 4])
+;; => (1 3 3 3)
+```
+
+`mapcat` removes exactly one level of nesting. Use recursive `flatten` only when every sequential level is meant to disappear.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|one result per input|`map`|
+|zero or many results per input|`mapcat`|
+|only remove one nesting level|`mapcat identity`|
+|nested-loop combinations|`for`|
+|delete during expansion|return an empty collection|
+|one BFS expansion|`mapcat neighbors`|
+
+### Key Insight
+
+FlatMap is `map` followed by a one-level concatenation. The mapping function controls cardinality: an empty result deletes an input, one value preserves it, and several values expand it. In Clojure that idea is directly represented by `mapcat`.

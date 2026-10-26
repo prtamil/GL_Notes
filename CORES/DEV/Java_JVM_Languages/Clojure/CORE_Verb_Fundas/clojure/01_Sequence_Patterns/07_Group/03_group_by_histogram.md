@@ -130,10 +130,10 @@ Think:
 (frequencies xs)
 
 ;; =>
-{1 4
- 2 2
- 3 2
- 4 1}
+;; {1 4
+ ;; 2 2
+ ;; 3 2
+ ;; 4 1}
 
 
 ;;--------------------------------------------------------
@@ -143,9 +143,9 @@ Think:
 (frequencies "banana")
 
 ;; =>
-{\b 1
- \a 3
- \n 2}
+;; {\b 1
+ ;; \a 3
+ ;; \n 2}
 
 
 ;;--------------------------------------------------------
@@ -156,9 +156,9 @@ Think:
  ["the" "cat" "the" "sat" "cat" "the"])
 
 ;; =>
-{"the" 3
- "cat" 2
- "sat" 1}
+;; {"the" 3
+ ;; "cat" 2
+ ;; "sat" 1}
 
 
 ;;--------------------------------------------------------
@@ -172,8 +172,8 @@ Think:
       ["Apple" "APPLE" "Banana" "banana"]))
 
 ;; =>
-{"apple" 2
- "banana" 2}
+;; {"apple" 2
+ ;; "banana" 2}
 
 
 ;;--------------------------------------------------------
@@ -191,9 +191,9 @@ Think:
  (map :dept employees))
 
 ;; =>
-{:IT 3
- :HR 1
- :Sales 1}
+;; {:IT 3
+ ;; :HR 1
+ ;; :Sales 1}
 
 
 ;;--------------------------------------------------------
@@ -204,10 +204,10 @@ Think:
          (frequencies xs))
 
 ;; =>
-([1 4]
- [2 2]
- [3 2]
- [4 1])
+;; ([1 4]
+ ;; [2 2]
+ ;; [3 2]
+ ;; [4 1])
 
 
 ;;--------------------------------------------------------
@@ -219,8 +219,8 @@ Think:
                (frequencies xs)))
 
 ;; =>
-([1 4]
- [2 2])
+;; ([1 4]
+ ;; [2 2])
 
 
 ;;--------------------------------------------------------
@@ -234,10 +234,10 @@ Think:
  xs)
 
 ;; =>
-{1 4
- 2 2
- 3 2
- 4 1}
+;; {1 4
+ ;; 2 2
+ ;; 3 2
+ ;; 4 1}
 
 
 ;;--------------------------------------------------------
@@ -247,16 +247,91 @@ Think:
 (group-by identity xs)
 
 ;; =>
-{1 [1 1 1 1]
- 2 [2 2]
- 3 [3 3]
- 4 [4]}
+;; {1 [1 1 1 1]
+ ;; 2 [2 2]
+ ;; 3 [3 3]
+ ;; 4 [4]}
 
 (frequencies xs)
 
 ;; =>
-{1 4
- 2 2
- 3 2
- 4 1}
+;; {1 4
+ ;; 2 2
+ ;; 3 2
+ ;; 4 1}
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn frequencies-by [key-fn values]
+  (frequencies (map key-fn values)))
+
+(defn weighted-histogram [key-fn weight-fn values]
+  (reduce (fn [histogram value]
+            (update histogram
+                    (key-fn value)
+                    (fnil + 0)
+                    (weight-fn value)))
+          {}
+          values))
+
+(defn most-common [amount values]
+  (->> values
+       frequencies
+       (sort-by val >)
+       (take amount)))
+
+(defn mode [values]
+  (when-let [counts (seq (frequencies values))]
+    (key (apply max-key val counts))))
+
+(defn first-non-repeating [values]
+  (let [counts (frequencies values)]
+    (some (fn [value]
+            (when (= 1 (get counts value)) value))
+          values)))
+
+(defn expand-histogram [histogram]
+  (mapcat (fn [[value count]]
+            (repeat count value))
+          histogram))
+
+(defn add-histograms [& histograms]
+  (apply merge-with + histograms))
+
+(frequencies-by clojure.string/lower-case
+                ["RED" "red" "Blue"])
+;; => {"red" 2, "blue" 1}
+
+(weighted-histogram :category :amount
+                    [{:category :food :amount 12}
+                     {:category :travel :amount 20}
+                     {:category :food :amount 8}])
+;; => {:food 20, :travel 20}
+
+(most-common 2 [:a :b :a :c :a :b])
+;; => ([:a 3] [:b 2])
+
+(first-non-repeating "swiss")
+;; => \w
+```
+
+Normalize values before counting. Merging already-built histograms later is both harder and more error-prone than choosing the correct key at input time.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|frequency table|`frequencies`|
+|frequency by a property|map the property, then `frequencies`|
+|weighted totals|`reduce` with `update`|
+|top `n` values|sort frequency entries by `val`|
+|first unique value|count once, scan original order once|
+|reconstruct values|`mapcat repeat`|
+
+### Key Insight
+
+A histogram keeps counts and discards positions. Use it when you do not need the grouped items. It supports modes, duplicate tests, and bucket summaries.

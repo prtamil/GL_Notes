@@ -36,6 +36,20 @@ Unlike **Select** and **Reject**, which decide _which_ elements remain, **Transf
 
 ---
 
+# The Clojure-specific catches
+
+**`map` is lazy and cached.** If you realize the same lazy sequence twice, `f` runs once. The cached values stay available.
+
+**Lazy code delays side effects.** `(map println xs)` prints nothing until a consumer realizes it. Use `run!`, `doseq`, or `mapv` when you need the effect.
+
+**`map` over several collections stops at the shortest**, silently — the same trap as pairing.
+
+**A transformation preserves the item count. It does not filter.** Use `keep` when the function can remove items.
+
+**`mapv` is eager and returns a vector.** Use it for indexed access or immediate work. Use `map` for lazy work.
+
+---
+
 # One Sentence to Remember
 
 > **Transform creates a new sequence by changing each element according to a rule while preserving the sequence structure.**

@@ -35,6 +35,18 @@ Unlike **Accumulate**, which returns only the final result, **Scan** returns the
 
 ---
 
+# The Clojure-specific catches
+
+**An initial value makes the result one element longer.** `reductions` puts the initial value before the processed values. This rule prevents most boundary errors.
+
+**`reductions` is lazy**, which is the whole reason to prefer it over hand-rolled accumulation: it works on infinite sequences and composes with `take-while`.
+
+**`reduce` gives the final state. `reductions` gives all states.** Select the function from the result that you need.
+
+**The step function controls the accumulator shape.** Use `conj` for prefixes. Use `+` for running totals.
+
+---
+
 # One Sentence to Remember
 
 > **Scan produces every intermediate result while processing a sequence.**

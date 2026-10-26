@@ -1,7 +1,3 @@
-I agree. **Forward Traversal** and **Reverse Traversal** are simply two directions of the same fundamental pattern. Combining them makes the course more concise and leaves room for more valuable patterns.
-
----
-
 # Pattern 12 — Forward & Reverse Traversal
 
 ## Mental Model
@@ -205,11 +201,11 @@ Think:
   xs)
 
 ;; =>
-({:index 0 :value 1}
- {:index 1 :value 2}
- {:index 2 :value 3}
- {:index 3 :value 4}
- {:index 4 :value 5})
+;; ({:index 0 :value 1}
+ ;; {:index 1 :value 2}
+ ;; {:index 2 :value 3}
+ ;; {:index 3 :value 4}
+ ;; {:index 4 :value 5})
 
 
 ;;--------------------------------------------------------
@@ -221,3 +217,62 @@ Think:
 
 ;; => (0 1 4)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn indexed-values [values]
+  (map-indexed (fn [index value]
+                 {:index index :value value})
+               values))
+
+(defn reverse-indexed-values [collection]
+  (let [values (vec collection)]
+    (map (fn [index]
+           {:index index :value (nth values index)})
+         (range (dec (count values)) -1 -1))))
+
+(defn fold-right [combine initial values]
+  (reduce (fn [result value]
+            (combine value result))
+          initial
+          (rseq (vec values))))
+
+(defn palindrome? [values]
+  (= (seq values) (seq (reverse values))))
+
+(indexed-values [:a :b :c])
+;; => ({:index 0, :value :a}
+;;     {:index 1, :value :b}
+;;     {:index 2, :value :c})
+
+(reverse-indexed-values [:a :b :c])
+;; => ({:index 2, :value :c}
+;;     {:index 1, :value :b}
+;;     {:index 0, :value :a})
+
+(fold-right cons [] [1 2 3])
+;; => (1 2 3)
+
+(palindrome? "level")
+;; => true
+```
+
+Persistent collections do not need in-place reversal. Use `rseq` for vectors and sorted collections. Use `reverse` for general finite sequences.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|forward values|`seq`, `map`, `doseq`|
+|reverse a general finite sequence|`reverse`|
+|efficient reverse traversal of a vector|`rseq`|
+|index and value|`map-indexed`|
+|original indices in reverse|descending `range` plus `nth`|
+|right-associated fold|reverse, then `reduce` with flipped arguments|
+
+### Key Insight
+
+Traversal order and result order are separate decisions. `reverse` changes the order of values, while reverse traversal with original indices must carry those indices explicitly. Because Clojure data is normally immutable, many mutation-during-iteration hazards from imperative languages simply do not arise.

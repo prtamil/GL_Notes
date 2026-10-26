@@ -35,6 +35,18 @@ Unlike **Split**, which divides a sequence by position or boundaries, **Group** 
 
 ---
 
+# The Clojure-specific catches
+
+**`group-by` is eager.** It realizes the complete sequence and returns a map. Do not use it with an infinite sequence.
+
+**`group-by` collects equal keys globally. `partition-by` collects adjacent equal keys.** `group-by` is eager. `partition-by` is lazy.
+
+**The values are vectors**, not lazy sequences — convenient for indexing, and another reminder that the work is already done.
+
+**Use `merge-with` to combine grouped maps.** Plain `merge` replaces an existing value. `(merge-with into a b)` joins the groups.
+
+---
+
 # One Sentence to Remember
 
 > **Group organizes a sequence into collections whose elements share a common property or key.**

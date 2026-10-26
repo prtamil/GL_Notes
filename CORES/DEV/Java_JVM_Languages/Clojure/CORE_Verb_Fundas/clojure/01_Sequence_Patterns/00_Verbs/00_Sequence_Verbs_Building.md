@@ -1,5 +1,3 @@
-
-
 # Sequence Processing
 
 Sequence processing is the art of taking an ordered collection of values and answering questions about it, reorganizing it, or producing a new collection.
@@ -87,4 +85,4 @@ Summarize
 
 This distinction mirrors how humans think: we may want to **watch the process** (Scan), **perform the process** (Accumulate), or **know only the conclusion** (Summarize).
 
-I think this cognitive vocabulary is an excellent foundation. It stays independent of Clojure while mapping naturally to its sequence library, making it easier to transfer the same mental models to Python, Java Streams, JavaScript arrays, SQL, Spark, Rust iterators, or any other data-processing framework.
+This cognitive vocabulary is a useful foundation. It is independent of Clojure. You can use the same models in Python, JavaScript, SQL, Spark, and Rust.

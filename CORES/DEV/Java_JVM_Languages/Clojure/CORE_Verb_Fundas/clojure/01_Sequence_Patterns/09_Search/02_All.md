@@ -128,7 +128,7 @@ Think:
 (filter even? xs)
 
 ;; =>
-(10 12 20)
+;; (10 12 20)
 
 
 ;;--------------------------------------------------------
@@ -138,7 +138,7 @@ Think:
 (filter #(< 10 %) xs)
 
 ;; =>
-(12 15 20)
+;; (12 15 20)
 
 
 ;;--------------------------------------------------------
@@ -148,7 +148,7 @@ Think:
 (remove even? xs)
 
 ;; =>
-(3 7 15)
+;; (3 7 15)
 
 
 ;;--------------------------------------------------------
@@ -161,7 +161,7 @@ Think:
   xs)
 
 ;; =>
-(2 3 5)
+;; (2 3 5)
 
 
 ;;--------------------------------------------------------
@@ -176,8 +176,8 @@ Think:
 (filter :active users)
 
 ;; =>
-({:id 1 :active true}
- {:id 3 :active true})
+;; ({:id 1 :active true}
+ ;; {:id 3 :active true})
 
 
 ;;--------------------------------------------------------
@@ -189,7 +189,7 @@ Think:
      (map #(* % 10)))
 
 ;; =>
-(100 120 200)
+;; (100 120 200)
 
 
 ;;--------------------------------------------------------
@@ -199,12 +199,12 @@ Think:
 (some #(when (even? %) %) xs)
 
 ;; =>
-10
+;; 10
 
 (filter even? xs)
 
 ;; =>
-(10 12 20)
+;; (10 12 20)
 
 
 ;;--------------------------------------------------------
@@ -215,7 +215,7 @@ Think:
         ["" "hello" "" "world"])
 
 ;; =>
-("hello" "world")
+;; ("hello" "world")
 
 
 ;;--------------------------------------------------------
@@ -226,7 +226,7 @@ Think:
         [:info :error :debug :fatal :warn])
 
 ;; =>
-(:error :fatal)
+;; (:error :fatal)
 
 
 ;;--------------------------------------------------------
@@ -238,5 +238,77 @@ Think:
       xs)
 
 ;; =>
-(100 120 200)
+;; (100 120 200)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn matching-values [predicate values]
+  (filter predicate values))
+
+(defn matching-indices [predicate values]
+  (keep-indexed (fn [index value]
+                  (when (predicate value) index))
+                values))
+
+(defn count-matches [predicate values]
+  (count (filter predicate values)))
+
+(defn filter-by-mask [mask values]
+  (keep (fn [[keep? value]]
+          (when keep? value))
+        (map vector mask values)))
+
+(defn duplicate-values [values]
+  (let [counts (frequencies values)]
+    (filter (fn [value] (> (get counts value) 1))
+            (distinct values))))
+
+(defn prime? [number]
+  (and (integer? number)
+       (>= number 2)
+       (not-any? (fn [divisor]
+                   (zero? (mod number divisor)))
+                 (range 2 (inc (long (Math/sqrt number)))))))
+
+(defn overlaps? [[start-a end-a] [start-b end-b]]
+  ;; Half-open intervals: [start, end).
+  (and (< start-a end-b)
+       (< start-b end-a)))
+
+(matching-indices even? [3 4 7 8 10])
+;; => (1 3 4)
+
+(count-matches pos? [-2 0 3 4])
+;; => 2
+
+(filter-by-mask [true false true] [:a :b :c])
+;; => (:a :c)
+
+(duplicate-values [1 2 1 3 2 2])
+;; => (1 2)
+
+(filter prime? (range 20))
+;; => (2 3 5 7 11 13 17 19)
+```
+
+For membership tests against many candidates, build a set once and use it as the predicate: `(filter allowed? xs)`. Regular-expression searches use `re-seq`, which returns every non-overlapping match lazily.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|all matching values|`filter`|
+|all nonmatching values|`remove`|
+|transform successful items|`keep`|
+|matching positions|`keep-indexed`|
+|a count only|a filtering transducer|
+|membership filtering|a set as a function|
+|all regex matches|`re-seq`|
+
+### Key Insight
+
+Search-all preserves every match. Keep the pipeline lazy when the consumer can use a prefix. Use a transducer when you need only a summary.

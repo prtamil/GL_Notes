@@ -36,6 +36,20 @@ Unlike **Arrange**, which physically reorders a collection, **Order** is about t
 
 ---
 
+# The Clojure-specific catches
+
+**Ordering forces realisation.** `sort` and `sort-by` are eager, so an infinite sequence cannot be ordered and a large one is fully materialised.
+
+**`sort-by` re-runs the key function on every comparison** — O(n log n) calls, not n. Decorate first when the key is expensive.
+
+**A comparator must be consistent and transitive.** An invalid comparator can cause an `IllegalArgumentException` in the Java sort operation.
+
+**Sorting is stable**, so successive sorts compose: sort by the secondary key first, then the primary.
+
+**Comparing across types throws.** `(sort [1 "a"])` is a `ClassCastException` — there is no universal ordering.
+
+---
+
 # One Sentence to Remember
 
 > **Order determines the logical sequence in which elements are processed.**

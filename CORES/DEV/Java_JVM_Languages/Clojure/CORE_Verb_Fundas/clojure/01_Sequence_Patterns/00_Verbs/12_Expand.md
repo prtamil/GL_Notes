@@ -36,6 +36,18 @@ Unlike **Transform**, which maps one element to one element, **Expand** maps one
 
 ---
 
+# The Clojure-specific catches
+
+**`mapcat`'s function must return a collection.** Return a scalar and you get an `IllegalArgumentException` on realisation — often far from the line that caused it. Wrap single results in a vector.
+
+**`mapcat` inherits `concat`'s layering cost.** It is fine for one pass over a sequence and a poor choice inside an accumulating loop.
+
+**`flatten` is blunter than you want.** It descends *every* level, so one unexpectedly nested element changes your result shape. It also returns `()` for a map — `(flatten {:a 1})` is empty, not the pairs. For one level, use `(apply concat …)` or `mapcat`.
+
+**Expansion sources are frequently infinite.** Unbounded `repeat` and `cycle` do not end. Apply `take` before you realize the result.
+
+---
+
 # One Sentence to Remember
 
 > **Expand produces a larger sequence by allowing each input element to generate multiple output elements.**

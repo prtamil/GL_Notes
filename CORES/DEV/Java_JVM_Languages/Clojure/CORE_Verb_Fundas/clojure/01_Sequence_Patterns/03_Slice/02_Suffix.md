@@ -164,12 +164,12 @@ Think:
   (iterate rest xs))
 
 ;; =>
-((1 2 3 4 5 6)
- (2 3 4 5 6)
- (3 4 5 6)
- (4 5 6)
- (5 6)
- (6))
+;; ((1 2 3 4 5 6)
+ ;; (2 3 4 5 6)
+ ;; (3 4 5 6)
+ ;; (4 5 6)
+ ;; (5 6)
+ ;; (6))
 
 
 ;;--------------------------------------------------------
@@ -197,8 +197,8 @@ Think:
 (split-at 3 xs)
 
 ;; =>
-[(1 2 3)
- (4 5 6)]
+;; [(1 2 3)
+ ;; (4 5 6)]
 
 
 ;;--------------------------------------------------------
@@ -209,8 +209,8 @@ Think:
  (drop 3 xs)]
 
 ;; =>
-[(1 2 3)
- (4 5 6)]
+;; [(1 2 3)
+ ;; (4 5 6)]
 
 
 ;;--------------------------------------------------------
@@ -221,10 +221,88 @@ Think:
      (range (count xs)))
 
 ;; =>
-((1 2 3 4 5 6)
- (2 3 4 5 6)
- (3 4 5 6)
- (4 5 6)
- (5 6)
- (6))
+;; ((1 2 3 4 5 6)
+ ;; (2 3 4 5 6)
+ ;; (3 4 5 6)
+ ;; (4 5 6)
+ ;; (5 6)
+ ;; (6))
 ```
+
+---
+
+### Readable Clojure Functions
+
+Suffix operations on counted collections are clearest when the boundary calculation is named. For an unbounded stream, keep only a bounded queue instead of counting the entire input.
+
+```clojure
+(defn last-n [amount values]
+  (take-last (max 0 amount) values))
+
+(defn drop-prefix [amount values]
+  (drop (max 0 amount) values))
+
+(defn all-suffixes [values]
+  (map (fn [start] (drop start values))
+       (range (inc (count values)))))
+
+(defn split-prefix-suffix [amount values]
+  [(take amount values) (drop amount values)])
+
+(defn ends-with? [values ending]
+  (and (<= (count ending) (count values))
+       (= (seq ending)
+          (seq (take-last (count ending) values)))))
+
+(defn longest-common-suffix [& collections]
+  (->> collections
+       (map reverse)
+       (apply map vector)
+       (take-while #(apply = %))
+       (map first)
+       reverse
+       vec))
+
+(defn recent-items [capacity values]
+  (if-not (pos? capacity)
+    []
+    (->> values
+         (reduce (fn [queue value]
+                   (let [queue (conj queue value)]
+                     (if (> (count queue) capacity)
+                       (pop queue)
+                       queue)))
+                 clojure.lang.PersistentQueue/EMPTY)
+         vec)))
+
+(last-n 3 [1 2 3 4 5])
+;; => (3 4 5)
+
+(drop-while neg? [-3 -1 0 2 4])
+;; => (0 2 4)
+
+(all-suffixes [1 2 3])
+;; => ((1 2 3) (2 3) (3) ())
+
+(longest-common-suffix [1 2 8 9] [3 8 9] [8 9])
+;; => [8 9]
+
+(recent-items 3 (range 10))
+;; => [7 8 9]
+```
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|last item|`last`|
+|last `n` items|`take-last`|
+|everything after position `n`|`drop`|
+|split at `n`|`split-at` or `[take drop]`|
+|drop while a prefix matches|`drop-while`|
+|all suffixes|`drop` at every boundary|
+|bounded recent history|a persistent queue|
+
+### Key Insight
+
+A suffix depends on the removed prefix. Use `drop` when you know the start position. Use `take-last` when you know the suffix size. Use a bounded queue for a stream.

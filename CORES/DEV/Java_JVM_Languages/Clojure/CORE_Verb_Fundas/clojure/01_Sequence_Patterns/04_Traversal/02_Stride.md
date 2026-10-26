@@ -218,3 +218,84 @@ Think:
 ;;     (5 6 7)
 ;;     (7 8 9))
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn require-positive [label value]
+  (when-not (pos? value)
+    (throw (ex-info (str label " must be positive") {label value})))
+  value)
+
+(defn stride [step values]
+  (require-positive :step step)
+  (take-nth step values))
+
+(defn stride-from [offset step values]
+  (when (neg? offset)
+    (throw (ex-info "Offset must not be negative" {:offset offset})))
+  (require-positive :step step)
+  (take-nth step (drop offset values)))
+
+(defn indexed-stride [step values]
+  (require-positive :step step)
+  (keep-indexed (fn [index value]
+                  (when (zero? (mod index step))
+                    [index value]))
+                values))
+
+(defn reverse-stride [step values]
+  (require-positive :step step)
+  (take-nth step (rseq (vec values))))
+
+(defn deinterleave [parts values]
+  (require-positive :parts parts)
+  (mapv (fn [offset]
+          (vec (stride-from offset parts values)))
+        (range parts)))
+
+(defn max-pool-1d [width values]
+  (require-positive :width width)
+  (mapv (fn [window] (apply max window))
+        (partition-all width values)))
+
+(defn jump-windows [width step values]
+  (require-positive :width width)
+  (require-positive :step step)
+  (partition width step values))
+
+(indexed-stride 3 [:a :b :c :d :e :f :g])
+;; => ([0 :a] [3 :d] [6 :g])
+
+(deinterleave 3 (range 10))
+;; => [[0 3 6 9] [1 4 7] [2 5 8]]
+
+(max-pool-1d 3 [1 9 2 3 8 4])
+;; => [9 8]
+```
+
+An irregular stride is a mask rather than a fixed number:
+
+```clojure
+(defn select-by-mask [mask xs]
+  (keep (fn [[keep? value]]
+          (when keep? value))
+        (map vector mask xs)))
+```
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|every `k`th value|`take-nth`|
+|a phase offset|`drop`, then `take-nth`|
+|original positions|`keep-indexed`|
+|every `k`th value backward|`rseq`, then `take-nth`|
+|`k` interleaved channels|one stride per offset|
+|groups rather than samples|`partition`|
+
+### Key Insight
+
+Stride traversal selects positions. Jump windows select groups. Plain sampling discards skipped values. Use a window reduction when skipped peaks are important.

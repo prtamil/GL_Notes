@@ -125,10 +125,10 @@ Think:
 (partition-by identity xs)
 
 ;; =>
-((1 1 1)
- (2 2)
- (3 3 3 3)
- (4))
+;; ((1 1 1)
+ ;; (2 2)
+ ;; (3 3 3 3)
+ ;; (4))
 
 
 ;;--------------------------------------------------------
@@ -140,10 +140,10 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-([1 3]
- [2 2]
- [3 4]
- [4 1])
+;; ([1 3]
+ ;; [2 2]
+ ;; [3 4]
+ ;; [4 1])
 
 
 ;;--------------------------------------------------------
@@ -155,10 +155,10 @@ Think:
      (partition-by identity "aaabbccccd"))
 
 ;; =>
-([\a 3]
- [\b 2]
- [\c 4]
- [\d 1])
+;; ([\a 3]
+ ;; [\b 2]
+ ;; [\c 4]
+ ;; [\d 1])
 
 
 ;;--------------------------------------------------------
@@ -169,7 +169,7 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-(3 2 4 1)
+;; (3 2 4 1)
 
 
 ;;--------------------------------------------------------
@@ -180,7 +180,7 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-(1 2 3 4)
+;; (1 2 3 4)
 
 
 ;;--------------------------------------------------------
@@ -192,10 +192,10 @@ Think:
         [[1 3] [2 2] [3 4] [4 1]])
 
 ;; =>
-(1 1 1
- 2 2
- 3 3 3 3
- 4)
+;; (1 1 1
+ ;; 2 2
+ ;; 3 3 3 3
+ ;; 4)
 
 
 ;;--------------------------------------------------------
@@ -210,7 +210,7 @@ Think:
                (repeat n v))))
 
 ;; =>
-(1 1 1 2 2 3 3 3 3 4)
+;; (1 1 1 2 2 3 3 3 3 4)
 
 
 ;;--------------------------------------------------------
@@ -224,7 +224,7 @@ Think:
    (count encoded)])
 
 ;; =>
-[10 4]
+;; [10 4]
 
 
 ;;--------------------------------------------------------
@@ -237,8 +237,80 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-({:value 1 :count 3}
- {:value 2 :count 2}
- {:value 3 :count 4}
- {:value 4 :count 1})
+;; ({:value 1 :count 3}
+ ;; {:value 2 :count 2}
+ ;; {:value 3 :count 4}
+ ;; {:value 4 :count 1})
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn encode-run [run]
+  [(first run) (count run)])
+
+(defn encode-runs [values]
+  (map encode-run (partition-by identity values)))
+
+(defn decode-runs [encoded]
+  (mapcat (fn [[value run-length]]
+            (repeat run-length value))
+          encoded))
+
+(defn describe-run [key-fn run]
+  {:key (key-fn (first run))
+   :count (count run)
+   :items (vec run)})
+
+(defn encode-runs-by [key-fn values]
+  (map (partial describe-run key-fn)
+       (partition-by key-fn values)))
+
+(defn compression-ratio [values]
+  (if (empty? values)
+    1.0
+    (/ (double (count (encode-runs values)))
+       (count values))))
+
+(defn longest-encoded-run [values]
+  (when-let [encoded (seq (encode-runs values))]
+    (apply max-key second encoded)))
+
+(defn encode-repeated-messages [messages]
+  (map (fn [[message repetitions]]
+         (if (= repetitions 1)
+           message
+           (str message " (x" repetitions ")")))
+       (encode-runs messages)))
+
+(def encoded (encode-runs "aaabbccccd"))
+
+encoded
+;; => ([\a 3] [\b 2] [\c 4] [\d 1])
+
+(apply str (decode-runs encoded))
+;; => "aaabbccccd"
+
+(= (seq "aaabbccccd")
+   (seq (decode-runs encoded)))
+;; => true
+```
+
+Because `partition-by` and `map` are lazy, this encoder can process a stream one completed run at a time. An infinite run can never finish and therefore cannot emit its count—an unavoidable property of run-length encoding.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|adjacent runs|`partition-by identity`|
+|encode|`[first count]` for each run|
+|decode|`mapcat repeat`|
+|encode by a field|`partition-by key-fn`|
+|verify correctness|decode after encode and compare|
+|judge usefulness|compare encoded entries with input size|
+
+### Key Insight
+
+Run-length encoding preserves order and is reversible. A histogram does not preserve order. Measure the compression ratio because alternating data can become larger.

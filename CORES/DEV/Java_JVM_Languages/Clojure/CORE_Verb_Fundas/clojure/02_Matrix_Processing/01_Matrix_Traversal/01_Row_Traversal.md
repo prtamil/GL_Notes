@@ -1,229 +1,157 @@
-# Part 2 — Matrix Patterns
+# Part 2 - Matrix Processing
 
 # 1. Row Traversal
 
 ## Mental Model
 
-A matrix is often treated as a collection of rows. Row traversal means processing one complete row at a time before moving to the next.
+Treat the matrix as a sequence of rows. Finish one row before you start the next row.
 
-This is the most natural traversal order because most programming languages store 2D arrays in **row-major order**, making it cache-friendly and easy to reason about.
-
----
+A Clojure matrix is usually a vector of row vectors. Each row can use normal sequence functions.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Visit
-   ↓
-Row Traversal
+Visit -> one row -> each cell in that row
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Visit each row
-    
-- Process row-by-row
-    
-- Scan rows
-    
-- Iterate rows
-    
-- Aggregate rows
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Iterate rows|process each row|`doseq`, `map`|
-|Transform rows|modify every row|`map`|
-|Filter rows|keep matching rows|`filter`|
-|Reduce rows|summarize rows|`reduce`|
-|Index rows|need row number|`map-indexed`|
-|Nested traversal|visit every cell|nested `map`, nested `doseq`, `for`|
-
----
+|Need|Use|
+|---|---|
+|Transform each row|`mapv`|
+|Keep selected rows|`filterv`|
+|Add row values|`reduce`|
+|Keep row indexes|`map-indexed`|
+|Visit every cell|`mapcat` or `for`|
+|Run an effect|`doseq`|
 
 ## Common Uses
 
-- Spreadsheet processing
-    
-- CSV tables
-    
-- Database result sets
-    
-- Image scanlines
-    
-- Tile maps
-    
-- Heatmaps
-    
-- Neural network weight matrices
-    
-- Matrix printing
-    
-- Row statistics
-    
-
----
+- Calculate row totals.
+- Normalize records.
+- Validate board rows.
+- Read image scan lines.
+- Find a row with a required property.
 
 ## Hidden Interview Problems
 
-- Sum each row
-    
-- Maximum value per row
-    
-- Count occurrences in each row
-    
-- Detect empty rows
-    
-- Normalize every row
-    
-- Find row with largest sum
-    
-- Validate Sudoku rows
-    
-- Compress rows
-    
-
----
+- Find the row with the largest sum.
+- Count matches in each row.
+- Compare adjacent rows.
+- Confirm that each row has unique values.
 
 ## Recognition Clues
 
-If you hear...
-
-- "for every row..."
-    
-- "each record..."
-    
-- "scan line by line..."
-    
-- "process one row at a time..."
-    
-- "calculate row totals..."
-    
-
-...think **Row Traversal**.
-
----
+Look for `each row`, `row total`, `horizontal`, or `left to right`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Row|
-|Order|Left → Right, Top → Bottom|
-|Cache Friendly|Yes (row-major layouts)|
-|Time Complexity|O(rows × cols)|
-|Space Complexity|O(1) extra (typically)|
-|Common Domains|Images, tables, grids|
+Row traversal keeps the outer loop on rows. The inner operation handles one complete row.
 
----
+## Shape and Edge Behavior
+
+- The functions expect finite rows and a finite matrix.
+- An empty matrix returns empty row results.
+- Ragged rows are valid because each row is independent.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
-
-(def m
+(def matrix
   [[1 2 3]
    [4 5 6]
    [7 8 9]])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Visit every row
+(defn process-single-row [row]
+  (mapv inc row))
 
-(doseq [row m]
-  (println row))
+(defn process-each-row [process-row matrix]
+  (mapv process-row matrix))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Transform every row
+(defn row-total [row]
+  (reduce + 0 row))
 
-(map #(map inc %) m)
+(defn row-sums [matrix]
+  (mapv row-total matrix))
 
-;; =>
-;; ((2 3 4)
-;;  (5 6 7)
-;;  (8 9 10))
+(defn row-maximum [row]
+  (when (seq row) (apply max row)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Sum every row
+(defn row-maximums [matrix]
+  (mapv row-maximum matrix))
 
-(map #(reduce + %) m)
+(defn count-in-each-row [predicate matrix]
+  (mapv (fn [row] (count (filter predicate row))) matrix))
 
-;; => (6 15 24)
+(defn indexed-row-sums [matrix]
+  (mapv (fn [row-index row]
+          {:row row-index
+           :sum (reduce + 0 row)})
+        (range)
+        matrix))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Maximum in each row
+(defn visit-each-cell [visit-cell matrix]
+  (mapv (fn [row-index row]
+          (mapv (fn [column-index value]
+                  (visit-cell row-index column-index value))
+                (range)
+                row))
+        (range)
+        matrix))
 
-(map #(apply max %) m)
+(defn matrix-total [matrix]
+  (reduce + 0 (row-sums matrix)))
 
-;; => (3 6 9)
+(defn rows-that [predicate matrix]
+  (filterv predicate matrix))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Count elements satisfying a condition
+(defn row-with-largest-sum [matrix]
+  (when (seq matrix)
+    (apply max-key row-total matrix)))
 
-(map #(count (filter even? %)) m)
+(defn normalize-row [row]
+  (let [total (reduce + 0 row)]
+    (if (zero? total)
+      (mapv (constantly 0) row)
+      (mapv (fn [value] (/ value total)) row))))
 
-;; => (1 2 1)
+(defn unique-row? [row]
+  (= (count row) (count (set row))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Access row index
+(defn adjacent-row-pairs [matrix]
+  (mapv vec (partition 2 1 matrix)))
 
-(map-indexed
-  (fn [i row]
-    {:row i
-     :sum (reduce + row)})
-  m)
+(defn describe-row [row]
+  (cond
+    (empty? row) :empty
+    (= 1 (count row)) :single-value
+    :else :many-values))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Nested traversal (row then cell)
+(process-single-row [1 2 3])
+;; => [2 3 4]
 
-(doseq [row m
-        cell row]
-  (println cell))
+(row-sums matrix)
+;; => [6 15 24]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Same using for
-
-(for [row m
-      cell row]
-  (* cell 2))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Reduce across rows
-
-(reduce
-  (fn [acc row]
-    (+ acc (reduce + row)))
-  0
-  m)
-
+(matrix-total matrix)
 ;; => 45
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
+;; Executable checks
 
-;; Row traversal
-(map f matrix)
-
-;; Cell traversal
-(mapcat identity matrix)
-;; or nested map/doseq/for
-
-;; Row reduction
-(map #(reduce op %) matrix)
-
-;; Whole matrix reduction
-(reduce ...)
+(assert (= [2 3 4] (process-single-row [1 2 3])))
+(assert (= [6 15 24] (row-sums matrix)))
+(assert (= 45 (matrix-total matrix)))
 ```
 
----
+An empty matrix produces empty row results. A zero-sum row normalizes to zeros.
+
+### Memory Hooks
+
+- Outer operation: rows.
+- Inner operation: cells.
+- Use `mapv` when the result must remain a matrix.
+- Use `doseq` only when the operation has effects.
 
 ### Key Insight
 
-**A row is the 2D equivalent of a sequence.** Most row-based algorithms simply apply familiar 1D sequence patterns (map, filter, reduce, partition, summarize, etc.) independently to each row before combining results if needed.
+A row is a normal Clojure collection. Give the row operation a clear name, then map it across the matrix.

@@ -2,268 +2,172 @@
 
 ## Mental Model
 
-Boundary traversal visits **only the outer border** of a matrix, ignoring all interior cells.
-
-Unlike spiral traversal, which repeatedly peels inward, boundary traversal processes **exactly one ring**—the outermost perimeter.
-
----
+Visit one outer ring only. Walk the top, right, bottom, and left edges without repeating corners.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Outline
-    ↓
-Boundary Traversal
+Outline -> one outer ring
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Outline
-    
-- Trace the border
-    
-- Walk the perimeter
-    
-- Follow the edge
-    
-- Visit the frame
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Top edge|first row|`first`, `for`|
-|Bottom edge|last row|`last`, `for`|
-|Left edge|first column|`map`, `first`|
-|Right edge|last column|`map`, `last`|
-|Clockwise boundary|complete border|`concat`, `for`|
-|Counter-clockwise|reverse order|`reverse`, `concat`|
-
----
+|Need|Use|
+|---|---|
+|Test one cell|border predicate|
+|Keep clockwise order|four coordinate ranges|
+|Read values|`mapv` with `get-in`|
+|Change ring values|`reduce` with `assoc-in`|
 
 ## Common Uses
 
-- Image border detection
-    
-- Frame rendering
-    
-- Map boundaries
-    
-- Collision boundaries
-    
-- Grid visualization
-    
-- Maze entrances
-    
-- Geographic borders
-    
-- UI outlines
-    
-
----
+- Calculate a perimeter sum.
+- Draw a frame.
+- Inspect image borders.
+- Rotate the outside ring.
 
 ## Hidden Interview Problems
 
-- Print matrix boundary
-    
-- Sum boundary elements
-    
-- Count perimeter cells
-    
-- Draw rectangular border
-    
-- Rotate boundary elements
-    
-- Compare boundary values
-    
-- Boundary maximum/minimum
-    
-- Extract matrix frame
-    
-
----
+- Avoid duplicate corners.
+- Handle one row or one column.
+- Generate counter-clockwise order.
+- Rotate only the boundary values.
 
 ## Recognition Clues
 
-If you hear...
-
-- "outer boundary..."
-    
-- "border..."
-    
-- "perimeter..."
-    
-- "frame..."
-    
-- "outer ring only..."
-    
-
-...think **Boundary Traversal**.
-
----
+Look for `border`, `perimeter`, `outer ring`, `frame`, or `edge cells`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Outer Boundary|
-|Direction|Usually Clockwise|
-|Coordinate Rule|First/Last row or column|
-|Time Complexity|O(rows + cols)|
-|Space Complexity|O(1) extra|
-|Common Domains|Graphics, maps, UI, games|
+Traversal needs ordered edges. Aggregation can use a simple border predicate.
 
----
+## Shape and Edge Behavior
+
+- Matrix operations expect a finite rectangular matrix.
+- Empty and zero-width matrices return empty paths.
+- Coordinate generation rejects negative dimensions.
+- Matrix operations reject ragged rows with `ExceptionInfo`.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
+
+(defn require-nonnegative-dimensions [rows columns]
+  (when (or (neg? rows) (neg? columns))
+    (throw (ex-info "Matrix dimensions must not be negative"
+                    {:rows rows :columns columns}))))
+
+(defn on-border? [row column rows columns]
+  (and (pos? rows)
+       (pos? columns)
+       (or (zero? row)
+           (zero? column)
+           (= row (dec rows))
+           (= column (dec columns)))))
+
+(defn boundary-coordinates [rows columns]
+  (require-nonnegative-dimensions rows columns)
+  (cond
+    (or (zero? rows) (zero? columns)) []
+    (= rows 1) (mapv (fn [column] [0 column]) (range columns))
+    (= columns 1) (mapv (fn [row] [row 0]) (range rows))
+    :else
+    (vec
+      (concat
+        (for [column (range columns)] [0 column])
+        (for [row (range 1 rows)] [row (dec columns)])
+        (for [column (range (- columns 2) -1 -1)]
+          [(dec rows) column])
+        (for [row (range (- rows 2) 0 -1)] [row 0])))))
+
+(defn boundary-order [matrix]
+  (require-rectangular matrix)
+  (let [rows (count matrix)
+        columns (if-let [row (first matrix)] (count row) 0)]
+    (mapv #(get-in matrix %)
+          (boundary-coordinates rows columns))))
+
+(defn counter-clockwise-boundary [matrix]
+  (let [clockwise (boundary-order matrix)]
+    (if (empty? clockwise)
+      []
+      (into [(first clockwise)] (reverse (rest clockwise))))))
+
+(defn boundary-sum [matrix]
+  (reduce + 0 (boundary-order matrix)))
+
+(defn frame [rows columns edge fill]
+  (require-nonnegative-dimensions rows columns)
+  (mapv (fn [row]
+          (mapv (fn [column]
+                  (if (on-border? row column rows columns)
+                    edge
+                    fill))
+                (range columns)))
+        (range rows)))
+
+(defn rotate-boundary [matrix steps]
+  (require-rectangular matrix)
+  (let [rows (count matrix)
+        columns (if-let [row (first matrix)] (count row) 0)
+        path (boundary-coordinates rows columns)
+        values (mapv #(get-in matrix %) path)
+        size (count path)]
+    (if (zero? size)
+      matrix
+      (let [shift (mod steps size)
+            shifted (mapv (fn [index]
+                            (values (mod (- index shift) size)))
+                          (range size))]
+        (reduce (fn [result [coordinate value]]
+                  (assoc-in result coordinate value))
+                matrix
+                (map vector path shifted))))))
+
+(def matrix
   [[1  2  3  4]
    [5  6  7  8]
    [9 10 11 12]
    [13 14 15 16]])
 
-(def rows (count m))
-(def cols (count (first m)))
+(boundary-order matrix)
+;; => [1 2 3 4 8 12 16 15 14 13 9 5]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Top edge
+(frame 3 4 "#" ".")
+;; => [["#" "#" "#" "#"] ["#" "." "." "#"] ["#" "#" "#" "#"]]
 
-(for [c (range cols)]
-  (get-in m [0 c]))
+;; Executable checks
 
-;; => (1 2 3 4)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Right edge
-
-(for [r (range 1 rows)]
-  (get-in m [r (dec cols)]))
-
-;; => (8 12 16)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Bottom edge
-
-(for [c (reverse (range (dec cols)))]
-  (get-in m [(dec rows) c]))
-
-;; => (15 14 13)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Left edge
-
-(for [r (reverse (range 1 (dec rows)))]
-  (get-in m [r 0]))
-
-;; => (9 5)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Complete clockwise boundary
-
-(concat
-
- ;; top
- (for [c (range cols)]
-   (get-in m [0 c]))
-
- ;; right
- (for [r (range 1 rows)]
-   (get-in m [r (dec cols)]))
-
- ;; bottom
- (for [c (reverse (range (dec cols)))]
-   (get-in m [(dec rows) c]))
-
- ;; left
- (for [r (reverse (range 1 (dec rows)))]
-   (get-in m [r 0])))
-
-;; =>
-;; (1 2 3 4
-;;  8 12 16
-;; 15 14 13
-;; 9 5)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Boundary sum
-
-(reduce +
-        (concat
-          ...boundary...))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
-
-;; Entire matrix
-(mapcat identity m)
-
-;; Boundary only
-(concat top right bottom left)
+(assert (= [1 2 3 4 8 12 16 15 14 13 9 5]
+           (boundary-order matrix)))
+(assert (= [["#" "#" "#" "#"]
+            ["#" "." "." "#"]
+            ["#" "#" "#" "#"]]
+           (frame 3 4 "#" ".")))
 ```
 
----
+The coordinate function handles empty, single-row, single-column, and single-cell shapes.
 
-## Key Insight
+### Memory Hooks
 
-Boundary traversal is simply walking around the **perimeter** of the matrix.
+- Top includes both top corners.
+- Right excludes the top corner.
+- Bottom excludes the right corner.
+- Left excludes both corners.
 
-```text
-Top Edge
-    ↓
-Right Edge
-    ↓
-Bottom Edge
-    ↓
-Left Edge
-```
+### Key Insight
 
-The traversal always consists of the same four logical segments:
-
-1. Top row
-    
-2. Right column
-    
-3. Bottom row (reverse)
-    
-4. Left column (reverse)
-    
-
-Unlike **Spiral Traversal**, you **stop after one complete circuit**.
-
----
+Generate boundary coordinates once. Reuse them to read, sum, compare, draw, or rotate the border.
 
 ## Boundary vs Spiral
 
-|Pattern|Core Idea|
-|---|---|
-|**Boundary Traversal**|Visit the **outer border once**.|
-|**Spiral Traversal**|Visit the outer border, **shrink the boundaries**, then repeat until the center is reached.|
-
-Think of boundary traversal as:
-
-```text
-One Ring
-```
-
-and spiral traversal as:
-
-```text
-Ring 1
-   ↓
-Ring 2
-   ↓
-Ring 3
-   ↓
-...
-```
-
-> **Mental shift:** Boundary traversal is a **single perimeter walk**, whereas spiral traversal is **repeated boundary traversal with shrinking boundaries**.
+Boundary traversal stops after one ring. Spiral traversal repeats the same idea after it shrinks all four bounds.

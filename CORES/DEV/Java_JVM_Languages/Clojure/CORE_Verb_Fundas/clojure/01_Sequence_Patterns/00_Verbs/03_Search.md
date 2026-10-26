@@ -37,6 +37,18 @@ Unlike **Observe**, which describes the sequence as a whole, **Search** focuses 
 
 ---
 
+# The Clojure-specific catches
+
+**There is no `index-of`.** Use `keep-indexed` to find matching positions. Use Java `.indexOf` to find a value in a vector.
+
+**`some` gives you the predicate's answer, not the element.** `(some even? [1 3 4])` is `true`. For the element, use `(some #(when (even? %) %) coll)` — and note that form fails if the element you want is itself `false` or `nil`.
+
+**`(first (filter pred coll))` is not wasteful.** `filter` is lazy, so this stops at the first hit. The Python instinct to avoid "filter everything then take one" does not apply here.
+
+**Repeated searches of the same collection can be O(n²).** One scan is acceptable. For many searches, build a map or set index once.
+
+---
+
 # One Sentence to Remember
 
 > **Search locates specific elements or positions in a sequence that satisfy a condition.**

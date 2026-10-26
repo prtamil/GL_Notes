@@ -125,7 +125,7 @@ Think:
 (dedupe xs)
 
 ;; =>
-(1 2 3 2 4 5)
+;; (1 2 3 2 4 5)
 
 
 ;;--------------------------------------------------------
@@ -135,12 +135,12 @@ Think:
 (distinct xs)
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 
 (dedupe xs)
 
 ;; =>
-(1 2 3 2 4 5)
+;; (1 2 3 2 4 5)
 
 
 ;;--------------------------------------------------------
@@ -151,7 +151,7 @@ Think:
        (dedupe "aaabbbccccdde"))
 
 ;; =>
-"abcde"
+;; "abcde"
 
 
 ;;--------------------------------------------------------
@@ -161,12 +161,12 @@ Think:
 (partition-by identity xs)
 
 ;; =>
-((1 1)
- (2 2 2)
- (3)
- (2 2)
- (4 4)
- (5))
+;; ((1 1)
+ ;; (2 2 2)
+ ;; (3)
+ ;; (2 2)
+ ;; (4 4)
+ ;; (5))
 
 
 ;;--------------------------------------------------------
@@ -177,7 +177,7 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-(1 2 3 2 4 5)
+;; (1 2 3 2 4 5)
 
 
 ;;--------------------------------------------------------
@@ -188,7 +188,7 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-(2 3 1 2 2 1)
+;; (2 3 1 2 2 1)
 
 
 ;;--------------------------------------------------------
@@ -200,12 +200,12 @@ Think:
      (partition-by identity xs))
 
 ;; =>
-([1 2]
- [2 3]
- [3 1]
- [2 2]
- [4 2]
- [5 1])
+;; ([1 2]
+ ;; [2 3]
+ ;; [3 1]
+ ;; [2 2]
+ ;; [4 2]
+ ;; [5 1])
 
 
 ;;--------------------------------------------------------
@@ -217,7 +217,7 @@ Think:
      dedupe)
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 
 
 ;;--------------------------------------------------------
@@ -235,7 +235,71 @@ Think:
      (partition-by :id people))
 
 ;; =>
-({:id 1 :name "Alice"}
- {:id 2 :name "Bob"}
- {:id 3 :name "Carol"})
+;; ({:id 1 :name "Alice"}
+ ;; {:id 2 :name "Bob"}
+ ;; {:id 3 :name "Carol"})
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn dedupe-by [key-fn values]
+  (map first (partition-by key-fn values)))
+
+(defn runs [values]
+  (partition-by identity values))
+
+(defn describe-run [run]
+  {:value (first run)
+   :count (count run)})
+
+(defn run-lengths [values]
+  (map describe-run (runs values)))
+
+(defn state-transitions [values]
+  (partition 2 1 (dedupe values)))
+
+(defn longest-run [values]
+  (when-let [all-runs (seq (runs values))]
+    (let [run (apply max-key count all-runs)]
+      (describe-run run))))
+
+(defn summarize-repeated-lines [lines]
+  (map (fn [run]
+         (let [line (first run)
+               repetitions (count run)]
+           (if (= repetitions 1)
+             line
+             (str line " (x" repetitions ")"))))
+       (partition-by identity lines)))
+
+(dedupe-by :status [{:status :ok :at 1}
+                    {:status :ok :at 2}
+                    {:status :fail :at 3}])
+;; => ({:status :ok, :at 1} {:status :fail, :at 3})
+
+(state-transitions [:idle :idle :run :run :done])
+;; => ((:idle :run) (:run :done))
+
+(longest-run [true true false true true true])
+;; => {:value true, :count 3}
+```
+
+`partition-by` returns ordinary lazy run sequences. Consume the current run before you request the next run from an infinite input.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|remove adjacent repeats|`dedupe`|
+|split into adjacent runs|`partition-by`|
+|dedupe by a field|`partition-by key-fn`, then `map first`|
+|state changes|dedupe, then adjacent pairs|
+|run lengths|count every partition|
+|global uniqueness|`distinct`, not `dedupe`|
+
+### Key Insight
+
+Dedupe is local compression. It forgets repetitions only while equal keys remain adjacent, so `[:a :b :a]` stays unchanged. Sorting before deduping changes the meaning by deliberately bringing equal values together.

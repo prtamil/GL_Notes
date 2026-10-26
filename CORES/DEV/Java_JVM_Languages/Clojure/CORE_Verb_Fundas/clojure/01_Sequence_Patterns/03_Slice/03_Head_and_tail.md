@@ -141,8 +141,8 @@ Think:
  (rest xs)]
 
 ;; =>
-[1
- (2 3 4 5)]
+;; [1
+ ;; (2 3 4 5)]
 
 
 ;;--------------------------------------------------------
@@ -179,8 +179,8 @@ Think:
   [head tail])
 
 ;; =>
-[1
- (2 3 4 5)]
+;; [1
+ ;; (2 3 4 5)]
 
 
 ;;--------------------------------------------------------
@@ -226,7 +226,70 @@ Think:
   [a b tail])
 
 ;; =>
-[1
- 2
- (3 4 5)]
+;; [1
+ ;; 2
+ ;; (3 4 5)]
 ```
+
+---
+
+### Readable Clojure Functions
+
+Clojure destructuring expresses head-and-tail decomposition directly. Wrap it only when the empty case or the returned shape deserves a name.
+
+```clojure
+(defn uncons [values]
+  (when-let [items (seq values)]
+    [(first items) (next items)]))
+
+(defn head-or [default values]
+  (if-let [items (seq values)]
+    (first items)
+    default))
+
+(defn describe-sequence [[head & tail :as values]]
+  (cond
+    (empty? values) :empty
+    (empty? tail) {:kind :single :value head}
+    :else {:kind :many :head head :tail tail}))
+
+(defn parse-command [[command & arguments]]
+  {:command command
+   :arguments (vec arguments)})
+
+(defn depth-first-values [root children]
+  (loop [stack [root]
+         result []]
+    (if-let [node (peek stack)]
+      (recur (into (pop stack) (reverse (children node)))
+             (conj result node))
+      result)))
+
+(uncons [1 2 3])
+;; => [1 (2 3)]
+
+(uncons [])
+;; => nil
+
+(head-or :missing [])
+;; => :missing
+
+(let [[first-token second-token & remaining] [:a :b :c :d]]
+  [first-token second-token remaining])
+;; => [:a :b (:c :d)]
+```
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|head|`first`|
+|tail, possibly empty|`rest`|
+|tail, or `nil` when absent|`next`|
+|head and tail together|`[head & tail]`|
+|safe decomposition|`when-let` with `seq`|
+|skip several heads|`nthrest` or `drop`|
+
+### Key Insight
+
+Head and tail are structural operations. Use destructuring for a known shape. `rest` returns an empty sequence. `next` returns `nil` when no items remain.

@@ -30,7 +30,7 @@ Transpose is a **Structure** pattern because it reorganizes the layout of data f
 |Transpose then Process|Column operations|`->>` + `apply mapv vector`|
 |Unzip|Inverse of zip|`apply map vector`|
 
-> **Note:** Clojure has no built-in `transpose`; the idiomatic solution is `apply mapv vector`.
+> **Note:** Clojure has no built-in `transpose`. Use `apply mapv vector`.
 
 ---
 
@@ -130,9 +130,9 @@ Think:
 (apply mapv vector m)
 
 ;; =>
-[[1 4 7]
- [2 5 8]
- [3 6 9]]
+;; [[1 4 7]
+ ;; [2 5 8]
+ ;; [3 6 9]]
 
 
 ;;--------------------------------------------------------
@@ -142,9 +142,9 @@ Think:
 (apply map list m)
 
 ;; =>
-((1 4 7)
- (2 5 8)
- (3 6 9))
+;; ((1 4 7)
+ ;; (2 5 8)
+ ;; (3 6 9))
 
 
 ;;--------------------------------------------------------
@@ -156,9 +156,9 @@ Think:
         [:a :b :c]])
 
 ;; =>
-[[1 :a]
- [2 :b]
- [3 :c]]
+;; [[1 :a]
+ ;; [2 :b]
+ ;; [3 :c]]
 
 
 ;;--------------------------------------------------------
@@ -171,8 +171,8 @@ Think:
         [3 :c]])
 
 ;; =>
-[[1 2 3]
- [:a :b :c]]
+;; [[1 2 3]
+ ;; [:a :b :c]]
 
 
 ;;--------------------------------------------------------
@@ -183,7 +183,7 @@ Think:
      (apply mapv vector m))
 
 ;; =>
-(12 15 18)
+;; (12 15 18)
 
 
 ;;--------------------------------------------------------
@@ -194,7 +194,7 @@ Think:
      (apply mapv vector m))
 
 ;; =>
-(7 8 9)
+;; (7 8 9)
 
 
 ;;--------------------------------------------------------
@@ -206,9 +206,9 @@ Think:
      (apply mapv vector m))
 
 ;; =>
-([[1 2 3] [1 4 7]]
- [[4 5 6] [2 5 8]]
- [[7 8 9] [3 6 9]])
+;; ([[1 2 3] [1 4 7]]
+ ;; [[4 5 6] [2 5 8]]
+ ;; [[7 8 9] [3 6 9]])
 
 
 ;;--------------------------------------------------------
@@ -221,9 +221,9 @@ Think:
         "PIG"])
 
 ;; =>
-["CDP"
- "AOI"
- "TGG"]
+;; ["CDP"
+ ;; "AOI"
+ ;; "TGG"]
 
 
 ;;--------------------------------------------------------
@@ -235,5 +235,79 @@ Think:
      flatten)
 
 ;; =>
-(1 4 7 2 5 8 3 6 9)
+;; (1 4 7 2 5 8 3 6 9)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
+
+(defn transpose [matrix]
+  (if (empty? matrix)
+    []
+    (apply mapv vector matrix)))
+
+(defn transpose-strict [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Cannot transpose a ragged matrix"
+                    {:row-lengths (mapv count matrix)})))
+  (transpose matrix))
+
+(defn column-sums [matrix]
+  (mapv #(reduce + 0 %)
+        (transpose-strict matrix)))
+
+(defn records->columns [records]
+  (if-let [record (first records)]
+    (into {}
+          (map (fn [key]
+                 [key (mapv key records)]))
+          (keys record))
+    {}))
+
+(defn rotate-clockwise [matrix]
+  (transpose-strict (reverse matrix)))
+
+(defn rotate-counter-clockwise [matrix]
+  (mapv (comp vec reverse)
+        (transpose-strict matrix)))
+
+(transpose [[1 2 3]
+            [4 5 6]])
+;; => [[1 4] [2 5] [3 6]]
+
+(column-sums [[1 2 3]
+              [4 5 6]])
+;; => [5 7 9]
+
+(records->columns [{:id 1 :name "Ana"}
+                   {:id 2 :name "Bo"}])
+;; => {:id [1 2], :name ["Ana" "Bo"]}
+
+(rotate-clockwise [[1 2 3]
+                   [4 5 6]
+                   [7 8 9]])
+;; => [[7 4 1] [8 5 2] [9 6 3]]
+```
+
+`apply map vector` silently truncates to the shortest row. That is sometimes useful for zipping, but dangerous for matrices, so the reusable matrix function validates rectangularity first.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|rows become columns|`apply mapv vector`|
+|reject ragged data|compare all row counts first|
+|unzip pairs|the same transpose operation|
+|column summaries|transpose, then reuse row functions|
+|records to columns|one vector per map key|
+|90° rotation|transpose plus reversal|
+
+### Key Insight
+
+Transpose exchanges structural roles. It does not change values. The zip operation stops at the shortest row. A strict matrix function must reject ragged rows.

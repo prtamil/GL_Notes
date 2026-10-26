@@ -2,235 +2,140 @@
 
 ## Mental Model
 
-Diagonal traversal visits cells where the **row and column indices change together**. The most common diagonal is the **main diagonal**, running from the top-left to the bottom-right.
-
-Unlike rows or columns, a diagonal represents a **relationship between coordinates**, not a contiguous row or column.
-
----
+Cells share a descending diagonal when `column - row` is constant. The main diagonal uses zero.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Trace
-   ↓
-Diagonal Traversal
+Trace -> keep column - row constant
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Trace a diagonal
-    
-- Follow a diagonal
-    
-- Scan diagonally
-    
-- Visit matching coordinates
-    
-- Compare corresponding positions
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Main diagonal|`(0,0) → (n,n)`|`range`, `nth`|
-|Offset diagonal|above/below main|`range` with offset|
-|Collect diagonal|build sequence|`map`|
-|Reduce diagonal|sum/product|`reduce`|
-|Indexed traversal|explicit `(r,c)`|`map vector`|
-
----
+|Need|Use|
+|---|---|
+|Main diagonal|same row and column index|
+|Offset diagonal|constant `column - row`|
+|Trace|`reduce +` over the main diagonal|
+|All diagonals|map every valid offset|
 
 ## Common Uses
 
-- Matrix trace
-    
-- Identity matrix checks
-    
-- Symmetric matrix algorithms
-    
-- Tic-Tac-Toe winner detection
-    
-- Image edge detection
-    
-- Dynamic programming tables
-    
-- Game board evaluation
-    
-- Computer vision
-    
-
----
+- Calculate a matrix trace.
+- Check identity and symmetric matrices.
+- Read diagonal board lines.
+- Group cells by diagonal.
 
 ## Hidden Interview Problems
 
-- Print the main diagonal
-    
-- Sum the diagonal
-    
-- Product of diagonal elements
-    
-- Check identity matrix
-    
-- Check symmetry
-    
-- Difference between diagonals
-    
-- Diagonal averages
-    
-- Traverse all diagonals
-    
-
----
+- Read an offset diagonal.
+- Compare both main diagonals.
+- Check identity structure.
+- Traverse every diagonal.
 
 ## Recognition Clues
 
-If you hear...
-
-- "top-left to bottom-right..."
-    
-- "main diagonal..."
-    
-- "matching row and column..."
-    
-- "where row equals column..."
-    
-- "principal diagonal..."
-    
-
-...think **Diagonal Traversal**.
-
----
+Look for `top-left to bottom-right`, `same indexes`, `trace`, or a constant coordinate difference.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Diagonal|
-|Direction|Top-Left → Bottom-Right|
-|Coordinate Rule|`row == col`|
-|Time Complexity|O(min(rows, cols))|
-|Space Complexity|O(1) extra|
-|Common Domains|Linear algebra, games, graphics|
+The offset `k` defines `column = row + k`. Positive offsets are above the main diagonal.
 
----
+## Shape and Edge Behavior
+
+- The functions expect a finite rectangular matrix.
+- A matrix with no cells returns empty diagonal results.
+- The functions reject ragged rows with `ExceptionInfo`.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
-  [[1 2 3]
-   [4 5 6]
-   [7 8 9]])
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main diagonal
+(defn matrix-shape [matrix]
+  (require-rectangular matrix)
+  [(count matrix) (if-let [row (first matrix)] (count row) 0)])
 
-(map
- #(nth (nth m %) %)
- (range (min (count m)
-             (count (first m)))))
+(defn diagonal-coordinates
+  ([matrix] (diagonal-coordinates matrix 0))
+  ([matrix offset]
+   (let [[rows columns] (matrix-shape matrix)
+         first-row (max 0 (- offset))
+         end-row (min rows (- columns offset))]
+     (mapv (fn [row] [row (+ row offset)])
+           (range first-row end-row)))))
 
-;; => (1 5 9)
+(defn diagonal
+  ([matrix] (diagonal matrix 0))
+  ([matrix offset]
+   (mapv #(get-in matrix %)
+         (diagonal-coordinates matrix offset))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Sum of main diagonal
+(defn trace [matrix]
+  (reduce + 0 (diagonal matrix)))
 
-(reduce +
-        (map #(nth (nth m %) %)
-             (range 3)))
+(defn all-diagonals [matrix]
+  (let [[rows columns] (matrix-shape matrix)]
+    (if (or (zero? rows) (zero? columns))
+      []
+      (mapv #(diagonal matrix %)
+            (range (- (dec rows)) columns)))))
 
-;; => 15
+(defn transpose [matrix]
+  (require-rectangular matrix)
+  (if (empty? matrix) [] (apply mapv vector matrix)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Product of main diagonal
+(defn identity-matrix? [matrix]
+  (let [[rows columns] (matrix-shape matrix)]
+    (and (rectangular? matrix)
+         (= rows columns)
+         (every? (fn [[row column]]
+                   (= (get-in matrix [row column])
+                      (if (= row column) 1 0)))
+                 (for [row (range rows)
+                       column (range columns)]
+                   [row column])))))
 
-(reduce *
-        (map #(nth (nth m %) %)
-             (range 3)))
+(defn symmetric? [matrix]
+  (and (rectangular? matrix)
+       (= (count matrix) (count (first matrix)))
+       (= matrix (transpose matrix))))
 
-;; => 45
+(def matrix [[1 2 3] [4 5 6] [7 8 9]])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Row/Column coordinate pairs
+(diagonal matrix)
+;; => [1 5 9]
 
-(map vector
-     (range 3)
-     (range 3))
+(diagonal matrix 1)
+;; => [2 6]
 
-;; => ([0 0] [1 1] [2 2])
+(all-diagonals matrix)
+;; => [[7] [4 8] [1 5 9] [2 6] [3]]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Access using coordinate pairs
+;; Executable checks
 
-(map
- (fn [[r c]]
-   (get-in m [r c]))
- (map vector
-      (range 3)
-      (range 3)))
-
-;; => (1 5 9)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Offset diagonal (one above)
-
-(map
- #(get-in m [% (inc %)])
- (range 2))
-
-;; => (2 6)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Offset diagonal (one below)
-
-(map
- #(get-in m [(inc %) %])
- (range 2))
-
-;; => (4 8)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
-
-;; Row traversal
-(row, all columns)
-
-;; Column traversal
-(all rows, column)
-
-;; Diagonal traversal
-(row i, column i)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic pattern
-
-(for [i (range (min rows cols))]
-  (get-in matrix [i i]))
+(assert (= [1 5 9] (diagonal matrix)))
+(assert (= [2 6] (diagonal matrix 1)))
+(assert (= [[7] [4 8] [1 5 9] [2 6] [3]]
+           (all-diagonals matrix)))
 ```
 
----
+The coordinate formula works for rectangular matrices. An offset outside the matrix produces `[]`.
 
-## Key Insight
+### Memory Hooks
 
-**A diagonal is defined by a coordinate relationship, not by physical storage.** The main diagonal follows the simple rule:
+- Main diagonal: `row = column`.
+- Any descending diagonal: `column - row` is constant.
+- Positive offset means above the main diagonal.
 
-```text
-(row, col)
+### Key Insight
 
-(0,0)
-(1,1)
-(2,2)
-(3,3)
-...
-```
-
-Whenever the **row index and column index increase together**, you're traversing the main diagonal. This pattern appears frequently in linear algebra, board games, image processing, and dynamic programming.
-
----
+A diagonal is a coordinate rule. Write the rule first, then read values with `get-in`.

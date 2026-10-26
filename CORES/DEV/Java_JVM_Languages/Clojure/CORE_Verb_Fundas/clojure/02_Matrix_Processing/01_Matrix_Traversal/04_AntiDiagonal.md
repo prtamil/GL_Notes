@@ -2,235 +2,144 @@
 
 ## Mental Model
 
-Anti-diagonal traversal visits cells where the **row index increases while the column index decreases**. It follows the diagonal from the **top-right corner** to the **bottom-left corner**.
-
-Like the main diagonal, this is defined by a **coordinate relationship**, not by how the matrix is stored.
-
----
+Cells share an anti-diagonal when `row + column` is constant. The main path starts at the top-right corner.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Trace
-   ↓
-Anti-Diagonal Traversal
+Trace -> keep row + column constant
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Trace the opposite diagonal
-    
-- Follow the reverse diagonal
-    
-- Scan diagonally
-    
-- Visit mirrored coordinates
-    
-- Compare opposite corners
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Main anti-diagonal|`(0,n-1) → (n-1,0)`|`range`, `get-in`|
-|Offset anti-diagonal|adjacent diagonals|`range` with offset|
-|Collect anti-diagonal|build sequence|`map`|
-|Reduce anti-diagonal|sum/product|`reduce`|
-|Indexed traversal|explicit `(r,c)`|`map vector`|
-
----
+|Need|Use|
+|---|---|
+|Main anti-diagonal|start at `[0, last-column]`|
+|Offset anti-diagonal|select a coordinate sum|
+|Both main lines|combine two coordinate sets|
+|All anti-diagonals|map all valid sums|
 
 ## Common Uses
 
-- Tic-Tac-Toe winner detection
-    
-- Matrix symmetry checks
-    
-- Image processing
-    
-- Dynamic programming
-    
-- Chess and board games
-    
-- Computer vision
-    
-- Heatmap analysis
-    
-- Matrix puzzles
-    
-
----
+- Check board wins.
+- Find X-shaped patterns.
+- Compare diagonal sums.
+- Group cells by coordinate sum.
 
 ## Hidden Interview Problems
 
-- Print the anti-diagonal
-    
-- Sum the anti-diagonal
-    
-- Compare both diagonals
-    
-- Check X-patterns
-    
-- Difference of diagonal sums
-    
-- Find diagonal maximum
-    
-- Detect anti-diagonal symmetry
-    
-- Traverse all anti-diagonals
-    
-
----
+- Remove the duplicate center of an X.
+- Check anti-diagonal symmetry.
+- Traverse rectangular input.
+- Find the maximum value on one diagonal.
 
 ## Recognition Clues
 
-If you hear...
-
-- "top-right to bottom-left..."
-    
-- "secondary diagonal..."
-    
-- "opposite diagonal..."
-    
-- "reverse diagonal..."
-    
-- "mirror diagonal..."
-    
-
-...think **Anti-Diagonal Traversal**.
-
----
+Look for `top-right to bottom-left`, `opposite diagonal`, or a constant coordinate sum.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Anti-Diagonal|
-|Direction|Top-Right → Bottom-Left|
-|Coordinate Rule|`row + col == n - 1` (square matrix)|
-|Time Complexity|O(min(rows, cols))|
-|Space Complexity|O(1) extra|
-|Common Domains|Games, graphics, linear algebra|
+For sum `s`, every coordinate satisfies `row + column = s`.
 
----
+## Shape and Edge Behavior
+
+- The traversal functions expect a finite rectangular matrix.
+- A matrix with no cells returns empty anti-diagonal results.
+- The traversal functions reject ragged rows with `ExceptionInfo`.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
-  [[1 2 3]
-   [4 5 6]
-   [7 8 9]])
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
 
-(def n (count m))
+(defn matrix-shape [matrix]
+  (require-rectangular matrix)
+  [(count matrix) (if-let [row (first matrix)] (count row) 0)])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main anti-diagonal
+(defn anti-diagonal-coordinates [matrix coordinate-sum]
+  (let [[rows columns] (matrix-shape matrix)
+        first-row (max 0 (- coordinate-sum (dec columns)))
+        end-row (min rows (inc coordinate-sum))]
+    (mapv (fn [row]
+            [row (- coordinate-sum row)])
+          (range first-row end-row))))
 
-(map
- #(get-in m [% (- n 1 %)])
- (range n))
+(defn anti-diagonal [matrix coordinate-sum]
+  (mapv #(get-in matrix %)
+        (anti-diagonal-coordinates matrix coordinate-sum)))
 
-;; => (3 5 7)
+(defn main-anti-diagonal [matrix]
+  (let [[_ columns] (matrix-shape matrix)]
+    (if (zero? columns)
+      []
+      (anti-diagonal matrix (dec columns)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Sum of anti-diagonal
+(defn all-anti-diagonals [matrix]
+  (let [[rows columns] (matrix-shape matrix)]
+    (if (or (zero? rows) (zero? columns))
+      []
+      (mapv #(anti-diagonal matrix %)
+            (range (dec (+ rows columns)))))))
 
-(reduce +
-        (map #(get-in m [% (- n 1 %)])
-             (range n)))
+(defn x-coordinates [size]
+  (set (concat
+         (map (fn [index] [index index]) (range size))
+         (map (fn [index] [index (- (dec size) index)])
+              (range size)))))
 
-;; => 15
+(defn x-pattern? [grid mark]
+  (let [size (count grid)
+        x-cells (x-coordinates size)]
+    (and (every? #(= size (count %)) grid)
+         (every? (fn [[row column]]
+                   (= (= mark (get-in grid [row column]))
+                      (contains? x-cells [row column])))
+                 (for [row (range size)
+                       column (range size)]
+                   [row column])))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Product of anti-diagonal
+(defn anti-diagonal-symmetric? [matrix]
+  (let [[rows columns] (matrix-shape matrix)]
+    (and (= rows columns)
+         (every? (fn [[row column]]
+                   (= (get-in matrix [row column])
+                      (get-in matrix [(- (dec rows) column)
+                                      (- (dec rows) row)])))
+                 (for [row (range rows)
+                       column (range columns)]
+                   [row column])))))
 
-(reduce *
-        (map #(get-in m [% (- n 1 %)])
-             (range n)))
+(def matrix [[1 2 3] [4 5 6] [7 8 9]])
 
-;; => 105
+(main-anti-diagonal matrix)
+;; => [3 5 7]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Coordinate pairs
+(all-anti-diagonals matrix)
+;; => [[1] [2 4] [3 5 7] [6 8] [9]]
 
-(map vector
-     (range n)
-     (reverse (range n)))
+;; Executable checks
 
-;; => ([0 2] [1 1] [2 0])
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Access using coordinate pairs
-
-(map
- (fn [[r c]]
-   (get-in m [r c]))
- (map vector
-      (range n)
-      (reverse (range n))))
-
-;; => (3 5 7)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Offset anti-diagonal (one inward)
-
-(map
- #(get-in m [% (- n 2 %)])
- (range (dec n)))
-
-;; => (2 4)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
-
-;; Main diagonal
-(get-in matrix [i i])
-
-;; Anti-diagonal
-(get-in matrix [i (- n 1 i)])
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic pattern
-
-(for [i (range (min rows cols))]
-  (get-in matrix [i (- cols 1 i)]))
+(assert (= [3 5 7] (main-anti-diagonal matrix)))
+(assert (= [[1] [2 4] [3 5 7] [6 8] [9]]
+           (all-anti-diagonals matrix)))
 ```
 
----
+The functions return `[]` when the matrix has no cells.
 
-## Key Insight
+### Memory Hooks
 
-An anti-diagonal follows the simple coordinate rule:
+- Main diagonal: coordinate difference.
+- Anti-diagonal: coordinate sum.
+- Use a set when two diagonals can share the center.
 
-```text
-(row, col)
+### Key Insight
 
-(0, n-1)
-(1, n-2)
-(2, n-3)
-...
-(n-1, 0)
-```
-
-Equivalently, in a square matrix:
-
-```text
-row + col = n - 1
-```
-
-Notice the contrast with the main diagonal:
-
-|Traversal|Coordinate Rule|
-|---|---|
-|Main Diagonal|`row == col`|
-|Anti-Diagonal|`row + col == n - 1`|
-
-The anti-diagonal is essentially the **mirror image** of the main diagonal. Whenever one index increases while the other decreases, you're traversing an anti-diagonal.
+The sum groups every anti-diagonal. This rule removes special cases for square and rectangular matrices.

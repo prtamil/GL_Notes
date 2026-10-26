@@ -37,6 +37,18 @@ Comparison is fundamental to searching, sorting, validation, and decision-making
 
 ---
 
+# The Clojure-specific catches
+
+**`=` and `==` have different numeric rules.** `(= 1 1.0)` is `false`. `(== 1 1.0)` is `true`. Use `==` for numeric magnitude across types.
+
+**`=` compares sequential collections structurally, across types.** `(= [1 2] '(1 2))` is `true` — a vector equals a list with the same elements. But `(= [1 2] #{1 2})` is `false`, because a set is not sequential.
+
+**`compare` throws on mixed types**, the same `ClassCastException` you get from sorting. It returns a negative, zero or positive number — do not depend on exactly `-1` and `1`.
+
+**`identical?` tests reference equality.** Use `=` for normal value comparisons.
+
+---
+
 # One Sentence to Remember
 
 > **Compare determines the relationship between values or sequences, such as equality, ordering, or difference.**

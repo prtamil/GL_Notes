@@ -43,6 +43,20 @@ Unlike most other verbs, **Observe** is a **read-only** operation. It does not c
 
 ---
 
+# The Clojure-specific catches
+
+**`contains?` asks about keys, not values.** `(contains? [10 20 30] 10)` is `false` — a three-element vector has no index 10. `(contains? [10 20 30] 1)` is `true`. For "is this value present?" on a sequence use `(some #{v} coll)`, and remember sets are their own lookup function.
+
+**`some` returns the predicate's value, not the element.** `(some even? [1 3 4])` gives `true`, not `4`. Write `(some #(when (even? %) %) coll)` when you want the element back.
+
+**Only `nil` and `false` are falsey.** `0` and `""` are truthy, so the empty-value guards you carry over from Python quietly stop working.
+
+**Empty collections use identity results.** `(every? pred [])` and `(not-any? pred [])` return `true`. `(some pred [])` returns `nil`. `(apply min [])` throws.
+
+**`count` realizes all of a lazy sequence.** It is O(1) for vectors, maps, and sets. It does not return for an infinite sequence.
+
+---
+
 # One Sentence to Remember
 
 > **Observe answers questions about a sequence without changing the sequence itself.**

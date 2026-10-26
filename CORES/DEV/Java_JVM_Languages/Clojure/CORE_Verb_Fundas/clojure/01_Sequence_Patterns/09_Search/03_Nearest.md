@@ -168,7 +168,7 @@ Think:
        people)
 
 ;; =>
-{:name "Carol" :age 27}
+;; {:name "Carol" :age 27}
 
 
 ;;--------------------------------------------------------
@@ -180,7 +180,7 @@ Think:
                xs))
 
 ;; =>
-(22 30 15)
+;; (22 30 15)
 
 
 ;;--------------------------------------------------------
@@ -208,7 +208,7 @@ Think:
        points)
 
 ;; =>
-[1 2]
+;; [1 2]
 
 
 ;;--------------------------------------------------------
@@ -223,7 +223,7 @@ Think:
 (apply max-key :score scores)
 
 ;; =>
-{:name "B" :score 0.95}
+;; {:name "B" :score 0.95}
 
 
 ;;--------------------------------------------------------
@@ -233,12 +233,90 @@ Think:
 (first xs)
 
 ;; =>
-10
+;; 10
 
 (apply min-key
        #(Math/abs (- % 25))
        xs)
 
 ;; =>
-22
+;; 22
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn nearest-by [distance-fn values]
+  (when-let [[first-value & remaining-values] (seq values)]
+    (reduce (fn [best value]
+              ;; Strict < preserves the earliest value on a tie.
+              (if (< (distance-fn value) (distance-fn best))
+                value
+                best))
+            first-value
+            remaining-values)))
+
+(defn nearest-number [target values]
+  (nearest-by #(Math/abs (double (- % target))) values))
+
+(defn nearest-with-distance [distance-fn values]
+  (when-let [nearest-value (nearest-by distance-fn values)]
+    {:value nearest-value
+     :distance (distance-fn nearest-value)}))
+
+(defn top-k-nearest [k distance-fn values]
+  (->> values
+       (sort-by distance-fn)
+       (take (max 0 k))))
+
+(defn pair-gap [[left right]]
+  (- right left))
+
+(defn closest-pair [values]
+  (when-let [[first-pair & remaining-pairs]
+             (seq (partition 2 1 (sort values)))]
+    (reduce (fn [best pair]
+              ;; Strict < preserves the first sorted pair on a tie.
+              (if (< (pair-gap pair) (pair-gap best))
+                pair
+                best))
+            first-pair
+            remaining-pairs)))
+
+(nearest-number 25 [10 22 28 40])
+;; => 22
+
+(nearest-by #(Math/abs (- (:score %) 90))
+            [{:name "A" :score 82}
+             {:name "B" :score 93}])
+;; => {:name "B", :score 93}
+
+(nearest-with-distance #(Math/abs (- % 25)) [10 22 28 40])
+;; => {:value 22, :distance 3}
+
+(top-k-nearest 3 #(Math/abs (- % 10)) [1 7 9 12 20])
+;; => (9 12 7)
+
+(closest-pair [10 3 20 8 9])
+;; => (8 9)
+```
+
+For repeated queries of sorted data, use binary search. Compare the two values near the insertion point. A complete `min-key` scan is O(n).
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|nearest by a distance|`nearest-by`|
+|farthest by a score|`max-key`|
+|nearest record|distance function over a field|
+|value and distance|map to `[distance value]` once|
+|top `k` nearest|sort by distance, then `take`|
+|closest pair of numbers|sort, then inspect adjacent pairs|
+|maximum acceptable distance|check the winning distance afterward|
+
+### Key Insight
+
+Nearest search is ordinary minimization once distance has been defined. Tie behavior is part of the contract: the named reducer above deliberately keeps the earliest value, whereas `min-key` may select a later equal-key argument.

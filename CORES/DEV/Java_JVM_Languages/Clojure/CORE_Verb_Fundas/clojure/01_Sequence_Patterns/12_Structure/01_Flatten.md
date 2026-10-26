@@ -121,7 +121,7 @@ Think:
 (flatten [1 [2 [3 [4]] 5] [6]])
 
 ;; =>
-(1 2 3 4 5 6)
+;; (1 2 3 4 5 6)
 
 
 ;;--------------------------------------------------------
@@ -134,7 +134,7 @@ Think:
          [5]])
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 
 
 ;;--------------------------------------------------------
@@ -144,13 +144,13 @@ Think:
 (flatten [[1 [2]] [3]])
 
 ;; =>
-(1 2 3)
+;; (1 2 3)
 
 (mapcat identity
         [[1 [2]] [3]])
 
 ;; =>
-(1 [2] 3)
+;; (1 [2] 3)
 
 
 ;;--------------------------------------------------------
@@ -161,7 +161,7 @@ Think:
         [1 2 3])
 
 ;; =>
-(1 10 2 20 3 30)
+;; (1 10 2 20 3 30)
 
 
 ;;--------------------------------------------------------
@@ -174,7 +174,7 @@ Think:
  [5 6])
 
 ;; =>
-(1 2 3 4 5 6)
+;; (1 2 3 4 5 6)
 
 
 ;;--------------------------------------------------------
@@ -186,7 +186,7 @@ Think:
   ["c" ["d" "e"]]])
 
 ;; =>
-("a" "b" "c" "d" "e")
+;; ("a" "b" "c" "d" "e")
 
 
 ;;--------------------------------------------------------
@@ -199,15 +199,15 @@ Think:
  [1 [2 [3 4]] [5]])
 
 ;; =>
-([1 [2 [3 4]] [5]]
- 1
- [2 [3 4]]
- 2
- [3 4]
- 3
- 4
- [5]
- 5)
+;; ([1 [2 [3 4]] [5]]
+ ;; 1
+ ;; [2 [3 4]]
+ ;; 2
+ ;; [3 4]
+ ;; 3
+ ;; 4
+ ;; [5]
+ ;; 5)
 
 
 ;;--------------------------------------------------------
@@ -220,7 +220,7 @@ Think:
            [1 [2 [3 4]] [5]]))
 
 ;; =>
-(1 2 3 4 5)
+;; (1 2 3 4 5)
 
 
 ;;--------------------------------------------------------
@@ -232,7 +232,7 @@ Think:
          {:a 3 :b 4}])
 
 ;; =>
-(1 2 3 4)
+;; (1 2 3 4)
 
 
 ;;--------------------------------------------------------
@@ -244,5 +244,77 @@ Think:
             [1 2 3 4 5 6]))
 
 ;; =>
-(1 2 3 4 5 6)
+;; (1 2 3 4 5 6)
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(require '[clojure.string :as str])
+
+(defn flatten-one [nested]
+  (mapcat identity nested))
+
+(defn flatten-to-depth [depth nested]
+  (when (neg? depth)
+    (throw (ex-info "Depth must not be negative" {:depth depth})))
+  (if (zero? depth)
+    nested
+    (mapcat (fn [value]
+              (if (sequential? value)
+                (flatten-to-depth (dec depth) value)
+                [value]))
+            nested)))
+
+(defn flatten-tree [branch? children root]
+  (remove branch?
+          (tree-seq branch? children root)))
+
+(defn flatten-map
+  ([m]
+   (flatten-map [] m))
+  ([path m]
+   (into {}
+         (mapcat (fn [[key value]]
+                   (let [next-path (conj path key)]
+                     (if (map? value)
+                       (flatten-map next-path value)
+                       [[(str/join "." (map name next-path))
+                         value]])))
+                 m))))
+
+(flatten-one [[1 2] [3 4] [5]])
+;; => (1 2 3 4 5)
+
+(flatten-to-depth 1 [[1 [2 3]] [4]])
+;; => (1 [2 3] 4)
+
+(flatten-to-depth 2 [[1 [2 3]] [4]])
+;; => (1 2 3 4)
+
+(flatten [1 [2 [3 4]] "text"])
+;; => (1 2 3 4 "text")
+
+(flatten-map {:database {:host "db" :port 5432}
+              :debug false})
+;; => {"database.host" "db", "database.port" 5432, "debug" false}
+```
+
+Core `flatten` recursively follows values for which `sequential?` is true. Strings and maps are therefore leaves rather than collections to explode. Use `mapcat identity` when only one layer should disappear.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|remove exactly one level|`mapcat identity`|
+|remove every sequential level|`flatten`|
+|stop after a known depth|a depth-limited recursive function|
+|walk a tree|`tree-seq`|
+|flatten while transforming|`mapcat f`|
+|configuration-style dotted keys|recursive map traversal|
+
+### Key Insight
+
+Define the depth and branch types for a flatten operation. One-level flattening preserves deeper structure. Deep flattening removes all sequential boundaries.

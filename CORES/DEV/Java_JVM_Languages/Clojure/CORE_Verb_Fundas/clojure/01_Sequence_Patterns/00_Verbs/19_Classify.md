@@ -35,6 +35,18 @@ Unlike **Group**, which collects elements into buckets, **Classify** focuses on 
 
 ---
 
+# The Clojure-specific catches
+
+**`case` needs compile-time literals.** It does not evaluate its test constants, so `(case x some-var …)` compares against the *symbol*, not its value. Use `condp` or `cond` when the branches are computed.
+
+**`case` throws when nothing matches** unless you supply a trailing default expression. `cond` returns `nil` instead — a silent classification hole.
+
+**`group-by` is eager.** It realizes the complete sequence. `keep` and `filter` stay lazy.
+
+**Keywords make the best labels.** They are interned, fast to compare, and self-documenting as map keys — prefer `:high` over `"high"` or `2`.
+
+---
+
 # One Sentence to Remember
 
 > **Classify assigns each element to a category based on a rule.**

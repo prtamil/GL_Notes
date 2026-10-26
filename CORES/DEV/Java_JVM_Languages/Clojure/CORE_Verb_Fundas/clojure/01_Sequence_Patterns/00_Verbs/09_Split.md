@@ -36,6 +36,18 @@ Unlike **Slice**, which extracts one portion, **Split** separates the original s
 
 ---
 
+# The Clojure-specific catches
+
+**`partition` drops a short final group. `partition-all` keeps it.** Select the required behavior to prevent silent data loss.
+
+**`partition-by` splits on *changes* in the function's value, and only between adjacent elements.** `(partition-by odd? [1 3 2 4 5])` gives `((1 3) (2 4) (5))` — the two odd runs stay separate. If you wanted all odds together you wanted `group-by`.
+
+**`split-at` and `split-with` traverse twice.** They return `[taken dropped]`, and on a lazy sequence each half walks the source independently. Fine for vectors, worth knowing for expensive streams.
+
+**`split-with` splits at the first failure**, not at every match — it is `[take-while drop-while]`, nothing more.
+
+---
+
 # One Sentence to Remember
 
 > **Split divides one sequence into multiple meaningful sequences.**

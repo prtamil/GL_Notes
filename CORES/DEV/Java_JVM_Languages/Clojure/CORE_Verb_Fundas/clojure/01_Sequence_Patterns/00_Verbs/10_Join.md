@@ -20,7 +20,7 @@ Unlike **Pair**, which relates elements position by position, **Join** focuses o
 |---|---|---|
 |**Join**|How do I bring these sequences together?|`concat`, `into`, `merge`, `merge-with`, `conj`, `cons`|
 
-> **Note:** `concat` joins sequences end-to-end, `into` copies elements into a target collection, `merge` joins maps, `merge-with` combines map values, while `conj` and `cons` add individual elements.
+> **Note:** `concat` joins sequences. `into` copies values into a target collection. `merge` joins maps. `merge-with` combines map values. `conj` and `cons` add items.
 
 ---
 
@@ -33,6 +33,18 @@ Unlike **Pair**, which relates elements position by position, **Join** focuses o
 |Join maps|`merge`|`(merge {:a 1} {:b 2})` → `{:a 1 :b 2}`|
 |Join maps with value function|`merge-with`|`(merge-with + {:a 1} {:a 2})` → `{:a 3}`|
 |Add one element|`conj`|`(conj [1 2] 3)` → `[1 2 3]`|
+
+---
+
+# The Clojure-specific catches
+
+**Do not use `concat` repeatedly in a loop.** Each call adds another lazy layer. Many layers can be slow and can overflow the stack. Use `into` for accumulation.
+
+**`into` reverses values when the target is a list.** `conj` adds at the front of a list. It adds at the end of a vector. The target type controls the order.
+
+**Pick the join for the collection type.** `concat` for sequences, `into` for building a concrete collection, `merge` for maps, `clojure.string/join` for strings. `concat` on maps gives you a sequence of pairs, not a map.
+
+**`into` uses transients where it can**, so it is meaningfully faster than `(reduce conj …)` for building vectors, sets and maps.
 
 ---
 

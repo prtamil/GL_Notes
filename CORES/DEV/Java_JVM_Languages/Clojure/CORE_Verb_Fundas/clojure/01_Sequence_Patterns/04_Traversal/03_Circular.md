@@ -209,3 +209,89 @@ Think:
 ;;     [5 3]
 ;;     [6 1])
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn rotate-left [amount collection]
+  (let [values (vec collection)
+        size (count values)]
+    (if (zero? size)
+      []
+      (let [cut (mod amount size)]
+        (into (subvec values cut)
+              (subvec values 0 cut))))))
+
+(defn circular-index [collection index]
+  (let [values (vec collection)]
+    (when (seq values)
+      (nth values (mod index (count values))))))
+
+(defn circular-pairs [collection]
+  (when-let [values (seq collection)]
+    (map vector
+         values
+         (concat (rest values) [(first values)]))))
+
+(defn circular-windows [width collection]
+  (when-not (pos? width)
+    (throw (ex-info "Window width must be positive" {:width width})))
+  (let [values (vec collection)
+        size (count values)]
+    (if (zero? size)
+      []
+      (->> (cycle values)
+           (partition width 1)
+           (take size)
+           (mapv vec)))))
+
+(defn ring-neighbors [values index]
+  [(circular-index values (dec index))
+   (circular-index values (inc index))])
+
+(defn josephus-winner [items step]
+  (when-not (pos? step)
+    (throw (ex-info "Step must be positive" {:step step})))
+  (loop [remaining (vec items)
+         index 0]
+    (cond
+      (empty? remaining) nil
+      (= 1 (count remaining)) (first remaining)
+      :else
+      (let [remove-at (mod (+ index (dec step))
+                           (count remaining))]
+        (recur (into (subvec remaining 0 remove-at)
+                     (subvec remaining (inc remove-at)))
+               remove-at)))))
+
+(rotate-left 2 [1 2 3 4 5])
+;; => [3 4 5 1 2]
+
+(circular-pairs [:a :b :c])
+;; => ([:a :b] [:b :c] [:c :a])
+
+(circular-windows 3 [1 2 3 4])
+;; => [[1 2 3] [2 3 4] [3 4 1] [4 1 2]]
+
+(josephus-winner [:a :b :c :d :e] 2)
+;; => :c
+```
+
+Use `cycle` only with a finite, reusable collection, and always bound it with `take`, `zip`-like `map`, or another terminating consumer.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|repeat a finite pattern|`cycle`|
+|wrap an index|`mod`|
+|start at an offset|`drop` over `cycle`, then `take`|
+|last-to-first edge|`circular-pairs`|
+|one window per original item|take exactly `(count xs)` windows|
+|a visible rotation|split a vector and join the halves|
+
+### Key Insight
+
+Circular algorithms replace endpoints with modular arithmetic. Materialize the source once when random access is required, then use `mod` to make negative and oversized indices wrap predictably.

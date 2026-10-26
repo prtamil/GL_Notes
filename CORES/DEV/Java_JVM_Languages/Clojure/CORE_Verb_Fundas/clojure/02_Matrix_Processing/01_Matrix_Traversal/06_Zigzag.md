@@ -2,262 +2,154 @@
 
 ## Mental Model
 
-Zigzag traversal visits the matrix by **alternating the traversal direction** after each line. Instead of always moving in the same direction, the traversal **bounces back and forth**.
-
-The line being traversed can be rows, columns, or diagonals. The most famous zigzag pattern is the **JPEG diagonal zigzag scan**.
-
----
+Reverse every second line. A line can be a row, column, tree level, or anti-diagonal.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Alternate
-     ↓
-Zigzag Traversal
+Alternate -> forward line -> reverse line -> repeat
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Alternate direction
-    
-- Bounce
-    
-- Reverse every pass
-    
-- Sweep back and forth
-    
-- Oscillate
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Row zigzag|alternate rows|`map-indexed`, `reverse`|
-|Column zigzag|alternate columns|`apply map vector`, `reverse`|
-|Diagonal zigzag|JPEG ordering|`loop/recur`|
-|Alternate direction|even/odd test|`even?`, `odd?`|
-|Flatten result|produce sequence|`mapcat`, `concat`|
-
----
+|Need|Use|
+|---|---|
+|Alternate lines|`map-indexed` and `reverse`|
+|Flatten lines|`into [] cat`|
+|Zigzag columns|transpose first|
+|JPEG scan|group by `row + column`|
 
 ## Common Uses
 
-- JPEG image compression
-    
-- Matrix serialization
-    
-- Robot sweep patterns
-    
-- Raster scanning
-    
-- Cache-friendly processing
-    
-- Game AI search
-    
-- Hardware image sensors
-    
-- Scientific visualization
-    
-
----
+- Serialize a matrix.
+- Scan image coefficients.
+- Alternate tree levels.
+- Sweep a grid in both directions.
 
 ## Hidden Interview Problems
 
-- Print matrix in zigzag order
-    
-- Alternate every row
-    
-- Zigzag level traversal
-    
-- JPEG scan ordering
-    
-- Reverse alternate rows
-    
-- Serialize matrix
-    
-- Snake vs Zigzag comparison
-    
-
----
+- Restore a row-zigzag sequence.
+- Traverse columns in alternating directions.
+- Produce the JPEG diagonal order.
+- Apply the pattern to tree levels.
 
 ## Recognition Clues
 
-If you hear...
-
-- "alternate direction..."
-    
-- "back and forth..."
-    
-- "reverse every row..."
-    
-- "bounce..."
-    
-- "zigzag..."
-    
-
-...think **Zigzag Traversal**.
-
----
+Look for `alternate direction`, `every second line`, `zigzag`, or `level order with reversal`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Row, Column, or Diagonal|
-|Direction|Alternating|
-|Coordinate Rule|Reverse every other pass|
-|Time Complexity|O(rows × cols)|
-|Space Complexity|O(1) extra (excluding output)|
-|Common Domains|JPEG, graphics, robotics|
+The line number controls direction. The line content does not control direction.
 
----
+## Shape and Edge Behavior
+
+- Row zigzag accepts finite ragged rows.
+- Column and diagonal zigzag require a rectangular matrix.
+- An empty matrix returns an empty result.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
-  [[1 2 3 4]
-   [5 6 7 8]
-   [9 10 11 12]
-   [13 14 15 16]])
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zigzag by rows
+(defn alternate-lines [lines]
+  (mapv (fn [line-index line]
+          (if (even? line-index)
+            (vec line)
+            (vec (reverse line))))
+        (range)
+        lines))
 
-(map-indexed
- (fn [i row]
-   (if (even? i)
-     row
-     (reverse row)))
- m)
+(defn row-zigzag [matrix]
+  (alternate-lines matrix))
 
-;; =>
-;; ((1 2 3 4)
-;;  (8 7 6 5)
-;;  (9 10 11 12)
-;;  (16 15 14 13))
+(defn row-zigzag-order [matrix]
+  (vec (mapcat identity (row-zigzag matrix))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Flatten zigzag traversal
+(defn transpose [matrix]
+  (require-rectangular matrix)
+  (if (empty? matrix) [] (apply mapv vector matrix)))
 
-(mapcat identity
-        (map-indexed
-         (fn [i row]
-           (if (even? i)
-             row
-             (reverse row)))
-         m))
+(defn column-zigzag [matrix]
+  (alternate-lines (transpose matrix)))
 
-;; =>
-;; (1 2 3 4
-;;  8 7 6 5
-;;  9 10 11 12
-;; 16 15 14 13)
+(defn anti-diagonal-lines [matrix]
+  (require-rectangular matrix)
+  (let [rows (count matrix)
+        columns (if-let [row (first matrix)] (count row) 0)]
+    (mapv (fn [coordinate-sum]
+            (mapv (fn [row]
+                    (get-in matrix [row (- coordinate-sum row)]))
+                  (range (max 0 (- coordinate-sum (dec columns)))
+                         (min rows (inc coordinate-sum)))))
+          (range (max 0 (dec (+ rows columns)))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Zigzag by columns
+(defn diagonal-zigzag [matrix]
+  (->> (anti-diagonal-lines matrix)
+       (map-indexed
+         (fn [coordinate-sum diagonal]
+           (if (even? coordinate-sum)
+             (reverse diagonal)
+             diagonal)))
+       (mapcat identity)
+       vec))
 
-(def cols
-  (apply map vector m))
+(defn restore-row-zigzag [values columns]
+  (when-not (pos? columns)
+    (throw (ex-info "Column count must be positive" {:columns columns})))
+  (alternate-lines (partition-all columns values)))
 
-(map-indexed
- (fn [i col]
-   (if (even? i)
-     col
-     (reverse col)))
- cols)
+(defn zigzag-levels [root children]
+  (loop [level-number 0
+         level [root]
+         result []]
+    (if (empty? level)
+      result
+      (let [shown (if (even? level-number)
+                    level
+                    (vec (reverse level)))
+            next-level (into [] (mapcat children) level)]
+        (recur (inc level-number)
+               next-level
+               (conj result shown))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic alternating pattern
+(def matrix [[1 2 3] [4 5 6] [7 8 9]])
 
-(map-indexed
- (fn [i xs]
-   (if (even? i)
-     xs
-     (reverse xs)))
- collection)
+(row-zigzag-order matrix)
+;; => [1 2 3 6 5 4 7 8 9]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Explicit traversal
+(diagonal-zigzag matrix)
+;; => [1 2 4 7 5 3 6 8 9]
 
-(doseq [[i row]
-        (map-indexed vector m)]
-  (doseq [x (if (even? i)
-              row
-              (reverse row))]
-    (println x)))
+;; Executable checks
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
-
-;; Always forward
-(mapcat identity m)
-
-;; Alternate direction
-(mapcat identity
-        (map-indexed
-          (fn [i row]
-            (if (even? i)
-              row
-              (reverse row)))
-          m))
+(assert (= [1 2 3 6 5 4 7 8 9]
+           (row-zigzag-order matrix)))
+(assert (= [1 2 4 7 5 3 6 8 9]
+           (diagonal-zigzag matrix)))
 ```
 
----
+Row zigzag is its own inverse when each row length is known.
 
-## Key Insight
+### Memory Hooks
 
-The defining idea of zigzag traversal is **alternating direction**.
+- Even line: keep direction.
+- Odd line: reverse direction.
+- Transpose changes row zigzag into column zigzag.
+- Anti-diagonal buckets produce JPEG order.
 
-```text
-→→→→
-←←←←
-→→→→
-←←←←
-```
+### Key Insight
 
-Unlike spiral traversal, which changes **boundaries**, zigzag traversal changes only the **direction of travel** after each pass.
-
-The traversal unit can be:
-
-|Unit|Example|
-|---|---|
-|Row|Read left→right, then right→left|
-|Column|Read top→bottom, then bottom→top|
-|Diagonal|JPEG zigzag ordering|
-
-Think of zigzag as the general pattern:
-
-```text
-Forward
-   ↓
-Reverse
-   ↓
-Forward
-   ↓
-Reverse
-```
-
-> **Mental shift:** Zigzag traversal is not about _where_ you move next; it's about _changing the direction_ of each successive sweep.
-
----
+Zigzag is a general line pattern. Separate line creation from direction changes.
 
 ### Zigzag vs Snake
 
-Although many resources use the terms interchangeably, it's useful to distinguish them conceptually:
-
-|Pattern|Primary Idea|
-|---|---|
-|**Zigzag**|Alternate the direction of each traversal unit (rows, columns, or diagonals). The concept is general.|
-|**Snake**|A specific zigzag where the traversal unit is **rows** (or sometimes columns), producing a continuous snake-like path.|
-
-In this course, we'll treat **Snake Traversal** as a specialized form of zigzag because it appears frequently in graphics, game maps, and interview problems.
-
----
+Zigzag describes alternating line order. Snake adds a requirement: consecutive coordinates must remain adjacent.

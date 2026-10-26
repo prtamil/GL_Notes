@@ -35,6 +35,18 @@ Unlike **Reject**, which removes elements based on a rule, **Compress** removes 
 
 ---
 
+# The Clojure-specific catches
+
+**`distinct` and `dedupe` are different operations.** `distinct` removes every repeat anywhere — `(distinct [1 1 2 1])` is `(1 2)`. `dedupe` collapses only *consecutive* runs — `(dedupe [1 1 2 1])` is `(1 2 1)`. Reaching for the wrong one on unsorted data is the classic bug.
+
+**`distinct` retains every value that it sees.** Its memory use grows with the number of different values. It cannot complete for infinite unique input.
+
+**`set` does not preserve order. `distinct` preserves first appearance order.** Select the function from the required result.
+
+**`dedupe` and `distinct` have transducer arities.** Use them when compression is one step in a data pipeline.
+
+---
+
 # One Sentence to Remember
 
 > **Compress reduces redundancy in a sequence while preserving its essential information.**

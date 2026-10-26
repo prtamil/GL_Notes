@@ -39,6 +39,18 @@ Unlike **Select**, which keeps elements based on a predicate regardless of posit
 
 ---
 
+# The Clojure-specific catches
+
+**Clojure has no negative indices.** Use `take-last` and `drop-last` for operations at the end.
+
+**`take` and `drop` clamp their bounds. `subvec` and `nth` throw.** Select the behavior that matches the input contract.
+
+**`subvec` is O(1), but it retains the source vector.** A small slice can keep a large source vector in memory. Call `vec` to make an independent vector.
+
+**`take` and `drop` are lazy. `subvec` is not.** Use `take` and `drop` for streams and non-indexed sequences.
+
+---
+
 # One Sentence to Remember
 
 > **Slice extracts a contiguous portion of a sequence based on position or a boundary condition.**

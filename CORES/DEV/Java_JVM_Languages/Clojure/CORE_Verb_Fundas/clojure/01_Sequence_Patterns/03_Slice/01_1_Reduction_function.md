@@ -195,4 +195,64 @@ Here are some examples.
     
 - `reduce` → compute one final result.
     
-- `reductions` → **show the journey**, returning every intermediate state. This is why it's so useful for debugging, visualizations, animations, state machines, dynamic programming, and algorithms where the evolution of state matters just as much as the final answer.
+- `reductions` → return every intermediate state. Use it for debugging, visualizations, state machines, and dynamic programming.
+
+---
+
+### Readable Clojure Functions
+
+Use a named step function as soon as the accumulated state contains more than one idea.
+
+```clojure
+(defn running-sums [values]
+  (rest (reductions + 0 values)))
+
+(defn running-products [values]
+  (rest (reductions * 1 values)))
+
+(defn growing-prefixes [values]
+  (rest (reductions conj [] values)))
+
+(defn add-frequency [counts value]
+  (update counts value (fnil inc 0)))
+
+(defn running-frequencies [values]
+  (rest (reductions add-frequency {} values)))
+
+(defn move-point [[x y] [dx dy]]
+  [(+ x dx) (+ y dy)])
+
+(defn path-from [start moves]
+  (reductions move-point start moves))
+
+(running-sums [1 2 3 4 5])
+;; => (1 3 6 10 15)
+
+(running-products [1 2 3 4 5])
+;; => (1 2 6 24 120)
+
+(running-frequencies [:a :b :a])
+;; => ({:a 1} {:a 1, :b 1} {:a 2, :b 1})
+
+(path-from [0 0] [[1 0] [0 2] [-1 0]])
+;; => ([0 0] [1 0] [1 2] [0 2])
+
+;; The same primitive also covers best-so-far values.
+(reductions max [3 1 5 2 7 4])
+;; => (3 3 5 5 7 7)
+```
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|one final state|`reduce`|
+|every intermediate state|`reductions`|
+|a leading initial state|three-argument `reductions`|
+|running totals|`(reductions + 0 xs)`|
+|growing prefixes|`(reductions conj [] xs)`|
+|structured state|a named two-argument step function|
+
+### Key Insight
+
+`reductions` is `reduce` with its history preserved. Its step function always receives the accumulated state first and the next input second. The initial value appears in the output, so use `rest` when the lesson should begin with the first processed item.

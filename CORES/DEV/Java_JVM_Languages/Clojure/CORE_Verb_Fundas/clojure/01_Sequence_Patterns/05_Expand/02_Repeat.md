@@ -123,7 +123,7 @@ Think:
 (repeat 5 :x)
 
 ;; =>
-(:x :x :x :x :x)
+;; (:x :x :x :x :x)
 
 
 ;;--------------------------------------------------------
@@ -133,7 +133,7 @@ Think:
 (take 6 (repeat "Hi"))
 
 ;; =>
-("Hi" "Hi" "Hi" "Hi" "Hi" "Hi")
+;; ("Hi" "Hi" "Hi" "Hi" "Hi" "Hi")
 
 
 ;;--------------------------------------------------------
@@ -143,7 +143,7 @@ Think:
 (take 8 (cycle [1 2 3]))
 
 ;; =>
-(1 2 3 1 2 3 1 2)
+;; (1 2 3 1 2 3 1 2)
 
 
 ;;--------------------------------------------------------
@@ -153,7 +153,7 @@ Think:
 (take 10 (cycle [:A :B]))
 
 ;; =>
-(:A :B :A :B :A :B :A :B :A :B)
+;; (:A :B :A :B :A :B :A :B :A :B)
 
 
 ;;--------------------------------------------------------
@@ -163,7 +163,7 @@ Think:
 (mapcat #(repeat 2 %) [1 2 3])
 
 ;; =>
-(1 1 2 2 3 3)
+;; (1 1 2 2 3 3)
 
 
 ;;--------------------------------------------------------
@@ -173,7 +173,7 @@ Think:
 (mapcat #(repeat 3 %) [1 2 3])
 
 ;; =>
-(1 1 1 2 2 2 3 3 3)
+;; (1 1 1 2 2 2 3 3 3)
 
 
 ;;--------------------------------------------------------
@@ -183,7 +183,7 @@ Think:
 (vec (repeat 5 0))
 
 ;; =>
-[0 0 0 0 0]
+;; [0 0 0 0 0]
 
 
 ;;--------------------------------------------------------
@@ -194,7 +194,7 @@ Think:
         (repeat 3 0))
 
 ;; =>
-(1 2 3 0 0 0)
+;; (1 2 3 0 0 0)
 
 
 ;;--------------------------------------------------------
@@ -205,10 +205,10 @@ Think:
       (cycle [:red :green :blue]))
 
 ;; =>
-(:red :green :blue
- :red :green :blue
- :red :green :blue
- :red :green :blue)
+;; (:red :green :blue
+ ;; :red :green :blue
+ ;; :red :green :blue
+ ;; :red :green :blue)
 
 
 ;;--------------------------------------------------------
@@ -218,5 +218,62 @@ Think:
 (apply str (repeat 8 "*"))
 
 ;; =>
-"********"
+;; "********"
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn repeat-value [repetitions value]
+  (repeat (max 0 repetitions) value))
+
+(defn repeat-sequence [repetitions values]
+  (mapcat identity (repeat (max 0 repetitions) values)))
+
+(defn repeat-each [repetitions values]
+  (mapcat (fn [value]
+            (repeat (max 0 repetitions) value))
+          values))
+
+(defn pad-right [width fill-value values]
+  (take width
+        (concat values (repeat fill-value))))
+
+(defn decode-runs [runs]
+  (mapcat (fn [[value run-length]]
+            (repeat run-length value))
+          runs))
+
+(repeat-value 4 :ready)
+;; => (:ready :ready :ready :ready)
+
+(repeat-sequence 3 [1 2])
+;; => (1 2 1 2 1 2)
+
+(repeat-each 2 [1 2 3])
+;; => (1 1 2 2 3 3)
+
+(pad-right 5 :missing [1 2])
+;; => (1 2 :missing :missing :missing)
+
+(decode-runs [[:a 3] [:b 2]])
+;; => (:a :a :a :b :b)
+```
+
+`repeat` is lazy and can be infinite. Make the consumer limit visible. A repeated mutable Java object uses the same reference each time.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|one value `n` times|`repeat`|
+|a whole pattern repeatedly|`cycle` or `repeat-sequence`|
+|each value repeated|`mapcat` plus `repeat`|
+|constant padding|`concat` with infinite `repeat`, then `take`|
+|decode run-length data|repeat each `[value count]`|
+
+### Key Insight
+
+You can repeat a complete sequence or each element. Use `cycle` for a sequence. Use `mapcat` with `repeat` for each element.

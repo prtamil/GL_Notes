@@ -126,8 +126,8 @@ Think:
 (group-by even? xs)
 
 ;; =>
-{false [1 3 5 7]
- true  [2 4 6 8]}
+;; {false [1 3 5 7]
+ ;; true  [2 4 6 8]}
 
 
 ;;--------------------------------------------------------
@@ -137,9 +137,9 @@ Think:
 (group-by #(mod % 3) xs)
 
 ;; =>
-{1 [1 4 7]
- 2 [2 5 8]
- 0 [3 6]}
+;; {1 [1 4 7]
+ ;; 2 [2 5 8]
+ ;; 0 [3 6]}
 
 
 ;;--------------------------------------------------------
@@ -150,8 +150,8 @@ Think:
           ["apple" "ape" "bat" "ball"])
 
 ;; =>
-{\a ["apple" "ape"]
- \b ["bat" "ball"]}
+;; {\a ["apple" "ape"]
+ ;; \b ["bat" "ball"]}
 
 
 ;;--------------------------------------------------------
@@ -162,10 +162,10 @@ Think:
           ["a" "to" "cat" "dog" "tree"])
 
 ;; =>
-{1 ["a"]
- 2 ["to"]
- 3 ["cat" "dog"]
- 4 ["tree"]}
+;; {1 ["a"]
+ ;; 2 ["to"]
+ ;; 3 ["cat" "dog"]
+ ;; 4 ["tree"]}
 
 
 ;;--------------------------------------------------------
@@ -181,15 +181,13 @@ Think:
 (group-by :dept employees)
 
 ;; =>
-{:IT
- [{:name "Alice" :dept :IT}
-  {:name "Carol" :dept :IT}]
-
- :HR
- [{:name "Bob" :dept :HR}]
-
- :Sales
- [{:name "Dave" :dept :Sales}]}
+;; {:IT
+;;  [{:name "Alice" :dept :IT}
+;;   {:name "Carol" :dept :IT}]
+;;  :HR
+;;  [{:name "Bob" :dept :HR}]
+;;  :Sales
+;;  [{:name "Dave" :dept :Sales}]}
 
 
 ;;--------------------------------------------------------
@@ -202,8 +200,8 @@ Think:
       (group-by even? xs))
 
 ;; =>
-{false 4
- true 4}
+;; {false 4
+ ;; true 4}
 
 
 ;;--------------------------------------------------------
@@ -216,9 +214,9 @@ Think:
       (group-by :dept employees))
 
 ;; =>
-{:IT ("Alice" "Carol")
- :HR ("Bob")
- :Sales ("Dave")}
+;; {:IT ("Alice" "Carol")
+ ;; :HR ("Bob")
+ ;; :Sales ("Dave")}
 
 
 ;;--------------------------------------------------------
@@ -229,9 +227,9 @@ Think:
           "banana")
 
 ;; =>
-{\b [\b]
- \a [\a \a \a]
- \n [\n \n]}
+;; {\b [\b]
+ ;; \a [\a \a \a]
+ ;; \n [\n \n]}
 
 
 ;;--------------------------------------------------------
@@ -242,8 +240,79 @@ Think:
           [1 "hello" 2.5 :x 7])
 
 ;; =>
-{java.lang.Long   [1 7]
- java.lang.String ["hello"]
- java.lang.Double [2.5]
- clojure.lang.Keyword [:x]}
+;; {java.lang.Long   [1 7]
+ ;; java.lang.String ["hello"]
+ ;; java.lang.Double [2.5]
+ ;; clojure.lang.Keyword [:x]}
 ```
+
+---
+
+### Readable Clojure Functions
+
+```clojure
+(defn group-counts [key-fn values]
+  (reduce (fn [counts value]
+            (update counts (key-fn value) (fnil inc 0)))
+          {}
+          values))
+
+(defn group-values [key-fn value-fn values]
+  (reduce (fn [groups value]
+            (update groups
+                    (key-fn value)
+                    (fnil conj [])
+                    (value-fn value)))
+          {}
+          values))
+
+(defn group-sets [key-fn value-fn values]
+  (reduce (fn [groups value]
+            (update groups
+                    (key-fn value)
+                    (fnil conj #{})
+                    (value-fn value)))
+          {}
+          values))
+
+(defn nested-group-by [outer-key inner-key values]
+  (reduce (fn [groups value]
+            (update-in groups
+                       [(outer-key value) (inner-key value)]
+                       (fnil conj [])
+                       value))
+          {}
+          values))
+
+(defn group-anagrams [words]
+  (group-by (fn [word] (apply str (sort word))) words))
+
+(group-counts #(mod % 3) (range 10))
+;; => {0 4, 1 3, 2 3}
+
+(group-values :department :name
+              [{:name "Ana" :department :engineering}
+               {:name "Bo" :department :sales}
+               {:name "Cy" :department :engineering}])
+;; => {:engineering ["Ana" "Cy"], :sales ["Bo"]}
+
+(group-anagrams ["eat" "tea" "tan" "ate"])
+;; => {"aet" ["eat" "tea" "ate"], "ant" ["tan"]}
+```
+
+Unlike Python dictionaries, the iteration order of a general Clojure hash map is not an insertion-order promise. Sort the keys or carry a separate order vector when presentation order matters.
+
+### Memory Hooks
+
+|You want|You reach for|
+|---|---|
+|items collected by a key|`group-by`|
+|only counts per key|a reducing map or `frequencies`|
+|only one field per item|`group-values`|
+|unique values per group|`update` with `(fnil conj #{})`|
+|two grouping levels|`update-in` with two keys|
+|anagram groups|use a canonical fingerprint as the key|
+
+### Key Insight
+
+Grouping is mostly a key-design problem. Once the key function expresses the equivalence you care about, `group-by` performs the mechanics. Avoid building vectors of full records when the result only needs counts or selected fields.

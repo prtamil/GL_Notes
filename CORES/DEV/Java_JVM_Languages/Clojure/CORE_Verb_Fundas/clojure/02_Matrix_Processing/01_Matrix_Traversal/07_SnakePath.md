@@ -2,250 +2,167 @@
 
 ## Mental Model
 
-Snake traversal visits the matrix in a **single continuous path** by traversing one row left→right, the next row right→left, and so on.
-
-Unlike the general Zigzag pattern, Snake traversal emphasizes **path continuity**—the traversal ends one row exactly where the next row begins, like a snake moving across the matrix.
-
----
+A snake joins alternate rows into one continuous path. Each row ends beside the start of the next row.
 
 ## Relationship to Cognitive Verb
 
 ```text
-Serpentine
-      ↓
-Snake Traversal
+Connect -> forward row -> reverse row -> repeat
 ```
 
-Related verbs:
+## Clojure Functions and Common Idioms
 
-- Snake through
-    
-- Wind through
-    
-- Weave
-    
-- Serpentine
-    
-- Sweep continuously
-    
-
----
-
-## Clojure Functions & Common Idioms
-
-|Variation|Example|Common Clojure|
-|---|---|---|
-|Row snake|alternate rows|`map-indexed`, `reverse`, `mapcat`|
-|Column snake|alternate columns|`apply map vector`, `reverse`|
-|Continuous path|flatten traversal|`mapcat`, `concat`|
-|Indexed snake|preserve coordinates|`map-indexed`|
-|General serpentine|alternate any dimension|`even?`, `odd?`|
-
----
+|Need|Use|
+|---|---|
+|Alternate rows|`map-indexed` and `reverse`|
+|Create one path|`into [] cat`|
+|Check continuity|`partition 2 1`|
+|Map index to cell|`quot` and `mod`|
 
 ## Common Uses
 
-- Robot vacuum paths
-    
-- CNC and 3D printer toolpaths
-    
-- Agricultural field coverage
-    
-- Image raster acquisition
-    
-- LED matrix animations
-    
-- Warehouse robots
-    
-- Autonomous vehicles
-    
-- Terrain scanning
-    
-
----
+- Move a robot across a grid.
+- Address a serpentine LED panel.
+- Reduce print-head travel.
+- Fill a board in path order.
 
 ## Hidden Interview Problems
 
-- Print matrix in snake order
-    
-- Flatten matrix serpentine style
-    
-- Alternate row traversal
-    
-- Robot coverage path
-    
-- Raster scan optimization
-    
-- Continuous matrix walk
-    
-- Boustrophedon traversal
-    
-
----
+- Convert a path index to a coordinate.
+- Convert a coordinate to a path index.
+- Prove that each step is adjacent.
+- Build a column-based snake.
 
 ## Recognition Clues
 
-If you hear...
-
-- "snake through..."
-    
-- "serpentine..."
-    
-- "continuous path..."
-    
-- "lawn mower pattern..."
-    
-- "back-and-forth without lifting..."
-    
-
-...think **Snake Traversal**.
-
----
+Look for `continuous`, `serpentine`, `boustrophedon`, or `reverse alternate rows`.
 
 ## Pattern Summary
 
-|Property|Value|
-|---|---|
-|Dimension|2D|
-|Traversal Unit|Row (usually)|
-|Direction|Alternating|
-|Primary Goal|Continuous path|
-|Time Complexity|O(rows × cols)|
-|Space Complexity|O(1) extra (excluding output)|
-|Common Domains|Robotics, graphics, automation|
+Snake order uses the same alternation as row zigzag. Its purpose is a continuous physical path.
 
----
+## Shape and Edge Behavior
+
+- Row snake order accepts finite ragged rows.
+- Column snake order requires a rectangular matrix.
+- Generation rejects negative dimensions.
+- Index conversion requires a nonnegative index and positive width.
 
 ## Clojure Recipe Book
 
 ```clojure
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic matrix
+(defn rectangular? [matrix]
+  (or (empty? matrix)
+      (apply = (map count matrix))))
 
-(def m
-  [[1 2 3 4]
-   [5 6 7 8]
-   [9 10 11 12]
-   [13 14 15 16]])
+(defn require-rectangular [matrix]
+  (when-not (rectangular? matrix)
+    (throw (ex-info "Matrix must be rectangular"
+                    {:row-lengths (mapv count matrix)})))
+  matrix)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Snake traversal
+(defn require-nonnegative-dimensions [rows columns]
+  (when (or (neg? rows) (neg? columns))
+    (throw (ex-info "Matrix dimensions must not be negative"
+                    {:rows rows :columns columns}))))
 
-(mapcat
- identity
- (map-indexed
-  (fn [r row]
-    (if (even? r)
-      row
-      (reverse row)))
-  m))
+(defn serpentine [lines]
+  (->> lines
+       (map-indexed (fn [line-index line]
+                      (if (even? line-index)
+                        line
+                        (reverse line))))
+       (mapcat identity)
+       vec))
 
-;; =>
-;; (1 2 3 4
-;;  8 7 6 5
-;;  9 10 11 12
-;; 16 15 14 13)
+(defn snake-order [matrix]
+  (serpentine matrix))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Visit cells
+(defn transpose [matrix]
+  (require-rectangular matrix)
+  (if (empty? matrix) [] (apply mapv vector matrix)))
 
-(doseq [[r row]
-        (map-indexed vector m)]
-  (doseq [cell (if (even? r)
-                 row
-                 (reverse row))]
-    (println cell)))
+(defn column-snake-order [matrix]
+  (serpentine (transpose matrix)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Snake by columns
+(defn snake-coordinates [rows columns]
+  (require-nonnegative-dimensions rows columns)
+  (serpentine
+    (mapv (fn [row]
+            (mapv (fn [column] [row column])
+                  (range columns)))
+          (range rows))))
 
-(def cols
-  (apply map vector m))
+(defn manhattan-distance [[row-a column-a] [row-b column-b]]
+  (+ (abs (- row-a row-b))
+     (abs (- column-a column-b))))
 
-(mapcat
- identity
- (map-indexed
-  (fn [c col]
-    (if (even? c)
-      col
-      (reverse col)))
-  cols))
+(defn continuous-path? [path]
+  (every? (fn [[from to]]
+            (= 1 (manhattan-distance from to)))
+          (partition 2 1 path)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic serpentine
+(defn path-length [path]
+  (reduce + 0
+          (map (fn [[from to]]
+                 (manhattan-distance from to))
+               (partition 2 1 path))))
 
-(defn snake [coll]
-  (mapcat
-   identity
-   (map-indexed
-    (fn [i xs]
-      (if (even? i)
-        xs
-        (reverse xs)))
-    coll)))
+(defn snake-index [row column columns]
+  (when-not (pos? columns)
+    (throw (ex-info "Column count must be positive" {:columns columns})))
+  (+ (* row columns)
+     (if (even? row)
+       column
+       (- (dec columns) column))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compare
+(defn snake-position [index columns]
+  (when (or (neg? index) (not (pos? columns)))
+    (throw (ex-info "Index must be nonnegative and columns must be positive"
+                    {:index index :columns columns})))
+  (let [row (quot index columns)
+        offset (mod index columns)]
+    [row (if (even? row)
+           offset
+           (- (dec columns) offset))]))
 
-;; Normal
-1 2 3 4
-5 6 7 8
-9 10 11 12
+(defn snake-fill [rows columns]
+  (require-nonnegative-dimensions rows columns)
+  (mapv (fn [row]
+          (mapv (fn [column]
+                  (inc (snake-index row column columns)))
+                (range columns)))
+        (range rows)))
 
-;; Snake
-1 2 3 4
-8 7 6 5
-9 10 11 12
+(snake-coordinates 2 4)
+;; => [[0 0] [0 1] [0 2] [0 3] [1 3] [1 2] [1 1] [1 0]]
+
+(snake-fill 3 4)
+;; => [[1 2 3 4] [8 7 6 5] [9 10 11 12]]
+
+;; Executable checks
+
+(assert (= [[0 0] [0 1] [0 2] [0 3]
+            [1 3] [1 2] [1 1] [1 0]]
+           (snake-coordinates 2 4)))
+(assert (continuous-path? (snake-coordinates 3 4)))
+(assert (= [[1 2 3 4] [8 7 6 5] [9 10 11 12]]
+           (snake-fill 3 4)))
 ```
 
----
+The path is empty when either dimension is zero. Index conversion requires a positive column count.
 
-## Key Insight
+### Memory Hooks
 
-Snake traversal optimizes for a **continuous movement path**.
+- Even row: left to right.
+- Odd row: right to left.
+- `quot` finds the row.
+- `mod` finds the offset within the row.
 
-```text
-→→→→
-←←←←
-→→→→
-←←←←
-```
+### Key Insight
 
-Notice that the endpoint of one row is the starting point of the next:
-
-```text
-1 → 2 → 3 → 4
-              ↓
-5 ← 6 ← 7 ← 8
-↓
-9 → 10 → 11 → 12
-```
-
-There is **no jump back to the beginning of the next row**. This is why robots, printers, scanners, and CNC machines often use snake traversal—it minimizes unnecessary movement.
-
----
+The alternating direction removes the long jump between rows. This property makes snake order useful for physical movement.
 
 ## Zigzag vs Snake
 
-These two patterns are closely related but emphasize different ideas:
-
-|Pattern|Core Idea|
-|---|---|
-|**Zigzag**|Alternate the direction of each traversal unit (rows, columns, or diagonals).|
-|**Snake**|Follow one continuous serpentine path through the matrix, usually by alternating rows.|
-
-Think of it this way:
-
-```text
-Zigzag
-========
-Focus:
-Alternating Direction
-
-Snake
-========
-Focus:
-Continuous Path
-```
-
-Every row-based snake traversal is a **zigzag**, but not every zigzag traversal is a **snake** (for example, JPEG's diagonal zigzag is not a snake path).
+Zigzag is an ordering rule. Snake is that rule plus coordinate continuity.
